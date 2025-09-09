@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 from src.reporting.render import render_monthly_report
+from src.reporting.meta import build_meta, SCRAPER_VERSION, SOURCE
 
 
 def test_render_monthly_report(tmp_path):
@@ -18,8 +19,12 @@ def test_render_monthly_report(tmp_path):
     breakdown = pd.DataFrame({"item": ["A", "B"], "delta": [1.5, -0.5]})
     img_paths = {"index": "index.png"}
 
-    output = render_monthly_report(period, series, breakdown, img_paths, meta={})
+    meta = build_meta(run_id="test-run")
+    output = render_monthly_report(period, series, breakdown, img_paths, meta)
     assert output.exists()
     html = output.read_text(encoding="utf-8")
     assert "Indicadores Clave" in html
     assert "Top subas y bajas" in html
+    assert SOURCE in html
+    assert f"Scraper v{SCRAPER_VERSION}" in html
+    assert "run_id: test-run" in html
