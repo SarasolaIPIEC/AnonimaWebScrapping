@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Reporte Mensual {{ period }}</title>
+    <!-- TODO: aplicar estilos CSS coherentes con la identidad visual -->
+    <!-- TODO: revisar atributos de accesibilidad (ej. roles, ARIA) -->
+</head>
+<body>
+    <section id="kpis">
+        <h1>Indicadores Clave</h1>
+        <ul>
+        {% for key, value in kpis.items() %}
+            <li><strong>{{ key }}:</strong> {{ value }}</li>
+        {% endfor %}
+        </ul>
+    </section>
+
+    <section id="index-chart">
+        <h2>Evolución del índice</h2>
+        <img src="{{ img_paths.index }}" alt="Gráfico del índice" />
+        <!-- TODO: proveer descripciones más completas para lectores de pantalla -->
+    </section>
+
+    <section id="breakdown">
+        <h2>Top subas y bajas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>\u00cdtem</th>
+                    <th>Variación</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in breakdown %}
+                <tr>
+                    <td>{{ row.item }}</td>
+                    <td>{{ row.delta }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</body>
+</html>
