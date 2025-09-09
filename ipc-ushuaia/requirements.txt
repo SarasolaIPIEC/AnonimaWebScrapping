@@ -1,0 +1,8 @@
+# Dependencias principales para ipc-ushuaia
+# TODO: Completar según stack elegido
+playwright
+beautifulsoup4
+pandas
+numpy
+jinja2
+pytest
