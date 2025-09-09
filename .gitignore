@@ -1,0 +1,12 @@
+# Ignore generated images
+ipc-ushuaia/reports/img/*.png
+
+# Ignore exported CSV files
+ipc-ushuaia/exports/*.csv
+
+# Ignore rendered HTML reports
+ipc-ushuaia/reports/*.html
+
+# Python caches
+**/__pycache__/
+*.py[cod]
