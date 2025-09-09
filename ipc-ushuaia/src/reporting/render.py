@@ -8,6 +8,8 @@ from typing import Dict, Any
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
+from .meta import build_meta
+
 # Directorio base del proyecto
 BASE_DIR = Path(__file__).resolve().parents[2]
 TEMPLATE_DIR = BASE_DIR / "templates"
@@ -35,7 +37,8 @@ def render_monthly_report(
     img_paths:
         Rutas a los gráficos a incrustar en el reporte.
     meta:
-        Metadatos adicionales para el reporte.
+        Metadatos adicionales para el reporte. Si faltan las claves comunes,
+        se completan con :func:`src.reporting.meta.build_meta`.
 
     Returns
     -------
@@ -57,12 +60,14 @@ def render_monthly_report(
 
     breakdown = df_breakdown.to_dict(orient="records")
 
+    enriched_meta = build_meta(meta.get("run_id", ""), extra=meta)
+
     html = template.render(
         period=period,
         kpis=kpis,
         img_paths=img_paths,
         breakdown=breakdown,
-        meta=meta,
+        meta=enriched_meta,
     )
 
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
