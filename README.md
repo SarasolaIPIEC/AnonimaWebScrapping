@@ -21,11 +21,17 @@ Este repositorio reúne **documentos guía** para orientar a Copilot/Codex y a l
 
 1. Posicionarse en la carpeta `ipc-ushuaia/`.
 2. Instalar dependencias con `pip install -r requirements.txt`.
+3. Instalar Playwright y el navegador Chromium:
+
+```bash
+pip install playwright
+playwright install chromium
+```
 
 ## Configuración
 
-- Copiar `.env.example` a `.env` y completar valores como `API_KEY` y `EMAIL`.
-- Ajustar `config.toml` según el entorno; el archivo define opciones como `branch`, `headless`, `delays`, `retries` y `base_period`.
+- Copiar `.env.example` a `.env` y completar valores como `BRANCH`, `HEADLESS`, `MAX_RETRIES`, `DELAYS`, `USER_AGENT`, `OUTPUT_DIRS`, `API_KEY` y `EMAIL`.
+- Ajustar `config.toml` según el entorno; el archivo define opciones como `branch`, `headless`, `delays`, `max_retries`, `user_agent` y `output_dirs`.
 
 ## Ejecución
 
@@ -34,6 +40,8 @@ Ejecutar la aplicación con:
 ```bash
 python -m src.cli run
 ```
+
+El subcomando `run` dispara el flujo completo utilizando la configuración cargada.
 
 ## Jerarquía de carpetas
 
