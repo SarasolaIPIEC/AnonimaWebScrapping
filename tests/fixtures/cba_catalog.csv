@@ -1,0 +1,5 @@
+# Catálogo CBA mínimo para pruebas.
+# Supuesto: cantidades mensuales por AE y unidades normalizadas a kg/L/unidad.
+item,category,monthly_qty_value,monthly_qty_unit,preferred_keywords,fallback_keywords
+Pan fresco,Panaderia,1,kg,pan;fresco,lactal
+Leche entera,Lacteos,2,L,leche,descremada

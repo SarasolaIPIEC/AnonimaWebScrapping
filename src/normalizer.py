@@ -11,7 +11,9 @@ def load_cba_catalog(path: str) -> List[Dict[str, Any]]:
     Carga la canasta básica alimentaria desde un CSV.
     """
     with open(path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
+        # Permite comentarios al inicio de línea con '#', útiles para documentar supuestos en fixtures.
+        filtered = (line for line in csvfile if not line.lstrip().startswith('#'))
+        reader = csv.DictReader(filtered)
         return [row for row in reader]
 
 def adjust_quantities(cba_catalog: List[Dict[str, Any]], ae_multiplier: float = 1.0) -> List[Dict[str, Any]]:
