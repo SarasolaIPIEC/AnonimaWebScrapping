@@ -2,12 +2,27 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
 
-# Default directory to store log files
-LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+def _default_log_dir() -> Path:
+    """Return a writable directory for log files.
+
+    Uses the user's cache directory when available to avoid writing inside the
+    package installation path.
+    """
+
+    if os.name == "nt":
+        base = Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+    else:  # POSIX
+        base = Path(os.getenv("XDG_CACHE_HOME", Path.home() / ".cache"))
+    return base / "anonima" / "logs"
+
+
+# Default directory to store log files without creating it on import
+LOG_DIR = _default_log_dir()
 
 
 class JsonFormatter(logging.Formatter):
@@ -73,7 +88,7 @@ def get_logger(
     name:
         Name of the logger to retrieve.
     log_file:
-        Path to the log file. Defaults to ``logs/<name>.log``.
+        Path to the log file. Defaults to ``<user-cache>/anonima/logs/<name>.log``.
     rotation:
         Either ``"size"`` or ``"time"`` to select the rotation strategy.
     max_bytes, backup_count, when, interval:
