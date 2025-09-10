@@ -16,3 +16,48 @@ Este repositorio reúne **documentos guía** para orientar a Copilot/Codex y a l
 - `FAQ.md` — Preguntas frecuentes.
 
 > Estos archivos son **guías escritas**. No incluyen módulos de código. Los esqueletos o implementaciones se generarán solo cuando un prompt lo solicite explícitamente.
+
+## Instalación
+
+1. Posicionarse en la carpeta `ipc-ushuaia/`.
+2. Instalar dependencias con `pip install -r requirements.txt`.
+
+## Configuración
+
+- Copiar `.env.example` a `.env` y completar valores como `API_KEY` y `EMAIL`.
+- Ajustar `config.toml` según el entorno; el archivo define opciones como `branch`, `headless`, `delays`, `retries` y `base_period`.
+
+## Ejecución
+
+Ejecutar la aplicación con:
+
+```bash
+python -m src.cli run
+```
+
+## Jerarquía de carpetas
+
+- `src/` — Código fuente para scraping, normalización e índices.
+- `data/` — Entradas y salidas persistentes del proceso.
+- `docs/` — Documentos guía y metodología.
+- `examples/` — Ejemplos de uso y prototipos.
+- `tests/` — Casos de prueba automáticos.
+- `ipc-ushuaia/` — Dependencias y recursos específicos del proyecto.
+
+## Flujo de datos
+
+1. Los módulos de `src/` consultan precios de La Anónima.
+2. La información se normaliza (unidades y promociones) y se guarda en `data/`.
+3. Se calculan índices y métricas para generar reportes reutilizables.
+
+## Comandos principales
+
+- `python -m src.cli run` — Ejecuta el flujo completo.
+- `pytest` — Corre los tests del proyecto.
+
+## Decisiones abiertas
+
+- Definir el esquema de persistencia para históricos de precios.
+- Establecer la estrategia de autenticación y rotación de claves API.
+- Completar y versionar el módulo CLI definitivo.
+
