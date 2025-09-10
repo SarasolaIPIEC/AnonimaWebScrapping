@@ -2,17 +2,18 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any
 
+import requests
+import responses
 from bs4 import BeautifulSoup
 
 from src import parser, normalizer
+from tests.fixtures import html_fixture, csv_fixture
 
-FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
 EXPECTED_DIR = Path(__file__).resolve().parents[1] / "expected"
 
 
-def _parse_html_products(html_path: Path) -> List[Dict[str, Any]]:
-    with open(html_path, encoding="utf-8") as f:
-        soup = BeautifulSoup(f, "html.parser")
+def _parse_html_products(html: str) -> List[Dict[str, Any]]:
+    soup = BeautifulSoup(html, "html.parser")
     products = []
     for div in soup.select("div.product"):
         name = div.select_one(".product-name").get_text(strip=True)
@@ -47,15 +48,18 @@ def _read_csv(path: Path) -> List[Dict[str, str]]:
         return list(csv.DictReader(f))
 
 
+@responses.activate
 def test_full_pipeline(tmp_path: Path) -> None:
-    html_path = FIXTURES_DIR / "sample_products.html"
-    products = _parse_html_products(html_path)
+    url = "https://la-anonima.test/products"
+    responses.get(url, body=html_fixture(), content_type="text/html; charset=utf-8")
+    html = requests.get(url).text
+    products = _parse_html_products(html)
 
     products_csv = tmp_path / "products.csv"
     _write_csv(products_csv, products, ["name", "sku", "price", "promo_price", "pack_size"])
     assert _read_csv(products_csv) == _read_csv(EXPECTED_DIR / "products.csv")
 
-    cba_catalog = normalizer.load_cba_catalog(str(FIXTURES_DIR / "cba_catalog.csv"))
+    cba_catalog = normalizer.load_cba_catalog(str(csv_fixture()))
     mapping = parser.map_products_to_cba(products, cba_catalog)
     adjusted = normalizer.adjust_quantities(cba_catalog, ae_multiplier=1.0)
 

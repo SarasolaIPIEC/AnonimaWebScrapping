@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 from src import index_engine, normalizer
-from tests.fixtures import data
+from tests.fixtures import csv_fixture
 
 
 def _prices_from_mapping(mapping):
@@ -10,7 +10,7 @@ def _prices_from_mapping(mapping):
 
 
 def test_calculate_cba_ae_and_family():
-    catalog = normalizer.load_cba_catalog(str(data.CBA_CATALOG_CSV))
+    catalog = normalizer.load_cba_catalog(str(csv_fixture()))
     mapping = {
         "Pan fresco": {"price": 100.0},
         "Leche entera": {"price": 200.0},
