@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ipc-ushuaia/requirements.txt pytest-cov
+      - name: Run tests with coverage
+        run: |
+          PYTHONPATH=$GITHUB_WORKSPACE pytest tests --cov=src --cov-report=xml --cov-report=term --cov-fail-under=80
