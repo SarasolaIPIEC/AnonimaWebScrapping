@@ -14,10 +14,33 @@
 - Diferencias contra mes previo dentro de rangos esperados por rubro.
 - Registro de OOS y sustituciones.
 
+## Ejecución manual
+Desde la raíz del paquete `ipc-ushuaia`:
+
+```bash
+python -m src.cli run
+```
+
+El comando dispara el flujo completo con la configuración por defecto. Se pueden añadir banderas como `--export csv` para definir el formato de salida o `--ae 3.09` para escalar la canasta.
+
+## Dónde se almacenan los datos por `run_id`
+- Base PostgreSQL: tablas `runs`, `prices`, `index_values` y `logs` enlazan cada registro con su `run_id`.
+- Archivos en disco:
+  - `ipc-ushuaia/data/raw/<run_id>/` guarda HTML y capturas originales.
+  - `ipc-ushuaia/data/processed/<run_id>/` contiene datos normalizados.
+- Salidas derivadas: `ipc-ushuaia/exports/` y `ipc-ushuaia/reports/` generan archivos etiquetados por período.
+
 ## Recuperación ante fallos
 - Reintentar extracción por lotes.
 - Usar HTML capturado para depurar selectores.
 - Documentar cualquier ajuste metodológico.
+
+## Reintentos idempotentes
+1. Identificar el `run_id` a relanzar.
+2. Limpiar artefactos previos:
+   - `rm -rf ipc-ushuaia/data/raw/<run_id> ipc-ushuaia/data/processed/<run_id>` y borrar exports/reports asociados.
+   - `psql $PGDATABASE -c "DELETE FROM runs WHERE id=<run_id>;"` (las tablas dependientes se eliminan por `ON DELETE CASCADE`).
+3. Relanzar la corrida con `python -m src.cli run`.
 
 ## Ejecución en Windows
 Ejemplo con Task Scheduler utilizando `schtasks`:
