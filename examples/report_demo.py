@@ -1,12 +1,11 @@
 """Demo para generar exportaciones y reporte mensual.
 
-Las rutas de salida quedan documentadas pero los archivos solo se
-materializan al ejecutar este script.
+Las rutas de salida quedan documentadas y los archivos se materializan al
+ejecutar este script para servir como referencia.
 
-Archivos generados (ignorados por Git):
+Archivos de referencia generados:
 - ipc-ushuaia/exports/*.csv
-- ipc-ushuaia/reports/*.html
-- ipc-ushuaia/reports/img/*.png
+- ipc-ushuaia/reports/*.html (con gráficos embebidos)
 """
 
 from __future__ import annotations
@@ -29,7 +28,6 @@ from src.reporting.render import render_monthly_report
 # Directorios documentados para las exportaciones
 EXPORT_DIR = PACKAGE_DIR / "exports"
 REPORT_DIR = PACKAGE_DIR / "reports"
-IMG_DIR = REPORT_DIR / "img"
 
 
 def main() -> None:
@@ -63,13 +61,13 @@ def main() -> None:
         period,
         series,
         breakdown,
-        {"index": str(idx_img), "bars": str(bars_img)},
+        {"index": idx_img, "bars": bars_img},
         build_meta("demo"),
     )
 
     print(f"Serie histórica exportada a {series_path}")
     print(f"Desglose exportado a {breakdown_path}")
-    print(f"Gráficos guardados en {IMG_DIR}")
+    print(f"Gráficos embebidos en el reporte")
     print(f"Reporte HTML generado en {REPORT_DIR}")
 
 

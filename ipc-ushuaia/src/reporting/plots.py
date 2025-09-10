@@ -1,21 +1,29 @@
-"""Generación de gráficos para reportes HTML."""
+"""Generación de gráficos para reportes HTML sin archivos intermedios."""
 
 from __future__ import annotations
 
-from pathlib import Path
+from io import BytesIO
+import base64
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
-# Directorio base del proyecto
-BASE_DIR = Path(__file__).resolve().parents[2]
-IMG_DIR = BASE_DIR / "reports" / "img"
 
 # Estilo global para los gráficos
 plt.style.use("seaborn-v0_8")
 
 
-def plot_index_series(df_series: pd.DataFrame) -> Path:
+def _fig_to_data_uri(fig) -> str:
+    """Convierte una figura de matplotlib en un data URI PNG."""
+
+    buffer = BytesIO()
+    fig.savefig(buffer, format="png")
+    plt.close(fig)
+    buffer.seek(0)
+    encoded = base64.b64encode(buffer.read()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def plot_index_series(df_series: pd.DataFrame) -> str:
     """Genera un gráfico de línea para la serie de índices.
 
     Parameters
@@ -25,16 +33,12 @@ def plot_index_series(df_series: pd.DataFrame) -> Path:
 
     Returns
     -------
-    Path
-        Ruta al archivo PNG generado.
+    str
+        Data URI listo para incrustar en HTML.
     """
 
     if "period" not in df_series or "idx" not in df_series:
         raise KeyError("df_series debe contener las columnas 'period' e 'idx'")
-
-    period = df_series["period"].iloc[-1]
-    IMG_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = IMG_DIR / f"index_{period}.png"
 
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.plot(df_series["period"], df_series["idx"], marker="o")
@@ -43,13 +47,11 @@ def plot_index_series(df_series: pd.DataFrame) -> Path:
     ax.set_ylabel("Índice (base=100)", fontsize=10)
     ax.grid(True, linestyle="--", alpha=0.5)
     fig.tight_layout()
-    fig.savefig(output_path)
-    plt.close(fig)
 
-    return output_path
+    return _fig_to_data_uri(fig)
 
 
-def plot_category_bars(df_breakdown: pd.DataFrame) -> Path:
+def plot_category_bars(df_breakdown: pd.DataFrame) -> str:
     """Genera un gráfico de barras de variaciones por categoría.
 
     Parameters
@@ -60,8 +62,8 @@ def plot_category_bars(df_breakdown: pd.DataFrame) -> Path:
 
     Returns
     -------
-    Path
-        Ruta al archivo PNG generado.
+    str
+        Data URI listo para incrustar en HTML.
     """
 
     if "period" not in df_breakdown:
@@ -73,10 +75,6 @@ def plot_category_bars(df_breakdown: pd.DataFrame) -> Path:
             "df_breakdown debe contener columnas 'item'/'category' y 'delta'"
         )
 
-    period = df_breakdown["period"].iloc[0]
-    IMG_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = IMG_DIR / f"bars_{period}.png"
-
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.bar(df_breakdown[label_col], df_breakdown["delta"], color="#1f77b4")
     ax.set_title("Variación por categoría", fontsize=12)
@@ -85,7 +83,5 @@ def plot_category_bars(df_breakdown: pd.DataFrame) -> Path:
     ax.axhline(0, color="black", linewidth=0.8)
     ax.tick_params(axis="x", rotation=45)
     fig.tight_layout()
-    fig.savefig(output_path)
-    plt.close(fig)
 
-    return output_path
+    return _fig_to_data_uri(fig)
