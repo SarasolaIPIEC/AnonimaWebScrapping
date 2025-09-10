@@ -1,0 +1,5 @@
+branch = "main"
+headless = true
+delays = 1.5
+retries = 3
+base_period = "2024-01"
