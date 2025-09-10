@@ -1,5 +1,6 @@
 branch = "main"
 headless = true
 delays = 1.5
-retries = 3
-base_period = "2024-01"
+max_retries = 3
+user_agent = "Mozilla/5.0"
+output_dirs = ["data/raw", "data/processed"]
