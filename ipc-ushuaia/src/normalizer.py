@@ -4,15 +4,35 @@ Incluye validaciones de integridad y consistencia de la canasta.
 """
 
 import csv
+import os
 from typing import List, Dict, Any
 
+CBA_COLUMNS = [
+    "category",
+    "item",
+    "monthly_qty_value",
+    "monthly_qty_unit",
+    "preferred_keywords",
+    "fallback_keywords",
+    "min_pack_size",
+    "notes",
+]
+
 def load_cba_catalog(path: str) -> List[Dict[str, Any]]:
+    """Carga la canasta básica alimentaria desde un CSV.
+
+    Si el archivo no existe, crea uno mínimo con las columnas estándar y
+    devuelve una lista vacía.
     """
-    Carga la canasta básica alimentaria desde un CSV.
-    """
-    with open(path, newline='', encoding='utf-8') as csvfile:
+    if not os.path.exists(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=CBA_COLUMNS)
+            writer.writeheader()
+        return []
+    with open(path, newline="", encoding="utf-8") as csvfile:
         # Permite comentarios al inicio de línea con '#', útiles para documentar supuestos en fixtures.
-        filtered = (line for line in csvfile if not line.lstrip().startswith('#'))
+        filtered = (line for line in csvfile if not line.lstrip().startswith("#"))
         reader = csv.DictReader(filtered)
         return [row for row in reader]
 

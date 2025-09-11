@@ -4,6 +4,8 @@ import os
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
+from .normalize.units import parse_size, to_base_units
+
 # TODO: Implementar extracción real desde HTML/JSON de La Anónima
 
 
@@ -43,18 +45,42 @@ def match_sku_to_cba(
     fallback = [k.strip() for k in cba_row.get("fallback_keywords", "").split(";")]
 
     min_pack = cba_row.get("min_pack_size")
+    min_unit = cba_row.get("monthly_qty_unit", "unidad")
     pack_size = product.get("pack_size")
+    pack_unit = product.get("pack_unit")
     reason: Optional[str] = None
-    if min_pack is not None and pack_size is not None:
+    if min_pack is not None:
         try:
-            min_pack_val = float(min_pack)
-            pack_size_val = float(pack_size)
-            if pack_size_val < min_pack_val * (1 - tolerance):
-                return None
-            if pack_size_val < min_pack_val:
-                reason = "pack_size_diff"
+            min_base, base_unit = to_base_units(float(min_pack), min_unit)
         except (TypeError, ValueError):
-            pass
+            min_base, base_unit = None, None
+        pack_base = None
+        if pack_size is not None:
+            try:
+                pack_base, pack_unit_conv = to_base_units(
+                    float(pack_size), pack_unit or min_unit
+                )
+            except (TypeError, ValueError):
+                pack_base = None
+        else:
+            try:
+                size_match = re.search(r"([\d/.,]+\s*[a-zA-Z]+)", name)
+                if size_match:
+                    qty, unit = parse_size(size_match.group(1))
+                    pack_base, pack_unit_conv = qty, unit
+                else:
+                    pack_base = None
+            except ValueError:
+                pack_base = None
+        if (
+            pack_base is not None
+            and min_base is not None
+            and pack_unit_conv == base_unit
+        ):
+            if pack_base < min_base * (1 - tolerance):
+                return None
+            if pack_base < min_base:
+                reason = "pack_size_diff"
 
     for kw in preferred:
         if kw and kw.lower() in name:
@@ -74,6 +100,12 @@ def map_products_to_cba(
     for cba_row in cba_catalog:
         matches: List[Dict[str, Any]] = []
         for prod in products:
+            if (
+                cba_row.get("category")
+                and prod.get("category")
+                and cba_row["category"].lower() != prod["category"].lower()
+            ):
+                continue
             result = match_sku_to_cba(prod, cba_row)
             if result:
                 source, reason = result
@@ -84,7 +116,14 @@ def map_products_to_cba(
                     prod_copy["reason"] = reason
                 matches.append(prod_copy)
         if matches:
-            best = min(matches, key=lambda x: x.get("unit_price", float("inf")))
+            priority = {"preferred": 0, "fallback": 1}
+            best = min(
+                matches,
+                key=lambda x: (
+                    priority.get(x.get("source", "fallback"), 2),
+                    x.get("unit_price", float("inf")),
+                ),
+            )
             item_data = {
                 "sku": best.get("sku"),
                 "price": best.get("unit_price"),
@@ -116,6 +155,8 @@ def save_evidence(
     os.makedirs(output_dir, exist_ok=True)
     per_cat: Dict[str, int] = {}
     for item, info in mapping.items():
+        if not info.get("sku"):
+            continue
         category = info.get("category", "sin_categoria")
         count = per_cat.get(category, 0)
         if count >= 3:

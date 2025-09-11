@@ -21,3 +21,13 @@ def test_validate_cba():
     summary = normalizer.validate_cba(catalog)
     assert set(summary["units"]) == {"kg", "L"}
     assert summary["missing_qty"] == []
+
+
+def test_load_cba_catalog_creates_file(tmp_path):
+    tmp_file = tmp_path / "cba.csv"
+    catalog = normalizer.load_cba_catalog(str(tmp_file))
+    assert catalog == []
+    assert tmp_file.exists()
+    with open(tmp_file, encoding="utf-8") as fh:
+        header = fh.readline().strip().split(",")
+    assert header == normalizer.CBA_COLUMNS
