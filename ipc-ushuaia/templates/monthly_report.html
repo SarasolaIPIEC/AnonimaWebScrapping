@@ -22,6 +22,11 @@
         <!-- TODO: proveer descripciones más completas para lectores de pantalla -->
     </section>
 
+    <section id="category-chart">
+        <h2>Variación por categoría</h2>
+        <img src="{{ img_paths.bars }}" alt="Gráfico de variación por categoría" />
+    </section>
+
     <section id="breakdown">
         <h2>Top subas y bajas</h2>
         <table>
@@ -42,8 +47,12 @@
         </table>
     </section>
 
-    <footer>
+    <section id="methodology">
+        <h2>Notas metodológicas</h2>
         <p>{{ meta.methodology }}</p>
+    </section>
+
+    <footer>
         <p>Fuente: {{ meta.source }}</p>
         <p>Scraper v{{ meta.scraper_version }} | run_id: {{ meta.run_id }}</p>
     </footer>
