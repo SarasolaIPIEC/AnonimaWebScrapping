@@ -17,13 +17,14 @@ _unit_aliases = {
     'docena': 'docena', 'docenas': 'docena',
 }
 
+# Conversión a unidades base kg/L/unidad
 _unit_multipliers = {
-    'g': 1,
-    'kg': 1000,
-    'ml': 1,
-    'l': 1000,
+    'g': 0.001,     # gramos -> kg
+    'kg': 1,
+    'ml': 0.001,    # mililitros -> L
+    'l': 1,
     'unidad': 1,
-    'docena': 12,
+    'docena': 12,   # docena -> unidades
 }
 
 def _parse_fraction(s):
@@ -35,8 +36,8 @@ def _parse_fraction(s):
 
 def parse_size(text: str) -> Tuple[float, str]:
     """
-    Extrae cantidad y unidad base de una descripción textual.
-    Ej: 'x2 500g' -> (1000, 'g')
+    Extrae cantidad y unidad base (kg/L/unidad) de una descripción textual.
+    Ej: 'x2 500g' -> (1.0, 'kg')
     """
     text = text.lower().strip()
     # Multi-pack: xN ...
@@ -81,8 +82,8 @@ def parse_size(text: str) -> Tuple[float, str]:
 
 def to_base_units(value: float, unit: str) -> Tuple[float, str]:
     """
-    Convierte a unidad base (g, ml, unidad).
-    Ej: (1.5, 'kg') -> (1500, 'g')
+    Convierte a unidad base kg/L/unidad.
+    Ej: (500, 'g') -> (0.5, 'kg')
     """
     unit = unit.lower()
     if unit not in _unit_aliases:
@@ -93,8 +94,8 @@ def to_base_units(value: float, unit: str) -> Tuple[float, str]:
     mult = _unit_multipliers[canonical]
     if canonical == 'docena':
         return value * mult, 'unidad'
-    if canonical == 'kg':
-        return value * mult, 'g'
-    if canonical == 'l':
-        return value * mult, 'ml'
+    if canonical in ('g', 'kg'):
+        return value * mult, 'kg'
+    if canonical in ('ml', 'l'):
+        return value * mult, 'L'
     return value * mult, canonical
