@@ -1,39 +1,73 @@
-"""
-Búsqueda y navegación por categorías en La Anónima Online.
-Incluye paginado y scroll.
-"""
+"""Búsqueda y navegación con soporte de paginado y scroll."""
 
-def search(page, query: str) -> str:
-    """
-    Realiza una búsqueda por palabra clave y retorna el HTML resultante.
-    Args:
-        page: Instancia de página Playwright.
-        query (str): Palabra clave de búsqueda.
-    Returns:
-        str: HTML de la página de resultados.
-    """
-    # TODO: Completar búsqueda y devolver HTML
-    pass
+from __future__ import annotations
 
-def list_category(page, category_path: str) -> str:
-    """
-    Navega a una categoría y retorna el HTML de la página.
-    Args:
-        page: Instancia de página Playwright.
-        category_path (str): Ruta/categoría a navegar.
-    Returns:
-        str: HTML de la página de categoría.
-    """
-    # TODO: Navegar y devolver HTML
-    pass
+from typing import List
 
-def paginate(page) -> list:
+from playwright.sync_api import Page, TimeoutError
+
+from src.infra.retry import exponential_backoff
+
+from .utils import save_html
+
+
+@exponential_backoff(max_attempts=3)
+def search(page: Page, query: str) -> str:
+    """Realiza una búsqueda y retorna el HTML resultante.
+
+    Se emplean selectores basados en ``data-testid`` y espera explícita para
+    asegurar que los resultados estén cargados antes de extraer el HTML.
     """
-    Itera sobre todas las páginas de resultados y retorna HTMLs.
-    Args:
-        page: Instancia de página Playwright.
-    Returns:
-        list: Lista de HTMLs de cada página de resultados.
+
+    try:
+        box = page.get_by_test_id("search-box")
+        box.fill(query)
+        box.press("Enter")
+        page.wait_for_selector("[data-testid='product-card']")
+        return page.content()
+    except Exception:
+        save_html(page.content(), "search_error")
+        raise
+
+
+@exponential_backoff(max_attempts=3)
+def list_category(page: Page, category_path: str) -> str:
+    """Navega a una categoría y devuelve el HTML de la página."""
+
+    try:
+        page.goto(category_path)
+        page.wait_for_selector("[data-testid='product-card']")
+        return page.content()
+    except Exception:
+        save_html(page.content(), "category_error")
+        raise
+
+
+def paginate(page: Page) -> List[str]:
+    """Itera sobre páginas de resultados acumulando el HTML.
+
+    Implementa *scroll* y paginado a través de un botón "siguiente" con
+    reintentos y backoff exponencial en cada iteración.
     """
-    # TODO: Implementar paginado/scroll
-    pass
+
+    html_pages: List[str] = []
+    while True:
+        page.wait_for_selector("[data-testid='product-card']")
+        html_pages.append(page.content())
+
+        next_btn = page.get_by_role("button", name="Siguiente")
+        if not next_btn or not next_btn.is_enabled():
+            break
+
+        @exponential_backoff(max_attempts=3)
+        def _click_next():  # pragma: no cover - depende del DOM
+            next_btn.click()
+            page.wait_for_load_state("networkidle")
+
+        try:
+            _click_next()
+        except Exception:
+            save_html(page.content(), "paginate_error")
+            break
+
+    return html_pages
