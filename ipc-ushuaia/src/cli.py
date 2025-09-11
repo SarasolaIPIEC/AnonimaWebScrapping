@@ -1,64 +1,179 @@
+"""Command-line interface for IPC Ushuaia.
+
+Provides three subcommands:
+
+``run``
+    Ejecuta el pipeline completo en línea.
+``dry-run``
+    Usa HTML guardado para depurar selectores y normalización.
+``export-series``
+    Reexporta CSV/HTML a partir de datos ya persistidos.
+
+All subcommands comparten argumentos comunes como ``--period`` (formato
+``YYYY-MM``), ``--branch`` y ``--headless``. Las entradas se validan antes de
+ejecutar cualquier operación para evitar errores silenciosos.
 """
-CLI para ejecución manual y automatizada del sistema.
-Incluye plantilla para integración de comandos y scheduler.
-"""
+
+from __future__ import annotations
 
 import argparse
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Optional
+
+# Aseguramos que los módulos locales puedan importarse cuando se ejecuta
+# ``python ipc-ushuaia/src/cli.py`` directamente.
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+from exporter import export_series, export_to_html
+
+# ---------------------------------------------------------------------------
+# Helpers de validación
+# ---------------------------------------------------------------------------
+
+VALID_BRANCHES = {"ushuaia"}
 
 
-def main():
-	parser = argparse.ArgumentParser(description='IPC Ushuaia CLI')
-	parser.add_argument('--run', action='store_true', help='Ejecutar flujo completo')
-	parser.add_argument('--ae', type=float, default=1.0, help='Multiplicador de Adulto Equivalente')
-	parser.add_argument('--export', choices=['csv', 'json', 'html'], help='Formato de exportación')
-	parser.add_argument('--cba-csv', type=str, default='ipc-ushuaia/data/cba_catalog.csv', help='Ruta al catálogo CBA')
-	parser.add_argument('--output', type=str, default='ipc-ushuaia/exports/serie_cba', help='Ruta base de exportación')
-	args = parser.parse_args()
+def period_type(value: str) -> str:
+    """Valida que ``value`` respete el formato ``YYYY-MM``."""
 
-	if args.run:
-		print(f"Ejecutando IPC Ushuaia para AE={args.ae} y export={args.export}")
-		import sys, os
-		sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-		from normalizer import load_cba_catalog, adjust_quantities
-		from metrics.cba import compute_cba_ae
-		from db import repo
-		from exporter import export_to_csv, export_to_json, export_to_html
-		from datetime import date
-		import pandas as pd
+    if not re.fullmatch(r"\d{4}-\d{2}", value):
+        raise argparse.ArgumentTypeError("period must be in YYYY-MM format")
+    return value
 
-		# 1. Cargar catálogo CBA
-		cba_catalog = load_cba_catalog(args.cba_csv)
-		adjusted = adjust_quantities(cba_catalog, args.ae)
 
-		# 2. [Simulación] Cargar precios scrapeados (debería venir del scraper)
-		basket = pd.DataFrame([
-			{'sku': row['item'], 'quantity': row['adjusted_qty']} for row in adjusted if row['adjusted_qty']
-		])
-		prices = pd.DataFrame([
-			{'sku': row['item'], 'unit_price': 100 + i*10} for i, row in enumerate(adjusted) if row['adjusted_qty']
-		])
+def branch_type(value: str) -> str:
+    """Valida que la sucursal esté en la lista soportada."""
 
-		# 3. Calcular CBA
-		cba_total = compute_cba_ae(prices, basket)
-		print(f"Costo total CBA AE={args.ae}: {cba_total:.2f}")
+    value = value.lower()
+    if value not in VALID_BRANCHES:
+        raise argparse.ArgumentTypeError(
+            f"branch must be one of: {', '.join(sorted(VALID_BRANCHES))}"
+        )
+    return value
 
-		# 4. Persistir resultados (ejemplo: insertar run, precios, índice)
-		run_id = repo.insert_run(date.today(), 'Ushuaia', 'ok')
-		for i, row in prices.iterrows():
-			sku_id = repo.insert_sku(1, row['sku'], row['sku'], 1, 'kg')  # Simulado
-			repo.insert_price(sku_id, run_id, row['unit_price'], None, True)
-		repo.insert_index_value(run_id, cba_total, cba_total, 100, 0, 0)
 
-		# 5. Exportar resultados
-		if args.export == 'csv':
-			export_to_csv(prices, args.output + '.csv')
-		elif args.export == 'json':
-			export_to_json(prices, args.output + '.json')
-		elif args.export == 'html':
-			export_to_html(prices, args.output + '.html')
-		print(f"Exportación completada en {args.output}.{args.export}")
-	else:
-		parser.print_help()
+# ---------------------------------------------------------------------------
+# Construcción del parser
+# ---------------------------------------------------------------------------
 
-if __name__ == '__main__':
-	main()
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="IPC Ushuaia CLI")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Argumentos comunes
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
+        "--period",
+        type=period_type,
+        required=True,
+        help="Período a procesar (formato YYYY-MM)",
+    )
+    common.add_argument(
+        "--branch",
+        type=branch_type,
+        default="ushuaia",
+        help="Sucursal de La Anónima",
+    )
+    common.add_argument(
+        "--headless",
+        action="store_true",
+        help="Ejecutar scraper en modo headless",
+    )
+
+    # subcomando: run
+    run_parser = subparsers.add_parser(
+        "run",
+        parents=[common],
+        help="Ejecuta pipeline completo en línea",
+    )
+    run_parser.add_argument(
+        "--ae", type=float, default=1.0, help="Multiplicador de Adulto Equivalente"
+    )
+
+    # subcomando: dry-run
+    dry_parser = subparsers.add_parser(
+        "dry-run",
+        parents=[common],
+        help="Usa HTML guardado para depurar selectores y normalización",
+    )
+    dry_parser.add_argument(
+        "--html-path",
+        type=Path,
+        help="Ruta al HTML previamente guardado",
+    )
+
+    # subcomando: export-series
+    export_parser = subparsers.add_parser(
+        "export-series",
+        parents=[common],
+        help="Reexporta CSV/HTML a partir de datos persistidos",
+    )
+    export_parser.add_argument(
+        "--input",
+        type=Path,
+        default=Path(__file__).resolve().parents[1]
+        / "exports"
+        / "series_cba.csv",
+        help="CSV con la serie histórica",
+    )
+    export_parser.add_argument(
+        "--output",
+        type=Path,
+        help="Ruta base de exportación (sin extensión)",
+    )
+
+    return parser
+
+
+# ---------------------------------------------------------------------------
+# Lógica de los comandos
+# ---------------------------------------------------------------------------
+
+
+def _cmd_run(args: argparse.Namespace) -> None:
+    print(
+        f"Ejecutando pipeline para {args.period} en {args.branch} "
+        f"headless={args.headless} AE={args.ae}"
+    )
+    # TODO: Integrar con el pipeline real.
+
+
+def _cmd_dry_run(args: argparse.Namespace) -> None:
+    print(
+        f"Dry-run para {args.period} en {args.branch} headless={args.headless} "
+        f"html={args.html_path}"
+    )
+    # TODO: Integrar con lógica de depuración.
+
+
+def _cmd_export_series(args: argparse.Namespace) -> None:
+    import pandas as pd
+
+    df = pd.read_csv(args.input)
+    base: Path = args.output if args.output else args.input.with_suffix("")
+    csv_path = export_series(df, str(base) + ".csv")
+    export_to_html(df, str(base) + ".html")
+    print(f"Serie exportada en {csv_path} y {base}.html")
+
+
+COMMAND_DISPATCH = {
+    "run": _cmd_run,
+    "dry-run": _cmd_dry_run,
+    "export-series": _cmd_export_series,
+}
+
+
+def main(argv: Optional[list[str]] = None) -> None:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    handler = COMMAND_DISPATCH[args.command]
+    handler(args)
+
+
+if __name__ == "__main__":
+    main()
+

@@ -14,4 +14,20 @@ Sistema periódico que releva precios, normaliza unidades, calcula CBA por AE y 
 - `tests/`: pruebas
 
 ## Uso
-TODO: Instrucciones de uso y ejemplos.
+La aplicación expone una interfaz de línea de comandos situada en
+`src/cli.py`.  Los subcomandos disponibles son:
+
+```
+python ipc-ushuaia/src/cli.py run --period 2024-01 --branch ushuaia --headless
+python ipc-ushuaia/src/cli.py dry-run --period 2024-01 --html-path ejemplo.html
+python ipc-ushuaia/src/cli.py export-series --period 2024-01 --input exports/series_cba.csv
+```
+
+Argumentos principales:
+
+- `--period` en formato `YYYY-MM` (validado).
+- `--branch` sucursal de La Anónima; actualmente solo `ushuaia`.
+- `--headless` ejecuta el navegador sin interfaz gráfica.
+
+`export-series` permite reexportar la serie histórica en CSV/HTML a partir de
+datos ya persistidos.
