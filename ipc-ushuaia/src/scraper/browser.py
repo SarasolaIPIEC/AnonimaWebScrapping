@@ -1,27 +1,62 @@
-"""
-Control del navegador Playwright para scraping de La Anónima Online.
-Incluye inicialización, cierre y configuración de sesión.
-"""
+"""Utilidades de navegador para scraping con Playwright."""
 
-# TODO: Instalar playwright y preparar entorno si es necesario
+from __future__ import annotations
 
-def launch_browser(headless: bool = True, user_agent: str = None):
-    """
-    Inicializa y retorna una instancia de navegador Playwright.
-    Args:
-        headless (bool): Ejecutar en modo headless o no.
-        user_agent (str): User-Agent personalizado.
-    Returns:
-        browser, context, page: Instancias de Playwright.
-    """
-    # TODO: Implementar inicialización Playwright
-    pass
+from pathlib import Path
+from typing import Optional, Tuple
 
-def close_browser(browser):
+from playwright.sync_api import Browser, BrowserContext, Page, sync_playwright
+
+
+def launch_browser(
+    headless: bool = True,
+    user_agent: str | None = None,
+    storage_state: str = "storage_state.json",
+) -> Tuple[Browser, BrowserContext, Page]:
+    """Inicializa Playwright y reutiliza la sesión si está disponible.
+
+    Parameters
+    ----------
+    headless:
+        Ejecutar el navegador en modo *headless*.
+    user_agent:
+        Cadena de ``User-Agent`` personalizada.
+    storage_state:
+        Archivo donde se persisten cookies y ``localStorage`` para reusar
+        sesiones entre ejecuciones.
+
+    Returns
+    -------
+    tuple
+        Instancias ``(browser, context, page)`` listas para usar.
     """
-    Cierra la instancia del navegador Playwright.
-    Args:
-        browser: Instancia de navegador Playwright.
-    """
-    # TODO: Implementar cierre
-    pass
+
+    pw = sync_playwright().start()
+    browser = pw.chromium.launch(headless=headless)
+
+    state_file = Path(storage_state)
+    context = browser.new_context(
+        user_agent=user_agent,
+        storage_state=state_file.read_text() if state_file.exists() else None,
+    )
+
+    page = context.new_page()
+    return browser, context, page
+
+
+def close_browser(
+    browser: Browser,
+    context: BrowserContext,
+    storage_state: str = "storage_state.json",
+) -> None:
+    """Cierra Playwright y persiste la sesión en disco."""
+
+    state_file = Path(storage_state)
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    context.storage_state(path=str(state_file))
+    context.close()
+    browser.close()
+    # ``sync_playwright().start()`` devuelve un manejador global que se cierra
+    # automáticamente al cerrar el navegador, por lo que no es necesario
+    # conservar una referencia para detenerlo explícitamente aquí.
+
