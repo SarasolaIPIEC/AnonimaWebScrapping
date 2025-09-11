@@ -10,10 +10,16 @@ from src.infra.retry import exponential_backoff
 
 from .utils import is_allowed, random_delay, save_html
 
+__all__ = ["search", "list_category", "paginate"]
+
 
 @exponential_backoff(max_attempts=3)
 def search(page: Page, query: str) -> str:
     """Realiza una búsqueda y retorna el HTML resultante.
+
+    TODO: registrar cambios de DOM al expedir ``docs/evidence/search.md``.
+    Evidencia: ``docs/evidence/search_{query}.html``
+    Export: ``exports/search_{query}.html``
 
     Se emplean selectores basados en ``data-testid`` y espera explícita para
     asegurar que los resultados estén cargados antes de extraer el HTML.

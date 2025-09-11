@@ -10,6 +10,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from .meta import build_meta
 
+__all__ = ["render_monthly_report"]
+
 # Directorio base del proyecto
 BASE_DIR = Path(__file__).resolve().parents[2]
 TEMPLATE_DIR = BASE_DIR / "templates"
@@ -24,6 +26,11 @@ def render_monthly_report(
     meta: Dict[str, Any],
 ) -> Path:
     """Genera un reporte mensual en HTML.
+
+    TODO: evaluar plantillas y documentar en
+    ``docs/evidence/render_monthly_report.md``.
+    Evidencia: ``docs/evidence/render_monthly_report.md``
+    Export: ``reports/monthly_<period>.html``
 
     Parameters
     ----------
