@@ -27,12 +27,14 @@ def seed_products() -> List[Dict[str, Any]]:
             "price": 120.0,
             "promo_price": 100.0,
             "pack_size": 1,
+            "category": "Panaderia",
         },
         {
             "name": "Leche entera",
             "sku": "456",
             "price": 200.0,
             "pack_size": 1,
+            "category": "Lacteos",
         },
     ]
 
