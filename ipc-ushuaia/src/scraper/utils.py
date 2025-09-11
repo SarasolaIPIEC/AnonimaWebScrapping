@@ -2,14 +2,62 @@
 
 from __future__ import annotations
 
+import os
+import random
+import time
+from functools import lru_cache
 from pathlib import Path
-from uuid import uuid4
 from typing import Dict
+from urllib.parse import urljoin, urlparse
+from urllib.robotparser import RobotFileParser
+from uuid import uuid4
+
+import requests
 
 from src.infra.logging import get_logger
 
 
 logger = get_logger(__name__)
+
+
+@lru_cache(maxsize=32)
+def _robots_parser(base_url: str, user_agent: str) -> RobotFileParser:
+    """Return a parsed robots.txt for ``base_url``."""
+
+    robots_url = urljoin(base_url, "/robots.txt")
+    rp = RobotFileParser()
+    try:
+        resp = requests.get(robots_url, headers={"User-Agent": user_agent}, timeout=10)
+        if resp.status_code == 200:
+            rp.parse(resp.text.splitlines())
+        else:
+            rp.allow_all = True
+    except Exception:
+        rp.allow_all = True
+    return rp
+
+
+def is_allowed(url: str, user_agent: str) -> bool:
+    """Return ``True`` if ``url`` is allowed for ``user_agent``."""
+
+    parsed = urlparse(url)
+    base = f"{parsed.scheme}://{parsed.netloc}"
+    rp = _robots_parser(base, user_agent)
+    return rp.can_fetch(user_agent, parsed.path)
+
+
+def random_delay(min_delay: float | None = None, max_delay: float | None = None) -> None:
+    """Sleep for a random interval to reduce load on the server."""
+
+    base = float(os.getenv("DELAYS", "0"))
+    if min_delay is None or max_delay is None:
+        if base <= 0:
+            return
+        min_delay = base
+        max_delay = base * 2
+    seconds = random.uniform(min_delay, max_delay)
+    time.sleep(seconds)
+    logger.info("Applied delay", extra={"seconds": round(seconds, 2)})
 
 
 def _run_dir(base_dir: str | Path, run_id: str | None) -> Path:
@@ -94,4 +142,10 @@ def capture_evidence(
     return {"html": html_path, "screenshot": shot_path}
 
 
-__all__ = ["save_html", "save_screenshot", "capture_evidence"]
+__all__ = [
+    "save_html",
+    "save_screenshot",
+    "capture_evidence",
+    "random_delay",
+    "is_allowed",
+]
