@@ -31,6 +31,18 @@ def test_match_sku_to_cba_pack_tolerance():
     assert parser.match_sku_to_cba(product, cba_row) == ("preferred", "pack_size_diff")
 
 
+def test_match_sku_to_cba_parse_size_from_name():
+    cba_row = {
+        "preferred_keywords": "leche",
+        "fallback_keywords": "",
+        "category": "Lacteos",
+        "min_pack_size": 1,
+        "monthly_qty_unit": "L",
+    }
+    product = {"name": "Leche entera 900 ml", "category": "Lacteos"}
+    assert parser.match_sku_to_cba(product, cba_row) == ("preferred", "pack_size_diff")
+
+
 def test_match_sku_to_cba_category_filter():
     cba_row = {
         "preferred_keywords": "pan;fresco",
@@ -55,10 +67,10 @@ def test_map_products_to_cba_mocked_search():
     products = seed_products()
     with patch(
         "src.parser.match_sku_to_cba",
-        side_effect=[("preferred", None), None, None, ("preferred", None)],
+        side_effect=[("preferred", None), ("preferred", None)],
     ) as mocked:
         mapping = parser.map_products_to_cba(products, catalog)
-        assert mocked.call_count == 4
+        assert mocked.call_count == 2
         assert mapping["Pan fresco"]["sku"] == "123"
         assert mapping["Leche entera"]["sku"] == "456"
 
@@ -81,3 +93,45 @@ def test_map_products_to_cba_substitution_reason():
     mapping = parser.map_products_to_cba(products, catalog)
     assert mapping["Pan lactal"]["source"] == "fallback"
     assert mapping["Pan lactal"]["reason"] == "substitution"
+
+
+def test_map_products_to_cba_prefers_preferred_over_price():
+    catalog = [
+        {
+            "item": "Leche entera",
+            "category": "Lacteos",
+            "preferred_keywords": "leche entera",
+            "fallback_keywords": "bebida lactea",
+            "min_pack_size": 1,
+        }
+    ]
+    products = [
+        {
+            "name": "Bebida lactea",
+            "sku": "1",
+            "price": 50.0,
+            "pack_size": 1,
+            "category": "Lacteos",
+        },
+        {
+            "name": "Leche entera",
+            "sku": "2",
+            "price": 100.0,
+            "pack_size": 1,
+            "category": "Lacteos",
+        },
+    ]
+    mapping = parser.map_products_to_cba(products, catalog)
+    assert mapping["Leche entera"]["sku"] == "2"
+    assert mapping["Leche entera"]["source"] == "preferred"
+
+
+def test_save_evidence_skips_missing(tmp_path):
+    mapping = {
+        "a": {"sku": "1", "price": 1, "category": "cat"},
+        "b": {"sku": None, "price": None, "category": "cat"},
+        "c": {"sku": "3", "price": 3, "category": "cat"},
+        "d": {"sku": "4", "price": 4, "category": "cat"},
+    }
+    parser.save_evidence(mapping, output_dir=str(tmp_path))
+    assert len(list(tmp_path.iterdir())) == 3

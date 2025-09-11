@@ -1,5 +1,10 @@
 """Parser de productos y mapeo a la CBA."""
-from typing import Any, Dict, List, Optional
+import json
+import os
+import re
+from typing import Any, Dict, List, Optional, Tuple
+
+from .normalize.units import parse_size, to_base_units
 
 # TODO: Implementar extracción real desde HTML/JSON de La Anónima
 
@@ -20,52 +25,148 @@ def _final_unit_price(product: Dict[str, Any]) -> Optional[float]:
         return None
 
 
-def match_sku_to_cba(product: Dict[str, Any], cba_row: Dict[str, Any]) -> bool:
-    """Heurística de matching por nombre, marca, tamaño y palabras clave."""
+def match_sku_to_cba(
+    product: Dict[str, Any], cba_row: Dict[str, Any], tolerance: float = 0.1
+) -> Optional[Tuple[str, Optional[str]]]:
+    """Heurística de matching por categoría, palabras clave y tamaño.
+
+    Devuelve una tupla ``(source, reason)`` si matchea; en caso contrario, ``None``.
+    ``source`` indica si se usó ``preferred`` o ``fallback``. ``reason`` documenta
+    si se aceptó una diferencia de tamaño (``pack_size_diff``).
+    """
+
     name = product.get("name", "").lower()
+    prod_cat = product.get("category")
+    cba_cat = cba_row.get("category")
+    if cba_cat and prod_cat and cba_cat.lower() != prod_cat.lower():
+        return None
+
     preferred = [k.strip() for k in cba_row.get("preferred_keywords", "").split(";")]
     fallback = [k.strip() for k in cba_row.get("fallback_keywords", "").split(";")]
+
+    min_pack = cba_row.get("min_pack_size")
+    min_unit = cba_row.get("monthly_qty_unit", "unidad")
+    pack_size = product.get("pack_size")
+    pack_unit = product.get("pack_unit")
+    reason: Optional[str] = None
+    if min_pack is not None:
+        try:
+            min_base, base_unit = to_base_units(float(min_pack), min_unit)
+        except (TypeError, ValueError):
+            min_base, base_unit = None, None
+        pack_base = None
+        if pack_size is not None:
+            try:
+                pack_base, pack_unit_conv = to_base_units(
+                    float(pack_size), pack_unit or min_unit
+                )
+            except (TypeError, ValueError):
+                pack_base = None
+        else:
+            try:
+                size_match = re.search(r"([\d/.,]+\s*[a-zA-Z]+)", name)
+                if size_match:
+                    qty, unit = parse_size(size_match.group(1))
+                    pack_base, pack_unit_conv = qty, unit
+                else:
+                    pack_base = None
+            except ValueError:
+                pack_base = None
+        if (
+            pack_base is not None
+            and min_base is not None
+            and pack_unit_conv == base_unit
+        ):
+            if pack_base < min_base * (1 - tolerance):
+                return None
+            if pack_base < min_base:
+                reason = "pack_size_diff"
+
     for kw in preferred:
-        if kw and kw in name:
-            return True
+        if kw and kw.lower() in name:
+            return "preferred", reason
     for kw in fallback:
-        if kw and kw in name:
-            return True
-    return False
+        if kw and kw.lower() in name:
+            return "fallback", reason
+    return None
 
 
-def map_products_to_cba(products: List[Dict[str, Any]], cba_catalog: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+def map_products_to_cba(
+    products: List[Dict[str, Any]], cba_catalog: List[Dict[str, Any]]
+) -> Dict[str, Dict[str, Any]]:
     """Mapea productos scrapeados a los ítems de la CBA."""
+
     mapping: Dict[str, Dict[str, Any]] = {}
     for cba_row in cba_catalog:
         matches: List[Dict[str, Any]] = []
         for prod in products:
-            if match_sku_to_cba(prod, cba_row):
+            if (
+                cba_row.get("category")
+                and prod.get("category")
+                and cba_row["category"].lower() != prod["category"].lower()
+            ):
+                continue
+            result = match_sku_to_cba(prod, cba_row)
+            if result:
+                source, reason = result
                 prod_copy = prod.copy()
                 prod_copy["unit_price"] = _final_unit_price(prod_copy)
+                prod_copy["source"] = source
+                if reason:
+                    prod_copy["reason"] = reason
                 matches.append(prod_copy)
         if matches:
-            best = min(matches, key=lambda x: x.get("unit_price", float("inf")))
-            mapping[cba_row["item"]] = {
+            priority = {"preferred": 0, "fallback": 1}
+            best = min(
+                matches,
+                key=lambda x: (
+                    priority.get(x.get("source", "fallback"), 2),
+                    x.get("unit_price", float("inf")),
+                ),
+            )
+            item_data = {
                 "sku": best.get("sku"),
                 "price": best.get("unit_price"),
                 "pack_size": best.get("pack_size"),
-                "source": (
-                    "preferred"
-                    if any(
-                        kw in best.get("name", "").lower()
-                        for kw in cba_row.get("preferred_keywords", "").split(";")
-                    )
-                    else "fallback"
-                ),
+                "source": best.get("source"),
+                "reason": best.get("reason"),
+                "category": cba_row.get("category"),
             }
+            if best.get("source") == "fallback" and not best.get("reason"):
+                item_data["reason"] = "substitution"
+            mapping[cba_row["item"]] = item_data
         else:
             mapping[cba_row["item"]] = {
                 "sku": None,
                 "price": None,
                 "pack_size": None,
                 "source": "missing",
+                "reason": "OOS",
+                "category": cba_row.get("category"),
             }
     return mapping
+
+
+def save_evidence(
+    mapping: Dict[str, Dict[str, Any]], output_dir: str = "data/evidence"
+) -> None:
+    """Guarda evidencia de hasta 3 ítems por categoría en archivos JSON."""
+
+    os.makedirs(output_dir, exist_ok=True)
+    per_cat: Dict[str, int] = {}
+    for item, info in mapping.items():
+        if not info.get("sku"):
+            continue
+        category = info.get("category", "sin_categoria")
+        count = per_cat.get(category, 0)
+        if count >= 3:
+            continue
+        filename = f"{category}_{item}.json"
+        filename = re.sub(r"[^\w\-]+", "_", filename)
+        path = os.path.join(output_dir, filename)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump({"item": item, **{k: v for k, v in info.items() if k != "category"}}, fh, ensure_ascii=False, indent=2)
+        per_cat[category] = count + 1
+
 
 # TODO: Documentar y testear reglas de sustitución y prorrateo
