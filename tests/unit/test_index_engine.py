@@ -25,6 +25,13 @@ def test_calculate_cba_ae_and_family():
     assert total_family == pytest.approx(total_ae * 3.09)
 
 
+def test_cba_totals():
+    costs = {"Pan": 100.0, "Leche": 200.0}
+    totals = index_engine.cba_totals(costs)
+    assert totals["cba_ae"] == 300.0
+    assert totals["cba_familia"] == pytest.approx(300.0 * 3.09)
+
+
 def test_calculate_index_and_variations():
     series = pd.Series({"2023-01": 500, "2023-02": 550})
     index = index_engine.calculate_index(series, "2023-01")
@@ -32,6 +39,13 @@ def test_calculate_index_and_variations():
     assert index.loc["2023-02"] == pytest.approx(110)
 
     df = index_engine.calculate_variations(index)
+    assert pytest.approx(df.loc["2023-02", "var_mm"], rel=1e-4) == 10.0
+
+
+def test_update_index_series():
+    series = pd.Series({"2023-01": 500})
+    df = index_engine.update_index_series(series, "2023-02", 550, "2023-01")
+    assert df.loc["2023-02", "index"] == pytest.approx(110)
     assert pytest.approx(df.loc["2023-02", "var_mm"], rel=1e-4) == 10.0
 
 

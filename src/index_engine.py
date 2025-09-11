@@ -23,6 +23,15 @@ def calculate_cba(adjusted_catalog: List[Dict[str, Any]], sku_prices: Dict[str, 
 			missing.append(item)
 	return total, missing
 
+
+def cba_totals(costs: Dict[str, float]) -> Dict[str, float]:
+	"""Suma costos por ítem y calcula CBA para AE y familia tipo."""
+	total_ae = sum(costs.values())
+	return {
+	'cba_ae': total_ae,
+	'cba_familia': total_ae * 3.09,
+	}
+
 def calculate_index(series: pd.Series, base_period: str) -> pd.Series:
 	"""
 	Calcula el índice base=100 para la serie histórica de CBA.
@@ -38,6 +47,15 @@ def calculate_variations(index_series: pd.Series) -> pd.DataFrame:
 	df['var_mm'] = df['index'].pct_change() * 100
 	df['var_ia'] = df['index'].pct_change(12) * 100
 	return df
+
+
+def update_index_series(series: pd.Series, period: str, cba_ae: float, base_period: str) -> pd.DataFrame:
+	"""Actualiza la serie de CBA con un nuevo período y calcula índice y variaciones."""
+	updated = series.copy()
+	updated.loc[period] = cba_ae
+	updated = updated.sort_index()
+	index = calculate_index(updated, base_period)
+	return calculate_variations(index)
 
 def validate_series(df: pd.DataFrame) -> Dict[str, Any]:
 	"""
