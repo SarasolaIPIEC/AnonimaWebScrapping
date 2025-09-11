@@ -28,6 +28,7 @@ from typing import Optional
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from exporter import export_series, export_to_html
+import pipeline
 
 # ---------------------------------------------------------------------------
 # Helpers de validación
@@ -135,11 +136,20 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _cmd_run(args: argparse.Namespace) -> None:
-    print(
-        f"Ejecutando pipeline para {args.period} en {args.branch} "
-        f"headless={args.headless} AE={args.ae}"
+    summary = pipeline.run(
+        period=args.period,
+        branch=args.branch,
+        headless=args.headless,
+        ae=args.ae,
     )
-    # TODO: Integrar con el pipeline real.
+    print(
+        "Resumen: "
+        f"encontrados={summary.found} "
+        f"oos={summary.oos} "
+        f"sustituciones={summary.substitutions} "
+        f"variantes={summary.variants} "
+        f"fallbacks={summary.fallbacks}"
+    )
 
 
 def _cmd_dry_run(args: argparse.Namespace) -> None:
