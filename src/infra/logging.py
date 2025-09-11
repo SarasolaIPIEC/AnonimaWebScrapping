@@ -38,6 +38,22 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(log_record, ensure_ascii=False)
 
 
+class RedactFilter(logging.Filter):
+    """Filter that redacts sensitive fields from log records."""
+
+    SENSITIVE_KEYS = {"password", "token", "secret", "api_key"}
+
+    def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - simple
+        for key in self.SENSITIVE_KEYS:
+            if key in record.__dict__:
+                record.__dict__[key] = "***"
+        if isinstance(record.args, dict):
+            for key in self.SENSITIVE_KEYS:
+                if key in record.args:
+                    record.args[key] = "***"
+        return True
+
+
 def _build_handler(
     log_path: Path,
     rotation: str,
@@ -111,6 +127,7 @@ def get_logger(
         interval=interval,
     )
 
+    handler.addFilter(RedactFilter())
     logger.setLevel(logging.INFO)
     logger.addHandler(handler)
     logger.propagate = False

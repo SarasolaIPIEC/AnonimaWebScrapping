@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Optional, Tuple
 
 from playwright.sync_api import Browser, BrowserContext, Page, sync_playwright
+
+DEFAULT_USER_AGENT = "ipc-ushuaia-bot/1.0 (+https://github.com/AnonimaWebScrapping)"
 
 
 def launch_browser(
@@ -30,6 +33,9 @@ def launch_browser(
     tuple
         Instancias ``(browser, context, page)`` listas para usar.
     """
+
+    if user_agent is None:
+        user_agent = os.getenv("USER_AGENT", DEFAULT_USER_AGENT)
 
     pw = sync_playwright().start()
     browser = pw.chromium.launch(headless=headless)

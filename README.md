@@ -32,6 +32,13 @@ playwright install chromium
 
 - Copiar `.env.example` a `.env` y completar valores como `BRANCH`, `HEADLESS`, `MAX_RETRIES`, `DELAYS`, `USER_AGENT`, `OUTPUT_DIRS`, `API_KEY` y `EMAIL`.
 - Ajustar `config.toml` según el entorno; el archivo define opciones como `branch`, `headless`, `delays`, `max_retries`, `user_agent` y `output_dirs`.
+- El `USER_AGENT` predeterminado identifica al proyecto como `ipc-ushuaia-bot/1.0 (+https://github.com/AnonimaWebScrapping)` y puede personalizarse en `.env`.
+
+## Buenas prácticas de scraping
+
+- Respetar `robots.txt` y los términos de uso del sitio antes de realizar cualquier solicitud.
+- Introducir delays aleatorios entre acciones de scraping para minimizar la carga sobre el servidor.
+- Mantener credenciales y claves en `.env` (ignorado en control de versiones) y evitar registrarlas en logs.
 
 ## Ejecución
 

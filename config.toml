@@ -2,5 +2,5 @@ branch = "main"
 headless = true
 delays = 1.5
 max_retries = 3
-user_agent = "Mozilla/5.0"
+user_agent = "ipc-ushuaia-bot/1.0 (+https://github.com/AnonimaWebScrapping)"
 output_dirs = ["data/raw", "data/processed"]

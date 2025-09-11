@@ -8,7 +8,7 @@ from playwright.sync_api import Page, TimeoutError
 
 from src.infra.retry import exponential_backoff
 
-from .utils import save_html
+from .utils import is_allowed, random_delay, save_html
 
 
 @exponential_backoff(max_attempts=3)
@@ -20,6 +20,7 @@ def search(page: Page, query: str) -> str:
     """
 
     try:
+        random_delay()
         box = page.get_by_test_id("search-box")
         box.fill(query)
         box.press("Enter")
@@ -35,6 +36,10 @@ def list_category(page: Page, category_path: str) -> str:
     """Navega a una categoría y devuelve el HTML de la página."""
 
     try:
+        user_agent = page.context.user_agent
+        if not is_allowed(category_path, user_agent):
+            raise RuntimeError("URL blocked by robots.txt")
+        random_delay()
         page.goto(category_path)
         page.wait_for_selector("[data-testid='product-card']")
         return page.content()
@@ -52,6 +57,7 @@ def paginate(page: Page) -> List[str]:
 
     html_pages: List[str] = []
     while True:
+        random_delay()
         page.wait_for_selector("[data-testid='product-card']")
         html_pages.append(page.content())
 
@@ -61,6 +67,7 @@ def paginate(page: Page) -> List[str]:
 
         @exponential_backoff(max_attempts=3)
         def _click_next():  # pragma: no cover - depende del DOM
+            random_delay()
             next_btn.click()
             page.wait_for_load_state("networkidle")
 
