@@ -4,19 +4,31 @@ Calcula precio por unidad base a partir de precio, tamaño y unidad.
 """
 
 def unit_price(price: float, pack_size: float, pack_unit: str, base_unit: str) -> float:
-    """
-    Calcula el precio por unidad base.
-    Ej: price=300, pack_size=900, pack_unit='ml', base_unit='ml' -> 0.333...
+    """Calcula el precio por unidad base.
+
+    Acepta tanto unidades canónicas (kg/L/unidad) como sus alias
+    ("g", "ml", etc.) en ``pack_unit`` y ``base_unit``. El resultado se
+    expresa en la unidad solicitada por ``base_unit``.
+
+    Ej: ``price=300, pack_size=900, pack_unit='ml', base_unit='ml'`` ->
+    ``0.333...``
     """
     from .units import to_base_units
 
-    # Convertir pack_size a la unidad base deseada
-    base_qty, base_unit_conv = to_base_units(pack_size, pack_unit)
-    if base_unit_conv != base_unit:
+    # Convertir el tamaño del pack a la unidad base canónica
+    pack_qty_base, pack_unit_base = to_base_units(pack_size, pack_unit)
+
+    # Canonicalizar la unidad solicitada y obtener el factor de conversión
+    base_unit_factor, base_unit_canon = to_base_units(1, base_unit)
+    if pack_unit_base != base_unit_canon:
         raise ValueError(f"No se puede convertir {pack_unit} a {base_unit}")
-    if base_qty == 0:
+
+    # Expresar la cantidad del pack en la unidad solicitada
+    qty_in_requested_unit = pack_qty_base / base_unit_factor
+    if qty_in_requested_unit == 0:
         raise ValueError("El tamaño del pack no puede ser cero")
-    return price / base_qty
+
+    return price / qty_in_requested_unit
 
 
 def precio_unitario_base(price: float, presentation: str) -> tuple[float, str]:
