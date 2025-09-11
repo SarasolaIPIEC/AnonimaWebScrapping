@@ -145,8 +145,49 @@ def alert_extraction_failure(
     _dispatch("Alerta: fallo crítico de extracción", body, email=email, flag_file=flag_file)
 
 
+def enforce_thresholds(
+    items: Mapping[str, Mapping[str, Any]],
+    variations: Mapping[str, float],
+    *,
+    min_valid_items: int,
+    variation_tolerance: float,
+    email: str | None = None,
+    flag_file: str | Path | None = None,
+) -> None:
+    """Valida umbrales mínimos de datos de precios.
+
+    Se verifica que la cantidad de ítems con precio válido alcance
+    ``min_valid_items`` y que ninguna variación porcentual supere el
+    ``variation_tolerance``. Cuando alguno de los umbrales no se cumple se
+    genera una alerta, opcionalmente escribiendo un archivo bandera, y se
+    finaliza la ejecución con código distinto de cero.
+    """
+
+    total = len(items)
+    missing = [name for name, info in items.items() if info.get("price") is None]
+    allowed_missing = max(total - min_valid_items, 0)
+
+    missing_triggered = alert_missing_items(
+        missing,
+        allowed_missing,
+        email=email,
+        flag_file=flag_file,
+    )
+
+    variation_triggered = alert_price_variation(
+        variations,
+        variation_tolerance,
+        email=email,
+        flag_file=flag_file,
+    )
+
+    if missing_triggered or variation_triggered:
+        raise SystemExit(1)
+
+
 __all__ = [
     "alert_missing_items",
     "alert_price_variation",
     "alert_extraction_failure",
+    "enforce_thresholds",
 ]
