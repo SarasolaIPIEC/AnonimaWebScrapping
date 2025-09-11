@@ -17,6 +17,18 @@ def test_enforce_thresholds_missing(tmp_path, monkeypatch):
     assert flag.exists()
 
 
+def test_enforce_thresholds_insufficient(tmp_path, monkeypatch):
+    monkeypatch.setattr(alerts, "evidence_dir", tmp_path)
+    items = {
+        "a": {"price": 10},
+        "b": {"price": 20},
+    }
+    flag = tmp_path / "flag.txt"
+    with pytest.raises(SystemExit):
+        alerts.enforce_thresholds(items, {}, min_valid_items=3, variation_tolerance=5, flag_file=flag)
+    assert flag.exists()
+
+
 def test_enforce_thresholds_variation(tmp_path, monkeypatch):
     monkeypatch.setattr(alerts, "evidence_dir", tmp_path)
     items = {

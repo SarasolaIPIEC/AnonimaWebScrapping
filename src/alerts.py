@@ -165,6 +165,21 @@ def enforce_thresholds(
 
     total = len(items)
     missing = [name for name, info in items.items() if info.get("price") is None]
+    valid = total - len(missing)
+    insufficient_triggered = False
+    if valid < min_valid_items:
+        body = (
+            f"Se obtuvieron {valid} ítems con precio válido "
+            f"(mínimo requerido {min_valid_items})."
+        )
+        _dispatch(
+            "Alerta: faltantes de ítems",
+            body,
+            email=email,
+            flag_file=flag_file,
+        )
+        insufficient_triggered = True
+
     allowed_missing = max(total - min_valid_items, 0)
 
     missing_triggered = alert_missing_items(
@@ -181,7 +196,7 @@ def enforce_thresholds(
         flag_file=flag_file,
     )
 
-    if missing_triggered or variation_triggered:
+    if insufficient_triggered or missing_triggered or variation_triggered:
         raise SystemExit(1)
 
 
