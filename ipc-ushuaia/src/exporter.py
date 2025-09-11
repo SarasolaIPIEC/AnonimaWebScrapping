@@ -13,6 +13,14 @@ from typing import Optional
 
 import pandas as pd
 
+__all__ = [
+    "export_to_csv",
+    "export_to_json",
+    "export_to_html",
+    "export_series",
+    "export_breakdown",
+]
+
 
 # Directorio base para las exportaciones
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -51,6 +59,11 @@ def export_to_html(df: pd.DataFrame, path: str) -> None:
 
 def export_series(df: pd.DataFrame, output: Optional[str] = None) -> Path:
     """Exporta la serie histórica de la CBA.
+
+    TODO: consolidar campos derivados y anotar en
+    ``docs/evidence/export_series.md``.
+    Evidencia: ``docs/evidence/export_series.md``
+    Export: ``exports/series_cba.csv``
 
     Parameters
     ----------
