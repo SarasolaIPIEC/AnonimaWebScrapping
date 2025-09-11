@@ -35,7 +35,9 @@ def render_monthly_report(
     df_breakdown:
         Desglose de variaciones por ítem.
     img_paths:
-        Rutas a los gráficos a incrustar en el reporte.
+        Rutas o data URIs de los gráficos a incrustar en el reporte. Debe
+        incluir las claves ``index`` (serie del índice) y ``bars``
+        (variación por categoría).
     meta:
         Metadatos adicionales para el reporte. Si faltan las claves comunes,
         se completan con :func:`src.reporting.meta.build_meta`.
