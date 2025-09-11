@@ -1,0 +1,3 @@
+category,item,monthly_qty_value,monthly_qty_unit,preferred_keywords,fallback_keywords,min_pack_size,notes
+Panaderia,Pan fresco,1,kg,"pan fresco","lactal",0.5,"Ejemplo de pan fresco"
+Lacteos,Leche entera,2,l,"leche entera","leche",1,"Ejemplo de leche"
