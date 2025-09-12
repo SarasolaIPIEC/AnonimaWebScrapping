@@ -25,7 +25,7 @@ def select_branch(page: Page, city: str = "Ushuaia") -> None:
         Nombre de la ciudad/sucursal.
     """
 
-    selector = "div.sucursal_actual"
+    selector = "[data-testid='current-branch']"
     try:
         current = page.inner_text(selector).strip()
     except Exception:
@@ -51,7 +51,7 @@ def select_branch(page: Page, city: str = "Ushuaia") -> None:
         page.wait_for_function(
             """
             (city) => {
-                const el = document.querySelector('div.sucursal_actual');
+                const el = document.querySelector("[data-testid='current-branch']");
                 if (!el) return false;
                 const text = (el.textContent || '').toLowerCase();
                 const title = (el.getAttribute('title') || '').toLowerCase();
@@ -75,7 +75,7 @@ def select_branch(page: Page, city: str = "Ushuaia") -> None:
 def get_current_branch(page: Page) -> str:
     """Devuelve la sucursal actualmente seleccionada."""
 
-    selector = "div.sucursal_actual"
+    selector = "[data-testid='current-branch']"
     try:
         return page.inner_text(selector).strip()
     except Exception:

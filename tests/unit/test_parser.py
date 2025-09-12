@@ -60,6 +60,8 @@ def test_map_products_to_cba_with_promo():
     assert mapping["Leche entera"]["price"] == 200.0
     assert mapping["Pan fresco"]["source"] == "preferred"
     assert mapping["Pan fresco"]["reason"] is None
+    assert mapping["Pan fresco"]["promo_flag"] is True
+    assert mapping["Pan fresco"]["impuestos_nacionales"] == "IVA 21%"
 
 
 def test_map_products_to_cba_mocked_search():

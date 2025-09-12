@@ -22,9 +22,9 @@ def search(page: Page, query: str, home_url: str = "https://supermercado.laanoni
     Export: ``exports/search_{query}.html``
 
     El flujo navega a la *home* del sitio, completa el formulario
-    ``#form_buscar`` y espera a que aparezcan elementos ``div.producto`` en la
-    respuesta. Si los productos no se cargan, se captura el HTML igualmente
-    para facilitar la depuración.
+    ``#form_buscar`` y espera a que aparezcan elementos
+    ``[data-testid='product-card']`` en la respuesta. Si los productos no se
+    cargan, se captura el HTML igualmente para facilitar la depuración.
     """
 
     try:
@@ -37,7 +37,7 @@ def search(page: Page, query: str, home_url: str = "https://supermercado.laanoni
         except Exception:
             page.press("#buscar", "Enter")
         try:
-            page.wait_for_selector("div.producto")
+            page.wait_for_selector("[data-testid='product-card']")
         except TimeoutError:
             save_html(page.content(), f"search_{query}")
             raise

@@ -28,6 +28,8 @@ def seed_products() -> List[Dict[str, Any]]:
             "promo_price": 100.0,
             "pack_size": 1,
             "category": "Panaderia",
+            "promo_flag": True,
+            "impuestos_nacionales": "IVA 21%",
         },
         {
             "name": "Leche entera",
@@ -35,6 +37,8 @@ def seed_products() -> List[Dict[str, Any]]:
             "price": 200.0,
             "pack_size": 1,
             "category": "Lacteos",
+            "promo_flag": False,
+            "impuestos_nacionales": "IVA 21%",
         },
     ]
 
