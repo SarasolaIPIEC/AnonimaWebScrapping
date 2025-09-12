@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from .utils import save_html
 
-__all__ = ["extract_product_cards", "normalize_product"]
+__all__ = ["extract_product_cards", "extract_product_cards_imetrics", "normalize_product"]
 
 
 def extract_product_cards(html: str) -> List[Dict]:
@@ -60,6 +60,71 @@ def extract_product_cards(html: str) -> List[Dict]:
         return cards
     except Exception:
         save_html(html, "extract_error")
+        raise
+
+
+def extract_product_cards_imetrics(html: str) -> List[Dict]:
+    """Parsea tarjetas de productos desde el HTML con selectores imetrics.
+
+    Selecciona ``div.producto.item`` y extrae metadatos desde inputs ocultos.
+    ``precio_final`` usa ``precio_oferta`` si está presente, de lo contrario
+    ``precio_item``.
+    """
+
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        cards = []
+
+        def _parse_price(val: str | None) -> float | None:
+            if not val:
+                return None
+            raw = val.replace("$", "").replace(" ", "")
+            try:
+                return float(raw.replace(".", "").replace(",", "."))
+            except ValueError:
+                return None
+
+        for node in soup.select("div.producto.item"):
+            anchor = node.select_one("a[id^='btn_nombre_imetrics_']")
+            if not anchor:
+                continue
+
+            name = anchor.get_text(strip=True)
+            url = anchor.get("href", "")
+
+            price = _parse_price(
+                (node.select_one("input[id^='precio_item_imetrics_']") or {}).get("value")
+            )
+            offer = _parse_price(
+                (node.select_one("input[id^='precio_oferta_item_imetrics_']") or {}).get("value")
+            )
+
+            final_price = offer if offer is not None else price
+            promo_flag = offer is not None
+
+            brand = (
+                (node.select_one("input[id^='brand_item_imetrics_']") or {}).get("value", "")
+            )
+            sku = (node.select_one("input[id^='sku_item_imetrics_']") or {}).get("value", "")
+
+            stock_div = node.select_one("div[class^='btnagregarcarritosinstock_']")
+            style = stock_div.get("style", "") if stock_div else ""
+            in_stock = "display:none" in style.replace(" ", "").lower()
+
+            cards.append(
+                {
+                    "sku": sku,
+                    "nombre": name,
+                    "marca": brand,
+                    "url": url,
+                    "precio_final": final_price,
+                    "promo_flag": promo_flag,
+                    "in_stock": in_stock,
+                }
+            )
+        return cards
+    except Exception:
+        save_html(html, "extract_error_imetrics")
         raise
 
 
