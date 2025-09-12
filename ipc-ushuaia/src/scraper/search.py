@@ -14,23 +14,32 @@ __all__ = ["search", "list_category", "paginate"]
 
 
 @exponential_backoff(max_attempts=3)
-def search(page: Page, query: str) -> str:
+def search(page: Page, query: str, home_url: str = "https://www.laanonimaonline.com/") -> str:
     """Realiza una búsqueda y retorna el HTML resultante.
 
     TODO: registrar cambios de DOM al expedir ``docs/evidence/search.md``.
     Evidencia: ``docs/evidence/search_{query}.html``
     Export: ``exports/search_{query}.html``
 
-    Se emplean selectores basados en ``data-testid`` y espera explícita para
-    asegurar que los resultados estén cargados antes de extraer el HTML.
+    El flujo navega a la *home* del sitio, completa el formulario
+    ``#form_buscar`` y espera a que aparezcan elementos ``div.producto`` en la
+    respuesta. Si los productos no se cargan, se captura el HTML igualmente
+    para facilitar la depuración.
     """
 
     try:
         random_delay()
-        box = page.get_by_test_id("search-box")
-        box.fill(query)
-        box.press("Enter")
-        page.wait_for_selector("[data-testid='product-card']")
+        page.goto(home_url)
+        page.wait_for_selector("form#form_buscar")
+        page.fill("#buscar", query)
+        try:
+            page.click("#btn_buscar_imetrics")
+        except Exception:
+            page.press("#buscar", "Enter")
+        try:
+            page.wait_for_selector("div.producto")
+        except TimeoutError:
+            save_html(page.content(), f"search_{query}")
         return page.content()
     except Exception:
         save_html(page.content(), "search_error")
