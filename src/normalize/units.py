@@ -35,6 +35,13 @@ def parse_title_size(title: str) -> Tuple[float, str]:
         qty, base = _normalize_unit(1.0, unit)
         return (whole + 0.5) * qty, base
 
+    # pattern like "x 473 cc" (explicit size after an 'x', not a pack count)
+    m = re.search(rf"\bx\s*({_NUM})\s*(kg|kilo|kilogramo|g|gr|gramos|l|lt|litro|ml|cc)\b", t)
+    if m:
+        num = _to_float(m.group(1))
+        unit = m.group(2)
+        return _normalize_unit(num, unit)
+
     # xN packs like x2 500 g or 2 x 500 g
     m = re.search(rf"(?:x|\b)(\d+)\s*[×x]?\s*({_NUM})\s*(kg|g|gr|gramos|l|lt|ml|cc)", t)
     if m:
@@ -54,7 +61,7 @@ def parse_title_size(title: str) -> Tuple[float, str]:
         return factor * qty, base
 
     # explicit quantity like 1.5 l, 900 ml, 500 g, 1 kg
-    m = re.search(rf"({_NUM})\s*(kg|kilo|kilogramo|g|gr|gramos|l|lt|litro|ml|cc)", t)
+    m = re.search(rf"({_NUM})\s*(kg|kilo|kilogramo|g|gr|gramos|l|lt|litro|ml|cc)\b", t)
     if m:
         num = _to_float(m.group(1))
         unit = m.group(2)

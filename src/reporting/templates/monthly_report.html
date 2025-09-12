@@ -5,17 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{{ title }}</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; }
-    .kpis { display: flex; gap: 2rem; margin: 1rem 0; }
-    .kpi { padding: 0.8rem 1rem; border: 1px solid #ddd; border-radius: 8px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #eee; padding: 6px 8px; text-align: left; }
-    .muted { color: #666; }
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; color: #0f172a; }
+    .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0; }
+    .kpi { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+    table { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+    thead th { background: #f3f4f6; color: #111827; font-weight: 600; font-size: 13px; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .muted { color: #667085; }
+    .item-main { font-weight: 600; }
+    .item-meta { color: #667085; font-size: 12px; margin-top: 2px; }
+    .chip { display:inline-block; font-size:11px; padding:2px 6px; border-radius:999px; border:1px solid #e5e7eb; background:#fff; margin-left:6px; }
+    .chip-cba { border-color:#16a34a; color:#166534; }
+    .chip-tier { border-color:#94a3b8; color:#334155; }
+    .filters { margin: 16px 0; }
+    .controls-grid { display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px; align-items:end; }
   </style>
 </head>
 <body>
   <!-- Nota: esta plantilla no se usa por un motor de templates; se deja como referencia para mejoras futuras (Jinja2). -->
   <h1>{{ title }}</h1>
+  <section class="filters">
+    <div class="controls-grid">
+      <div class="control">
+        <label for="search">Buscar</label>
+        <input type="search" id="search" placeholder="Ej: arroz 1 kg" />
+      </div>
+      <div class="control">
+        <label for="solo-cba">&nbsp;</label>
+        <div class="row"><label style="display:inline-flex; gap:8px; align-items:center;"><input type="checkbox" id="solo-cba"/> Solo CBA</label></div>
+      </div>
+      <div class="control">
+        <label for="sort-by">Ordenar por</label>
+        <div class="row">
+          <select id="sort-by"><option>Relevancia</option><option>Precio final</option><option>Precio unitario</option><option>Costo AE</option></select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tabla de ítems (demo visual)</h2>
+    <table>
+      <thead><tr><th>Ítem</th><th>Precio</th><th>Tamaño</th><th>Precio unitario</th><th>Costo AE</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="item-main">Ejemplo alimento</span> &mdash; <a href="#">Producto x 1 kg</a><div class="item-meta"><span class="chip chip-cba">CBA</span><span class="chip chip-tier">Estándar</span></div></td>
+          <td class="num">$1.234,00</td>
+          <td class="num">1 kg</td>
+          <td class="num">$1.234,00</td>
+          <td class="num">$123,40</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
   {{ body }}
 </body>
 </html>

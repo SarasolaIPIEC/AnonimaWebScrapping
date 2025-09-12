@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import badge_cba, badge_tier, price_cell %}
+
+{% block body %}
+<header>
+  <h1>IPC Ushuaia &mdash; Canasta B&aacute;sica Alimentaria</h1>
+  <div class="period">Reporte del per&iacute;odo {{ period }}</div>
+</header>
+
+<section class="kpis">
+  <div class="card kpi"><div class="label">CBA AE</div><div class="value">{{ kpis.cba_ae|currency }}</div></div>
+  <div class="card kpi"><div class="label">CBA Familia (&times;3,09)</div><div class="value">{{ kpis.cba_family|currency }}</div></div>
+  <div class="card kpi"><div class="label">&Iacute;ndice (base=100)</div><div class="value">{{ kpis.idx|number(2) }}</div></div>
+  <div class="card kpi"><div class="label">m/m</div><div class="value">{{ kpis.mom if kpis.mom is not none else 'N/D' }}</div></div>
+  <div class="card kpi"><div class="label">i.a.</div><div class="value">{{ kpis.yoy if kpis.yoy is not none else 'N/D' }}</div></div>
+</section>
+
+<section class="grid">
+  <div class="chart card">
+    <div class="section-title">Serie del &iacute;ndice (base=100)</div>
+    {{ chart_html|safe }}
+  </div>
+  <div class="card">
+    <div class="section-title">Resumen del per&iacute;odo</div>
+    <table>
+      <tbody>
+        <tr><th>Total &iacute;tems</th><td class="num">{{ summary.total }}</td></tr>
+        <tr><th>Con precio v&aacute;lido</th><td class="num">{{ summary.valid }} ({{ summary.valid_ratio|pct }})</td></tr>
+        <tr><th>En promoci&oacute;n</th><td class="num">{{ summary.promo }}</td></tr>
+        <tr><th>Sin stock</th><td class="num">{{ summary.oos }}</td></tr>
+        <tr><th>Suma costo AE</th><td class="num">{{ summary.cba_ae_sum|currency }}</td></tr>
+      </tbody>
+    </table>
+    <div class="muted" style="margin-top:8px">Fuente: {{ source }}</div>
+  </div>
+</section>
+
+<div class="muted" style="margin:12px 0">
+  <a href="../exports/breakdown_{{ period }}.csv" download>Descargar breakdown CSV</a>
+   &middot; <a href="../docs/DATA_MODEL_GUIDE.md" target="_blank" rel="noopener">Diccionario de datos</a>
+</div>
+
+<section style="margin-top:16px;">
+  <div class="section-title">Top aportes al costo (AE)</div>
+  <table>
+    <thead><tr><th>&Iacute;tem</th><th>Precio final</th><th>Tama&ntilde;o</th><th>Precio unitario</th><th>Part. AE</th></tr></thead>
+    <tbody>
+      {% for r in top %}
+      <tr>
+        <td>
+          <a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title }}</a>
+          <div class="item-meta">{{ r.name }} {{ badge_cba(r.cba_flag) }} {{ badge_tier(r.brand_tier) }}</div>
+        </td>
+        <td class="num">{{ price_cell(r.price_final, r.price_list) }}</td>
+        <td>{{ r.presentation_text }}</td>
+        <td class="num">{{ r.unit_price|currency }}</td>
+        <td class="num">{{ r.contrib_pct|pct }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section style="margin-top:16px;">
+  <div class="section-title">Desglose completo</div>
+  <table id="breakdown-table">
+    <thead><tr><th>&Iacute;tem</th><th>Precio final</th><th>Tama&ntilde;o</th><th>Precio unitario</th><th>Part. AE</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>
+          <a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title }}</a>
+          <div class="item-meta">{{ r.name }} {{ badge_cba(r.cba_flag) }} {{ badge_tier(r.brand_tier) }}</div>
+        </td>
+        <td class="num">{{ price_cell(r.price_final, r.price_list) }}</td>
+        <td>{{ r.presentation_text }}</td>
+        <td class="num">{{ r.unit_price|currency }}</td>
+        <td class="num">{{ r.contrib_pct|pct }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% endblock %}
+

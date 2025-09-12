@@ -557,12 +557,53 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
 
     catalog = read_catalog('data/cba_catalog.csv')
     pins_map = read_pins('data/sku_pins.csv')
+    # Override: usar CSVs por categoria como fuente principal
+    pins_map = {}
     # Merge per-category CSVs (período actual) para completar u ofrecer nuevos ítems
     try:
         bycat_rows = read_by_category('by_category/*.csv')
     except Exception:
         bycat_rows = []
-    bycat_rows = [r for r in bycat_rows if (r.get('period') == period)]
+    # Fallback: si no hay archivos en by_category, intentar con CSVs en data/* (formato simple)
+    if not bycat_rows:
+        import glob as _glob, csv as _csv
+        for fp in _glob.glob(os.path.join('data', '*.csv')):
+            base = os.path.basename(fp).lower()
+            if base in ('cba_catalog.csv', 'sku_pins.csv'):
+                continue
+            try:
+                with open(fp, 'r', encoding='utf-8-sig', newline='') as f:
+                    reader = _csv.DictReader(f)
+                    for row in reader:
+                        cat_name = os.path.splitext(os.path.basename(fp))[0]
+                        bycat_rows.append({
+                            'period': '',
+                            'item_id': row.get('item_id',''),
+                            'url': row.get('url',''),
+                            'title': row.get('title',''),
+                            'brand_tier': row.get('brand_tier',''),
+                            'cba_flag': row.get('cba_flag',''),
+                            'category': cat_name,
+                        })
+            except Exception:
+                pass
+    # Aceptar filas sin 'period' (compatibilidad con CSVs sin columna)
+    bycat_rows = [r for r in bycat_rows if (not r.get('period')) or (r.get('period') == period)]
+
+    def _normalize_brand_tier(title: str, tier: str) -> str:
+        t = (title or '').lower()
+        tier = (tier or '').strip().lower()
+        # premium cues
+        if any(k in t for k in ['seren', 'casancrem', 'matarazzo', 'lucchetti', 'hellmann', 'imperial', 'coca cola', 'eco de los andes', 'quesabores', 'lactal ']):
+            return 'premium'
+        # segunda cues (marca económica)
+        if any(k in t for k in [' best ' , ' best x', 'best x', 'marca best']):
+            return 'segunda'
+        # marca propia LA: tomar como estándar (no segunda)
+        if any(k in t for k in [' la anon', ' la anón']):
+            return 'estandar'
+        # por defecto, mantener si es válido
+        return tier if tier in ('premium','estandar','segunda') else 'estandar'
     for r in bycat_rows:
         iid = r.get('item_id') or ''
         if not iid:
@@ -574,13 +615,32 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
                 'item_id': iid,
                 'url': r.get('url',''),
                 'title': r.get('title','') or iid,
-                'brand_tier': r.get('brand_tier',''),
+                'brand_tier': _normalize_brand_tier(r.get('title',''), r.get('brand_tier','')),
                 'cba_flag': r.get('cba_flag',''),
-                'category': r.get('category',''),
+                'category': (r.get('category','') or (r.get('url','').split('/')[3] if (r.get('url') or '').startswith('http') and len(r.get('url').split('/'))>3 else '')).lower(),
             }
+    # Fallback: if no URLs from by_category for this period, try legacy data/sku_pins.csv
+    if not any((v or {}).get('url') for v in pins_map.values()):
+        try:
+            legacy_pins = read_sku_pins('data/sku_pins.csv')
+        except Exception:
+            legacy_pins = []
+        for prow in legacy_pins:
+            iid = prow.get('item_id') or ''
+            if not iid:
+                continue
+            if (iid not in pins_map) or (not pins_map[iid].get('url')):
+                pins_map[iid] = {
+                    'item_id': iid,
+                    'url': prow.get('url',''),
+                    'title': prow.get('title','') or iid,
+                    'brand_tier': _normalize_brand_tier(prow.get('title',''), prow.get('brand_tier','')),
+                    'cba_flag': prow.get('cba_flag',''),
+                    'category': prow.get('category',''),
+                }
     missing = [row['item_id'] for row in catalog if not (pins_map.get(row['item_id']) or {}).get('url')]
     if missing:
-        print(f"[WARN] Se omitirán ítems sin URL en data/sku_pins.csv: {', '.join(missing)}")
+        print(f"[WARN] Se omitiran items sin URL en by_category/*.csv: {', '.join(missing)}")
 
     log_path = os.path.join(evidence_dir, f'run_{period}.jsonl')
     json_log(log_path, 'start_pins', {'period': period, 'mode': 'pins_only'})

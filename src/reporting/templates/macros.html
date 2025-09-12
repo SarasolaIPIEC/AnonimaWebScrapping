@@ -1,0 +1,25 @@
+{% macro badge_cba(flag) -%}
+  {% if flag in ['si','sí','s','SI','Sí'] %}<span class="chip chip-cba">CBA</span>{% else %}<span class="chip">No CBA</span>{% endif %}
+{%- endmacro %}
+
+{% macro badge_tier(tier) -%}
+  {% set m = {'premium':'Premium','estandar':'Estandar','segunda':'Segunda'} %}
+  {% if tier %}<span class="chip chip-tier">{{ m.get(tier, tier|title) }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro price_cell(price_final, price_list) -%}
+  {% if price_list and price_list>price_final %}
+    <span class="orig">{{ price_list|currency }}</span> <span class="promo">{{ price_final|currency }}</span>
+  {% else %}
+    {{ price_final|currency }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro unit_price_cell(value, base_unit) -%}
+  {% if value is not none %}
+    {% set suf = 'kg' if base_unit=='kg' else ('L' if base_unit=='l' else 'un') %}
+    {{ value|currency }} / {{ suf }}
+  {% else %}
+    
+  {% endif %}
+{%- endmacro %}
