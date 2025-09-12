@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from typing import Dict, List
 
 from bs4 import BeautifulSoup
@@ -29,21 +28,39 @@ def extract_product_cards(html: str) -> List[Dict]:
         for node in soup.select("[data-testid='product-card']"):
             name = node.select_one("[data-testid='product-name']").get_text(strip=True)
 
-            price_now = node.select_one("[data-testid='price-now']")
-            price_regular = node.select_one("[data-testid='price']")
-            price_text = price_now.get_text(strip=True) if price_now else price_regular.get_text(strip=True)
+            impuestos_node = node.select_one("div.impuestos-nacionales")
+            impuestos_txt = impuestos_node.get_text(strip=True) if impuestos_node else ""
+
+            promo_container = node.select_one("div.precio-promo")
+            if promo_container:
+                price_node = promo_container.select_one("div.precio.semibold")
+                dec_node = promo_container.select_one("span.decimales")
+                promo_flag = True
+            else:
+                price_node = node.select_one("div.precio")
+                dec_node = node.select_one("div.precio_complemento span.decimales") or node.select_one(
+                    "span.decimales"
+                )
+                promo_flag = False
+
+            price_int = price_node.get_text(strip=True) if price_node else ""
+            decimals = dec_node.get_text(strip=True) if dec_node else ""
+            price_text = f"{price_int}{decimals}"
 
             stock_flag = node.select_one("[data-testid='out-of-stock']") is not None
 
-            raw = {"name": name, "price": price_text, "oos": stock_flag}
+            raw = {
+                "name": name,
+                "price": price_text,
+                "oos": stock_flag,
+                "promo_flag": promo_flag,
+                "impuestos_nacionales": impuestos_txt,
+            }
             cards.append(normalize_product(raw))
         return cards
     except Exception:
         save_html(html, "extract_error")
         raise
-
-
-_PRICE_RE = re.compile(r"[0-9]+(?:[.,][0-9]+)?")
 
 
 def normalize_product(raw: dict) -> dict:
@@ -54,11 +71,16 @@ def normalize_product(raw: dict) -> dict:
     Export: ``exports/normalized_products.json``
     """
 
-    price_match = _PRICE_RE.search(raw["price"])
-    price = float(price_match.group(0).replace(".", "").replace(",", ".")) if price_match else None
+    price_raw = (raw.get("price") or "").replace("$", "").replace(" ", "")
+    try:
+        price = float(price_raw.replace(".", "").replace(",", ".")) if price_raw else None
+    except ValueError:
+        price = None
 
     return {
         "name": raw["name"],
         "price": price,
         "in_stock": not raw["oos"],
+        "promo_flag": raw.get("promo_flag", False),
+        "impuestos_nacionales": raw.get("impuestos_nacionales", ""),
     }
