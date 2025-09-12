@@ -1,6 +1,51 @@
 ﻿import csv
+
+
+def render_report(out_path: str, period: str, series_path: str, breakdown_path: str, write_by_category: bool = False) -> None:
+    """Render del reporte mensual (Jinja2 si está disponible, si no fallback)."""
+    env = _build_jinja_env()
+    if env is not None:
+        series, breakdown, prev = load_data(series_path, breakdown_path, period)
+        v = validate(breakdown)
+        rows = v["rows"]
+        enriched = enrich(rows, period, prev)
+        series_svg = _svg_line(sorted(series, key=lambda r: r["period"]))
+        ctx = build_context(period, series, enriched, series_svg)
+        rel_breakdown = os.path.relpath(breakdown_path, start=os.path.dirname(out_path) or ".")
+        ctx["links"]["breakdown"] = rel_breakdown.replace("\\","/")
+        tpl = env.get_template("report.html")
+        html = tpl.render(**ctx)
+        os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        if write_by_category:
+            _export_by_category(enriched, period)
+        return
+    # fallback heredado
+    _legacy_report_impl(out_path, period, series_path, breakdown_path)
+
+"""Reporting HTML (Jinja2) para IPC Ushuaia.
+
+Este módulo consume `series_cba.csv` y `breakdown_<period>.csv` y produce
+`reports/<period>.html` con dos vistas conmutables.
+
+Modelo de datos esperado por `enrich()`/plantillas (por fila del breakdown):
+- item_id, title, url, category, brand_tier ('premium'|'estandar'|'segunda'), cba_flag ('si'|'no'|'')
+- presentation_text (p.ej. 'docena', 'lata 473 cc', '1,5 L', 'x 1 kg')
+- base_equiv_value (float) y base_equiv_unit ('kg'|'l'|'un')
+- price_final (ARS), price_list (opcional para tachado), promo_flag (bool), in_stock (bool)
+- qty_AE (float mensual para AE), contrib_AE_$ (float), contrib_AE_pct (float 0..100)
+- variation_mom_pct (float|None), variation_yoy_pct (float|None), variation_mom_unit_pct (float|None)
+- basket_version, period, metadatos globales (source, branch, tz, family_ae)
+
+Si faltan campos en exports, `enrich()` los deriva (presentación, unitario, flags).
+Las validaciones en `validate()` no interrumpen: acumulan advertencias.
+"""
+
+import csv
 import os
-from typing import List, Dict, Any
+from datetime import datetime
+from typing import List, Dict, Any, Optional, Tuple
 from playwright.sync_api import sync_playwright
 try:
     from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -8,6 +53,266 @@ except Exception:  # optional dependency
     Environment = None
     FileSystemLoader = None
     select_autoescape = None
+
+# === Helpers y pipeline Jinja2 (nuevo) ===
+
+def _period_minus(period: str, months: int) -> str:
+    y, m = period.split('-')
+    y = int(y)
+    m = int(m)
+    total = y * 12 + (m - 1) - months
+    ny = total // 12
+    nm = (total % 12) + 1
+    return f"{ny:04d}-{nm:02d}"
+
+
+def _fmt_currency_ar(value):
+    try:
+        x = float(value)
+    except Exception:
+        x = 0.0
+    s = f"{x:,.2f}"
+    s = s.replace(',', '_').replace('.', ',').replace('_', '.')
+    return f"${s}"
+
+
+def _fmt_number_ar(value, ndigits: int = 3):
+    try:
+        x = float(value)
+    except Exception:
+        x = 0.0
+    s = f"{x:.{ndigits}f}"
+    s = s.replace('.', ',')
+    while s.endswith('0') and ',' in s:
+        s = s[:-1]
+    if s.endswith(','):
+        s = s[:-1]
+    return s
+
+
+def _fmt_pct_ar(value):
+    try:
+        if value in (None, '', 'N/D'):
+            return 'N/D'
+        x = float(value)
+    except Exception:
+        return 'N/D'
+    s = f"{x:.1f}%"
+    return s.replace('.', ',')
+
+
+def _ensure_float(x):
+    try:
+        return float(x)
+    except Exception:
+        return None
+
+
+def _read_csv(path: str):
+    if not os.path.exists(path):
+        return []
+    with open(path, 'r', encoding='utf-8') as f:
+        return list(csv.DictReader(f))
+
+
+def load_data(series_path: str, breakdown_path: str, period: str):
+    series = _read_csv(series_path)
+    breakdown = _read_csv(breakdown_path)
+    prev_path = os.path.join(os.path.dirname(breakdown_path) or 'exports', f"breakdown_{_period_minus(period,1)}.csv")
+    prev = _read_csv(prev_path)
+    return series, breakdown, prev
+
+
+def validate(rows):
+    warnings = []
+    valid_rows = []
+    for r in rows:
+        url = (r.get('url') or '').strip()
+        pf = _ensure_float(r.get('price_final')) or 0.0
+        if not url or ('laanonima' not in url.lower() and 'supermercado' not in url.lower()):
+            warnings.append(f"URL sospechosa u omitida en item_id={r.get('item_id')}")
+        if pf <= 0:
+            warnings.append(f"Precio final inválido en item_id={r.get('item_id')}")
+        valid_rows.append(r)
+    return {'rows': valid_rows, 'warnings': warnings}
+
+
+def enrich(rows, period: str, prev_rows):
+    from ..normalize.units import parse_title_size
+    prev_map = {r.get('item_id'): r for r in prev_rows if r.get('item_id')}
+    total_cba = 0.0
+    for r in rows:
+        try:
+            total_cba += float(r.get('cost_item_ae') or 0)
+        except Exception:
+            pass
+    out = []
+    for r in rows:
+        title = r.get('title') or r.get('name') or ''
+        qty = r.get('qty_base')
+        unit = r.get('unit')
+        if not qty or not unit:
+            q, u = parse_title_size(title)
+            qty = qty or q
+            unit = unit or u
+        presentation_text = f"{_fmt_number_ar(qty)} {('u' if unit in ('unit','un') else unit)}".strip()
+        price_final = _ensure_float(r.get('price_final')) or 0.0
+        price_original = _ensure_float(r.get('price_original')) or 0.0
+        price_list = price_original if (price_original > price_final > 0) else None
+        unit_price = (price_final / qty) if (price_final and qty) else None
+        contrib_ae = _ensure_float(r.get('cost_item_ae')) or (unit_price * (_ensure_float(r.get('monthly_qty_base')) or 0.0) if unit_price else 0.0)
+        contrib_pct = (contrib_ae / total_cba * 100.0) if total_cba else 0.0
+        prev = prev_map.get(r.get('item_id'))
+        var_mom = None
+        var_mom_unit = None
+        if prev:
+            pf_prev = _ensure_float(prev.get('price_final'))
+            up_prev = _ensure_float(prev.get('unit_price_base'))
+            if pf_prev and price_final:
+                var_mom = (price_final / pf_prev - 1.0) * 100.0
+            if up_prev and unit_price:
+                var_mom_unit = (unit_price / up_prev - 1.0) * 100.0
+        brand_tier = (r.get('brand_tier') or '').strip().lower()
+        if brand_tier not in ('premium','estandar','segunda'):
+            brand_tier = 'estandar'
+        cba_flag = (r.get('cba_flag') or '').strip().lower()
+        in_stock = str(r.get('in_stock') or '1').strip().lower() in ('1','true','yes','si','s')
+        promo_flag = str(r.get('promo_flag') or '').strip().lower() in ('1','true','yes','si','s')
+        qty_ae = _ensure_float(r.get('monthly_qty_base')) or 0.0
+        out.append({
+            'period': period,
+            'item_id': r.get('item_id'),
+            'title': title,
+            'url': r.get('url') or '',
+            'category': (r.get('category') or '').lower(),
+            'brand_tier': brand_tier,
+            'cba_flag': 'si' if cba_flag in ('si','sí','s','1',True) else ('no' if cba_flag else ''),
+            'presentation_text': presentation_text,
+            'base_equiv_value': qty or 0.0,
+            'base_equiv_unit': ('un' if unit in ('unit','un') else unit) or '',
+            'price_final': price_final,
+            'price_list': price_list,
+            'promo_flag': promo_flag,
+            'in_stock': in_stock,
+            'qty_AE': qty_ae,
+            'contrib_AE_$': contrib_ae,
+            'contrib_AE_pct': contrib_pct,
+            'unit_price': unit_price or 0.0,
+            'variation_mom_pct': var_mom,
+            'variation_yoy_pct': None,
+            'variation_mom_unit_pct': var_mom_unit,
+            'basket_version': r.get('basket_version') or 'v1',
+        })
+    return out
+
+
+def compute_kpis(series_rows, enriched_rows):
+    series_sorted = sorted(series_rows, key=lambda r: r['period'])
+    latest = series_sorted[-1] if series_sorted else {}
+    try:
+        cba_ae = float(latest.get('cba_ae') or 0)
+    except Exception:
+        cba_ae = 0.0
+    try:
+        cba_family = float(latest.get('cba_family') or (cba_ae * 3.09))
+    except Exception:
+        cba_family = 0.0
+    idx = _ensure_float(latest.get('idx')) or 0.0
+    mom = _ensure_float(latest.get('mom'))
+    yoy = _ensure_float(latest.get('yoy'))
+    total_cba = sum((r.get('contrib_AE_$') or 0.0) for r in enriched_rows)
+    summary = {
+        'total_items': len(enriched_rows),
+        'valid_items': sum(1 for r in enriched_rows if (r.get('price_final') or 0) > 0),
+        'promo_count': sum(1 for r in enriched_rows if r.get('price_list') and r.get('price_final') and r['price_list'] > r['price_final']),
+        'oos_count': sum(1 for r in enriched_rows if not r.get('in_stock')),
+        'cba_ae_sum': total_cba,
+        'valid_ratio': (sum(1 for r in enriched_rows if (r.get('price_final') or 0) > 0) / max(1, len(enriched_rows))) if enriched_rows else 0.0,
+    }
+    return {
+        'series_sorted': series_sorted,
+        'kpis': {
+            'cba_ae': cba_ae,
+            'cba_family': cba_family,
+            'idx': idx,
+            'mom': mom,
+            'yoy': yoy,
+        },
+        'summary': summary,
+    }
+
+
+def build_context(period: str, series_rows, enriched_rows, series_svg: str):
+    k = compute_kpis(series_rows, enriched_rows)
+    categories = sorted({r["category"] for r in enriched_rows if r.get("category")})
+    brand_tiers = ["premium","estandar","segunda"]
+    viewA = sorted([
+        {
+            "item_id": r["item_id"], "title": r["title"], "url": r["url"], "category": r["category"],
+            "brand_tier": r["brand_tier"], "cba_flag": r["cba_flag"],
+            "presentation_text": r["presentation_text"], "price_final": r["price_final"], "price_list": r["price_list"],
+            "contrib_AE_$": r["contrib_AE_$"], "contrib_AE_pct": r["contrib_AE_pct"],
+            "variation_mom_pct": r["variation_mom_pct"], "in_stock": r["in_stock"], "promo_flag": r["promo_flag"]
+        } for r in enriched_rows
+    ], key=lambda x: x["contrib_AE_pct"], reverse=True)
+    viewB = sorted([
+        {
+            "item_id": r["item_id"], "title": r["title"], "url": r["url"], "category": r["category"],
+            "brand_tier": r["brand_tier"], "cba_flag": r["cba_flag"],
+            "base_equiv_value": r["base_equiv_value"], "base_equiv_unit": r["base_equiv_unit"],
+            "unit_price": r["unit_price"], "contrib_AE_pct": r["contrib_AE_pct"],
+            "variation_mom_unit_pct": r["variation_mom_unit_pct"]
+        } for r in enriched_rows
+    ], key=lambda x: (x["unit_price"] if x["unit_price"] else float("inf")))
+    return {
+        "title": f"IPC Ushuaia — Reporte {period}",
+        "header": "IPC Ushuaia — Canasta Básica Alimentaria",
+        "period": period,
+        "kpis": k["kpis"],
+        "summary": k["summary"],
+        "chart_index": series_svg,
+        "viewA": viewA,
+        "viewB": viewB,
+        "filters": {"categories": categories, "brand_tiers": brand_tiers},
+        "links": {},
+        "meta": {"source": "La Anónima – Online", "branch": "Ushuaia 5", "tz": "America/Argentina/Ushuaia", "family_ae": 3.09, "generated_at": datetime.now().isoformat(timespec="seconds")}
+    }
+
+
+def _build_jinja_env():
+    if Environment is None:
+        return None
+    loader = FileSystemLoader(os.path.join('src', 'reporting', 'templates'))
+    env = Environment(loader=loader, autoescape=select_autoescape(['html']))
+    env.filters['currency'] = _fmt_currency_ar
+    env.filters['number'] = _fmt_number_ar
+    env.filters['pct'] = _fmt_pct_ar
+    return env
+
+
+def _export_by_category(rows: List[Dict[str, Any]], period: str) -> None:
+    bydir = os.path.join('by_category')
+    os.makedirs(bydir, exist_ok=True)
+    buckets: Dict[str, List[Dict[str, Any]]] = {}
+    for r in rows:
+        cat = r.get('category') or 'sin_categoria'
+        buckets.setdefault(cat, []).append(r)
+    fields = ['period','item_id','title','url','brand_tier','cba_flag','category']
+    for cat, items in buckets.items():
+        path = os.path.join(bydir, f"{cat}.csv")
+        with open(path, 'w', newline='', encoding='utf-8') as f:
+            w = csv.DictWriter(f, fieldnames=fields)
+            w.writeheader()
+            for r in items:
+                w.writerow({
+                    'period': period,
+                    'item_id': r.get('item_id'),
+                    'title': r.get('title'),
+                    'url': r.get('url'),
+                    'brand_tier': r.get('brand_tier'),
+                    'cba_flag': r.get('cba_flag'),
+                    'category': r.get('category'),
+                })
 
 
 def _read_series(path: str) -> List[Dict[str, Any]]:
@@ -96,7 +401,7 @@ def _summarize_breakdown(breakdown: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
-def render_report(out_path: str, period: str, series_path: str, breakdown_path: str) -> None:
+def _legacy_report_impl(out_path: str, period: str, series_path: str, breakdown_path: str) -> None:
     series = _read_series(series_path)
     breakdown = _read_breakdown(breakdown_path)
     series_sorted = sorted(series, key=lambda r: r['period'])
@@ -1071,13 +1376,26 @@ if __name__ == '__main__':
     ap.add_argument('--period', required=True, help='YYYY-MM')
     ap.add_argument('--in', dest='infile', required=False, help='Ruta a breakdown_<period>.csv (por defecto exports/breakdown_<period>.csv)')
     ap.add_argument('--series', dest='series', required=False, help='Ruta a series_cba.csv (por defecto exports/series_cba.csv)')
-    ap.add_argument('--outdir', dest='outdir', default='reports', help='Directorio de salida (default reports)')
+    ap.add_argument('--out', dest='out', required=False, default=None, help='Salida: directorio o archivo .html (default reports/<period>.html)')
+    ap.add_argument('--outdir', dest='outdir', default=None, help='[DEPRECADO] Directorio de salida (usar --out)')
+    ap.add_argument('--write-by-category', action='store_true', help='Escribe CSVs by_category/<categoria>.csv con brand_tier normalizado')
     args = ap.parse_args()
     period = args.period
     breakdown_path = args.infile or os.path.join('exports', f'breakdown_{period}.csv')
     series_path = args.series or os.path.join('exports', 'series_cba.csv')
-    out_path = os.path.join(args.outdir, f'{period}.html')
-    render_report(out_path, period, series_path, breakdown_path)
+    # Resolver salida
+    out_arg = args.out or args.outdir or 'reports'
+    if out_arg.lower().endswith('.html'):
+        out_path = out_arg
+    else:
+        out_path = os.path.join(out_arg, f'{period}.html')
+    render_report(out_path, period, series_path, breakdown_path, write_by_category=bool(args.write_by_category))
+
+
+
+
+
+
 
 
 

@@ -7,18 +7,20 @@
   <style>
     :root { --bg:#f7f9fb; --card:#fff; --muted:#667085; --border:#e5e7eb; --ink:#0f172a; --accent:#1976d2; --strike:#9ca3af; --promo:#b91c1c; }
     * { box-sizing: border-box; }
-    body { margin:0; background:var(--bg); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; }
     .container { max-width:1100px; margin:0 auto; padding:24px; }
     header { text-align:center; margin-bottom:16px; }
     header h1 { margin:8px 0 4px; font-size:28px; }
-    header .period { color: var(--muted); font-size: 14px; }
-    .kpis { display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; margin: 16px 0; }
+    header .period { color:var(--muted); font-size:14px; }
+    .kpis { display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; margin:18px 0 8px; }
     .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; box-shadow:0 1px 2px rgba(16,24,40,.04); }
     .kpi .label { color:var(--muted); font-size:12px; }
     .kpi .value { font-size:20px; font-weight:700; margin-top:2px; }
+    .section-title { margin:14px 0 8px; font-size:18px; }
+    .chart { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
     .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; align-items:start; }
-    table { border-collapse: collapse; width: 100%; background: var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-    thead th { background:#f3f4f6; color:#111827; font-weight:600; font-size:13px; position: sticky; top: 0; z-index: 1; }
+    table { border-collapse:collapse; width:100%; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    thead th { background:#f3f4f6; color:#111827; font-weight:600; font-size:13px; position:sticky; top:0; z-index:1; }
     th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
     tbody tr:nth-child(even) { background:#fafafa; }
     td.num { text-align:right; font-variant-numeric: tabular-nums; }
@@ -32,12 +34,34 @@
     .chip { display:inline-block; font-size:11px; padding:2px 6px; border-radius:999px; border:1px solid var(--border); background:#fff; margin-left:6px; }
     .chip-cba { border-color:#16a34a; color:#166534; }
     .chip-tier { border-color:#94a3b8; color:#334155; }
+    .filters { margin: 16px 0; }
+    .controls-grid { display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px; align-items:end; }
+    .control label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .control .row { display:flex; gap:8px; align-items:center; }
+    .control input[type='search'], .control input[type='number'], .control select { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+    .option-row { display:flex; flex-wrap:wrap; gap:8px; }
+    .option-row label { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); padding:6px 8px; border-radius:999px; cursor:pointer; background:#fff; }
+    button.tiny { border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 10px; cursor:pointer; }
+    button.tiny:focus, .control input:focus, .control select:focus { outline:2px solid var(--accent); outline-offset:2px; }
+    .tabs { display:flex; gap:8px; margin:8px 0; }
+    .tabs button { border:1px solid var(--border); background:#fff; border-radius:999px; padding:8px 12px; cursor:pointer; }
+    .tabs button.active { background:#eef5ff; border-color:#bcd6ff; color:#1e40af; }
+    @media (max-width: 900px) { .grid { grid-template-columns:1fr; } .kpis { grid-template-columns: repeat(2, 1fr); } .controls-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
   <div class="container">
+    <header>
+      <h1>{{ header or 'IPC Ushuaia — Canasta Básica Alimentaria' }}</h1>
+      <div class="period">Reporte del período {{ period }}</div>
+    </header>
     {% block body %}{% endblock %}
+    <footer>
+      <div>Índice base=100 en el primer período. Canasta fija; sustituciones documentadas ante faltantes. Unidades normalizadas a kg/L/unidad.</div>
+      <div>Fuente: {{ meta.source }} — {{ meta.branch }}. Zona: {{ meta.tz }}</div>
+    </footer>
   </div>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
 
