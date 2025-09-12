@@ -14,7 +14,7 @@ __all__ = ["search", "list_category", "paginate"]
 
 
 @exponential_backoff(max_attempts=3)
-def search(page: Page, query: str, home_url: str = "https://www.laanonimaonline.com/") -> str:
+def search(page: Page, query: str, home_url: str = "https://supermercado.laanonimaonline.com/") -> str:
     """Realiza una búsqueda y retorna el HTML resultante.
 
     TODO: registrar cambios de DOM al expedir ``docs/evidence/search.md``.

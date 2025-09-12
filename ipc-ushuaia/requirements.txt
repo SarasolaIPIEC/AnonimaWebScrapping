@@ -7,4 +7,5 @@ pandas
 numpy
 jinja2
 pytest
+responses
 matplotlib
