@@ -9,7 +9,7 @@ herramientas como Power BI.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -19,6 +19,7 @@ __all__ = [
     "export_to_html",
     "export_series",
     "export_breakdown",
+    "export_products",
 ]
 
 
@@ -31,6 +32,20 @@ def _ensure_exports_dir() -> None:
     """Crea el directorio de exportaciones si no existe."""
 
     EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def export_products(products: List[Dict[str, Any]], output: Optional[str] = None) -> Path:
+    """Exporta una lista de productos a CSV.
+
+    ``promo_flag`` e ``impuestos_nacionales`` se incluyen si existen en los
+    diccionarios de entrada.
+    """
+
+    _ensure_exports_dir()
+    df = pd.DataFrame(products)
+    output_path = Path(output) if output else EXPORT_DIR / "products.csv"
+    export_to_csv(df, str(output_path))
+    return output_path
 
 
 def export_to_csv(df: pd.DataFrame, path: str) -> None:

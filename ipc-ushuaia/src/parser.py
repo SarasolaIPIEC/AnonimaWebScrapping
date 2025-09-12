@@ -131,6 +131,8 @@ def map_products_to_cba(
                 "source": best.get("source"),
                 "reason": best.get("reason"),
                 "category": cba_row.get("category"),
+                "promo_flag": best.get("promo_flag"),
+                "impuestos_nacionales": best.get("impuestos_nacionales"),
             }
             if best.get("source") == "fallback" and not best.get("reason"):
                 item_data["reason"] = "substitution"
@@ -143,6 +145,8 @@ def map_products_to_cba(
                 "source": "missing",
                 "reason": "OOS",
                 "category": cba_row.get("category"),
+                "promo_flag": None,
+                "impuestos_nacionales": None,
             }
     return mapping
 

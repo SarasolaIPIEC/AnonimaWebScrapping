@@ -18,11 +18,13 @@
 ```
 
 ## Selectores sugeridos
-- Título: `.product-title` o similar
-- Unidad: `.product-unit`
-- Precio final: `.product-price-final`
-- Stock: `.product-stock` o flag OOS
-- Promoción: `.product-promo`
+- Tarjeta de producto: `[data-testid='product-card']`
+- Nombre: `[data-testid='product-name']`
+- Precio promocional: `div.precio-promo > div.precio.semibold` + `span.decimales`
+- Precio regular: `div.precio` + `div.precio_complemento span.decimales`
+- Impuestos: `div.impuestos-nacionales`
+- Bandera OOS: `[data-testid='out-of-stock']`
+- Sucursal activa: `[data-testid='current-branch']`
 
 ## Ejemplo de flujo
 1. Lanzar navegador (browser.py)
@@ -38,5 +40,19 @@
 - Producto fuera de stock (OOS)
 
 ## TODOs
-- Completar selectores reales tras inspección de la web
 - Documentar ejemplos de HTML y productos extraídos
+## Ejemplo de tarjeta de producto
+
+```html
+<div data-testid='product-card'>
+  <div data-testid='product-name'>Promo Prod</div>
+  <div class='precio-promo'>
+    <div class='precio semibold'>$ 1.900</div>
+    <div class='precio_complemento'><span class='decimales'>,00</span></div>
+  </div>
+  <div class='impuestos-nacionales'>IVA 21%</div>
+</div>
+```
+
+Este HTML fue capturado durante pruebas de parsing y sirve como referencia para
+los selectores definitivos.
