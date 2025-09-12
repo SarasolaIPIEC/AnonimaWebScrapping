@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ title }}</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; }
+    .kpis { display: flex; gap: 2rem; margin: 1rem 0; }
+    .kpi { padding: 0.8rem 1rem; border: 1px solid #ddd; border-radius: 8px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #eee; padding: 6px 8px; text-align: left; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <!-- Nota: esta plantilla no se usa por un motor de templates; se deja como referencia para mejoras futuras (Jinja2). -->
+  <h1>{{ title }}</h1>
+  {{ body }}
+</body>
+</html>
+

@@ -1,33 +1,37 @@
-# IPC Ushuaia
+﻿# IPC Ushuaia
 
-Índice local de precios estilo CBA a partir de La Anónima Online – Ushuaia.
+Ãndice local de precios estilo CBA a partir de La AnÃ³nima Online â€“ Ushuaia.
 
 ## Objetivo
-Sistema periódico que releva precios, normaliza unidades, calcula CBA por AE y familia tipo (3,09 AE), deriva un índice base=100 y exporta serie histórica y reportes.
+Sistema periÃ³dico que releva precios, normaliza unidades, calcula CBA por AE y familia tipo (3,09 AE), deriva un Ã­ndice base=100 y exporta serie histÃ³rica y reportes.
 
 ## Estructura
-- `src/`: código fuente
+- `src/`: cÃ³digo fuente
 - `data/`: datos crudos y procesados
 - `exports/`: salidas (CSV, HTML, JSON)
 - `reports/`: reportes generados
-- `docs/`: documentación técnica/metodológica
+- `docs/`: documentaciÃ³n tÃ©cnica/metodolÃ³gica
 - `tests/`: pruebas
 
-## Uso
-La aplicación expone una interfaz de línea de comandos situada en
-`src/cli.py`.  Los subcomandos disponibles son:
+## Uso (simplificado)
+
+Ejecutar con valores por defecto (mes actual y sucursal Ushuaia):
 
 ```
-python ipc-ushuaia/src/cli.py run --period 2024-01 --branch ushuaia --headless
-python ipc-ushuaia/src/cli.py dry-run --period 2024-01 --html-path ejemplo.html
-python ipc-ushuaia/src/cli.py export-series --period 2024-01 --input exports/series_cba.csv
+python -m src.cli run
 ```
 
-Argumentos principales:
+Opciones útiles:
 
-- `--period` en formato `YYYY-MM` (validado).
-- `--branch` sucursal de La Anónima; actualmente solo `ushuaia`.
-- `--headless` ejecuta el navegador sin interfaz gráfica.
+- `--period YYYY-MM` para setear el período (por defecto: mes actual)
+- `--branch ushuaia` para forzar sucursal (por defecto: ushuaia)
+- `--headless` para correr sin UI
 
-`export-series` permite reexportar la serie histórica en CSV/HTML a partir de
-datos ya persistidos.
+Otros subcomandos:
+
+```
+python -m src.cli dry-run --html-path ejemplo.html
+python -m src.cli export-series --input exports/series_cba.csv
+```
+
+`export-series` reexporta la serie en CSV/HTML a partir de datos ya persistidos.

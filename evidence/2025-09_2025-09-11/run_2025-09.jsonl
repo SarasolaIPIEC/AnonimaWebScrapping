@@ -1,0 +1,19 @@
+{"ts": "2025-09-12T02:31:27.410891Z", "event": "start", "period": "2025-09", "selectors_md5": "e18b34f05a0c05e48750fa3d4b299ed1", "catalog_md5": "0a0f96eb8f3f2d6c6cc4b08bcebdbcec", "config_md5": "b016716a51bf37aa480167cefad29551"}
+{"ts": "2025-09-12T02:31:32.536390Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
+{"ts": "2025-09-12T02:31:46.196656Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
+{"ts": "2025-09-12T02:31:46.196656Z", "event": "error", "stage": "branch", "error": "No se validó la sucursal en header (no aparece \"Ushuaia\")."}
+{"ts": "2025-09-12T02:35:50.845335Z", "event": "start", "period": "2025-09", "selectors_md5": "e18b34f05a0c05e48750fa3d4b299ed1", "catalog_md5": "0a0f96eb8f3f2d6c6cc4b08bcebdbcec", "config_md5": "b016716a51bf37aa480167cefad29551"}
+{"ts": "2025-09-12T02:35:53.118778Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
+{"ts": "2025-09-12T02:36:06.629476Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
+{"ts": "2025-09-12T02:36:06.630479Z", "event": "branch_warning", "message": "Sucursal no verificada, se continúa de todos modos"}
+{"ts": "2025-09-12T02:36:06.714631Z", "event": "branch_ok", "branch": "USHUAIA 5", "postal_code": "9410"}
+{"ts": "2025-09-12T02:36:36.951845Z", "event": "start", "period": "2025-09", "selectors_md5": "c614acce08a640c3516c87d26c10e99e", "catalog_md5": "0a0f96eb8f3f2d6c6cc4b08bcebdbcec", "config_md5": "b016716a51bf37aa480167cefad29551"}
+{"ts": "2025-09-12T02:36:39.235728Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
+{"ts": "2025-09-12T02:36:54.728913Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
+{"ts": "2025-09-12T02:36:54.728913Z", "event": "branch_warning", "message": "Sucursal no verificada, se continúa de todos modos"}
+{"ts": "2025-09-12T02:36:54.846476Z", "event": "branch_ok", "branch": "USHUAIA 5", "postal_code": "9410"}
+{"ts": "2025-09-12T02:37:42.817277Z", "event": "start", "period": "2025-09", "selectors_md5": "640974c3dece7a6c83c4244b8f02f3a1", "catalog_md5": "0a0f96eb8f3f2d6c6cc4b08bcebdbcec", "config_md5": "b016716a51bf37aa480167cefad29551"}
+{"ts": "2025-09-12T02:37:45.090673Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
+{"ts": "2025-09-12T02:38:00.560969Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
+{"ts": "2025-09-12T02:38:00.560969Z", "event": "branch_warning", "message": "Sucursal no verificada, se continúa de todos modos"}
+{"ts": "2025-09-12T02:38:00.682953Z", "event": "branch_ok", "branch": "USHUAIA 5", "postal_code": "9410"}

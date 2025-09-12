@@ -1,0 +1,120 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>IPC Ushuaia — Reporte 2025-09</title>
+  <style>
+    :root { --bg:#f7f9fb; --card:#fff; --muted:#667085; --border:#e5e7eb; --ink:#0f172a; --accent:#1976d2; --strike:#9ca3af; --promo:#b91c1c; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif; }
+    .container { max-width:1100px; margin:0 auto; padding:24px; }
+    header { text-align:center; margin-bottom:16px; }
+    header h1 { margin:8px 0 4px; font-size:28px; }
+    header .period { color:var(--muted); font-size:14px; }
+    .kpis { display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; margin:18px 0 8px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+    .kpi .label { color:var(--muted); font-size:12px; }
+    .kpi .value { font-size:20px; font-weight:700; margin-top:2px; }
+    .section-title { margin:14px 0 8px; font-size:18px; }
+    .chart { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; align-items:start; }
+    table { border-collapse:collapse; width:100%; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    thead th { background:#f3f4f6; color:#111827; font-weight:600; font-size:13px; }
+    th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
+    tbody tr:nth-child(even) { background:#fafafa; }
+    td.num { text-align:right; font-variant-numeric: tabular-nums; }
+    .muted { color:var(--muted); }
+    footer { margin:18px 0 6px; color:var(--muted); font-size:13px; text-align:center; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .orig { color: var(--strike); text-decoration: line-through; margin-right: 6px; }
+    .promo { color: var(--promo); font-weight: 700; }
+    @media (max-width: 900px) { .grid { grid-template-columns:1fr; } .kpis { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>IPC Ushuaia — Canasta Básica Alimentaria</h1>
+      <div class="period">Reporte del período 2025-09</div>
+    </header>
+
+    <section class="kpis">
+      <div class="card kpi"><div class="label">CBA AE</div><div class="value">$71,428.00</div></div>
+      <div class="card kpi"><div class="label">CBA Familia (×3,09)</div><div class="value">$220,712.52</div></div>
+      <div class="card kpi"><div class="label">Índice (base=100)</div><div class="value">100.00</div></div>
+      <div class="card kpi"><div class="label">m/m</div><div class="value">0.00%</div></div>
+      <div class="card kpi"><div class="label">i.a.</div><div class="value">—%</div></div>
+    </section>
+
+    <section class="grid">
+      <div class="chart card">
+        <div class="section-title">Serie del índice (base=100)</div>
+        
+<svg width="960" height="240" viewBox="0 0 960 240" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="960" height="240" fill="#fff" />
+  <polyline fill="none" stroke="#1976d2" stroke-width="2" points="40.0,200.0" />
+  <circle cx='40.0' cy='200.0' r='3' fill='#1976d2' />
+  <line x1="40" y1="200" x2="920" y2="200" stroke="#bbb" stroke-width="1" />
+  <line x1="40" y1="40" x2="40" y2="200" stroke="#bbb" stroke-width="1" />
+  <text x='40.0' y='192.0' font-size='10' text-anchor='middle' fill='#333'>2025-09</text>
+</svg>
+
+      </div>
+      <div class="card">
+        <div class="section-title">Resumen del período</div>
+        <table>
+          <tbody>
+            <tr><th>Total ítems</th><td class="num">14</td></tr>
+            <tr><th>Con precio válido</th><td class="num">14 (100.0%)</td></tr>
+            <tr><th>En promoción</th><td class="num">14</td></tr>
+            <tr><th>Sin stock</th><td class="num">0</td></tr>
+            <tr><th>Suma costo AE</th><td class="num">$71,428.00</td></tr>
+          </tbody>
+        </table>
+        <div class="muted" style="margin-top:8px">Fuente: La Anónima Online (sucursal Ushuaia). Precios finales (promos vigentes incluidas).</div>
+      </div>
+    </section>
+
+    <section style="margin-top:16px;">
+      <div class="section-title">Top aportes al costo (AE)</div>
+      <table>
+        <thead><tr><th>Ítem</th><th>Producto</th><th>Precio</th><th>Qty base</th><th>Unidad</th><th>Costo AE</th><th>Promo</th><th>Stock</th></tr></thead>
+        <tbody>
+          <tr><td>Leche L Leche 1 l</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/' target='_blank' rel='noopener'>Leche L.V. Entera La Anónima x 1 lt.</a></td><td class='num'>$1,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$19,900.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Huevo Color D Huevos docena</td><td><a href='https://supermercado.laanonimaonline.com/frescos/huevos/huevo-color-d-t-x-12-un/art_7088/' target='_blank' rel='noopener'>Huevo Color D.T. x 12 un.</a></td><td class='num'>$4,700.00</td><td class='num'>1.0</td><td></td><td class='num'>$9,400.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Pollo Fresco La An Pollo 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/pollo-fresco-la-anonima-kg/art_2330/' target='_blank' rel='noopener'>Pollo Fresco La Anónima (Kg)</a></td><td class='num'><span class='orig'>$5,159.00</span> <span class='promo'>$3,690.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$7,380.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Pan Mignon Pan 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/' target='_blank' rel='noopener'>Pan Mignon (Kg)</a></td><td class='num'>$3,550.00</td><td class='num'>1.0</td><td></td><td class='num'>$7,100.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Manzana Red Elegida Manzana 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/' target='_blank' rel='noopener'>Manzana Red Elegida (Kg)</a></td><td class='num'>$2,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,980.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Queso Cremoso Horma Entera La Paulina x Queso cremoso 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-horma-entera-la-paulina-x-1-kg/art_11530/' target='_blank' rel='noopener'>Queso Cremoso Horma Entera La Paulina x 1 Kg.</a></td><td class='num'>$7,200.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,760.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Papa Granel Papa 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/papa-granel-kg/art_58/' target='_blank' rel='noopener'>Papa Granel (Kg)</a></td><td class='num'>$1,499.00</td><td class='num'>1.0</td><td></td><td class='num'>$4,497.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Aceite de Girasol Natura x Aceite girasol 1.5 l</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/aceite-de-girasol-natura-x-1-5-lt/art_1963/' target='_blank' rel='noopener'>Aceite de Girasol Natura x 1,5 Lt.</a></td><td class='num'>$4,800.00</td><td class='num'>1.5</td><td></td><td class='num'>$3,200.00</td><td>Sí</td><td>Sí</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section style="margin-top:16px;">
+      <div class="section-title">Desglose completo</div>
+      <table>
+        <thead><tr><th>Ítem</th><th>Producto</th><th>Precio</th><th>Qty base</th><th>Unidad</th><th>Costo AE</th><th>Promo</th><th>Stock</th></tr></thead>
+        <tbody>
+          <tr><td>Arroz Grano Largo Fino Molinos Ala x Arroz 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/' target='_blank' rel='noopener'>Arroz Grano Largo Fino Molinos Ala x 1 kg.</a></td><td class='num'>$1,500.00</td><td class='num'>1.0</td><td></td><td class='num'>$3,000.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Harina de Trigo Harina 000 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-canuelas-x-1-kg/art_4/' target='_blank' rel='noopener'>Harina de Trigo 000 Cañuelas x 1 Kg.</a></td><td class='num'>$183.00</td><td class='num'>1.0</td><td></td><td class='num'>$366.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Fideos Spaghetti La An Fideos 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-spaghetti-la-anonima-x-500-g/art_2020/' target='_blank' rel='noopener'>Fideos Spaghetti La Anónima x 500 g.</a></td><td class='num'>$1,750.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Aceite de Girasol Natura x Aceite girasol 1.5 l</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/aceite-de-girasol-natura-x-1-5-lt/art_1963/' target='_blank' rel='noopener'>Aceite de Girasol Natura x 1,5 Lt.</a></td><td class='num'>$4,800.00</td><td class='num'>1.5</td><td></td><td class='num'>$3,200.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Az Azúcar 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/' target='_blank' rel='noopener'>Azúcar Blanca Ledesma x 1 Kg.</a></td><td class='num'>$1,255.00</td><td class='num'>1.0</td><td></td><td class='num'>$1,882.50</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Yerba Mate Tradicional Amanda x Yerba mate 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/yerba-mate-tradicional-amanda-x-1-kg/art_3180/' target='_blank' rel='noopener'>Yerba Mate Tradicional Amanda x 1 kg.</a></td><td class='num'><span class='orig'>$4,500.00</span> <span class='promo'>$3,950.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$2,962.50</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Leche L Leche 1 l</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/' target='_blank' rel='noopener'>Leche L.V. Entera La Anónima x 1 lt.</a></td><td class='num'>$1,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$19,900.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Huevo Color D Huevos docena</td><td><a href='https://supermercado.laanonimaonline.com/frescos/huevos/huevo-color-d-t-x-12-un/art_7088/' target='_blank' rel='noopener'>Huevo Color D.T. x 12 un.</a></td><td class='num'>$4,700.00</td><td class='num'>1.0</td><td></td><td class='num'>$9,400.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Carne Picada E Carne picada 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/carne-picada-e-v-estancias-la-x-500-g/art_1382/' target='_blank' rel='noopener'>Carne Picada E/V Estancias LA x 500 g.</a></td><td class='num'>$8,840.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Pollo Fresco La An Pollo 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/pollo-fresco-la-anonima-kg/art_2330/' target='_blank' rel='noopener'>Pollo Fresco La Anónima (Kg)</a></td><td class='num'><span class='orig'>$5,159.00</span> <span class='promo'>$3,690.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$7,380.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Pan Mignon Pan 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/' target='_blank' rel='noopener'>Pan Mignon (Kg)</a></td><td class='num'>$3,550.00</td><td class='num'>1.0</td><td></td><td class='num'>$7,100.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Queso Cremoso Horma Entera La Paulina x Queso cremoso 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-horma-entera-la-paulina-x-1-kg/art_11530/' target='_blank' rel='noopener'>Queso Cremoso Horma Entera La Paulina x 1 Kg.</a></td><td class='num'>$7,200.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,760.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Manzana Red Elegida Manzana 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/' target='_blank' rel='noopener'>Manzana Red Elegida (Kg)</a></td><td class='num'>$2,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,980.00</td><td>Sí</td><td>Sí</td></tr>
+<tr><td>Papa Granel Papa 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/papa-granel-kg/art_58/' target='_blank' rel='noopener'>Papa Granel (Kg)</a></td><td class='num'>$1,499.00</td><td class='num'>1.0</td><td></td><td class='num'>$4,497.00</td><td>Sí</td><td>Sí</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <div>Índice base=100 en el primer período. Canasta fija; sustituciones documentadas ante faltantes. Unidades normalizadas a kg/L/unidad.</div>
+      <div>Este reporte se generó automáticamente con IPC Ushuaia.</div>
+    </footer>
+  </div>
+</body>
+</html>

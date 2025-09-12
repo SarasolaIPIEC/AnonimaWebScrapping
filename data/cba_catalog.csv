@@ -1,3 +1,15 @@
-category,item,monthly_qty_value,monthly_qty_unit,preferred_keywords,fallback_keywords,min_pack_size,notes
-Panaderia,Pan fresco,1,kg,"pan fresco","lactal",0.5,"Ejemplo de pan fresco"
-Lacteos,Leche entera,2,l,"leche entera","leche",1,"Ejemplo de leche"
+item_id,name,preferred_keywords,fallback_keywords,expected_unit,expected_qty,monthly_qty_base,size_tolerance
+arroz_1kg,Arroz 1 kg,"arroz, largo fino",arroz,kg,1.0,2.0,0.85
+harina000_1kg,Harina 000 1 kg,"harina 000",harina,kg,1.0,2.0,0.85
+fideos_1kg,Fideos 1 kg,"fideos, tallarin, spaghetti",fideos,kg,1.0,1.5,0.85
+aceite_girasol_1_5l,Aceite girasol 1.5 l,"aceite, girasol","aceite girasol",l,1.5,1.0,0.85
+azucar_1kg,Azúcar 1 kg,azucar,azucar,kg,1.0,1.5,0.85
+yerba_1kg,Yerba mate 1 kg,yerba,yerba,kg,1.0,0.75,0.85
+leche_1l,Leche 1 l,"leche, entera",leche,l,1.0,10.0,0.85
+huevos_docena,Huevos docena,"huevos, docena",huevos,unit,12.0,2.0,0.85
+carne_picada_1kg,Carne picada 1 kg,"carne, picada","carne picada",kg,1.0,2.0,0.85
+pollo_1kg,Pollo 1 kg,pollo,pollo,kg,1.0,2.0,0.85
+pan_1kg,Pan 1 kg,pan,pan,kg,1.0,2.0,0.85
+queso_cremoso_1kg,Queso cremoso 1 kg,"queso, cremoso","queso cremoso",kg,1.0,0.8,0.85
+manzana_1kg,Manzana 1 kg,manzana,manzana,kg,1.0,2.0,0.85
+papa_1kg,Papa 1 kg,papa,papa,kg,1.0,3.0,0.85

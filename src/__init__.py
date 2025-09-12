@@ -1,1 +1,6 @@
-from . import parser, normalizer, index_engine
+"""
+ipc-ushuaia package
+
+CLI entrypoint: python -m src.cli
+"""
+

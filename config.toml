@@ -1,6 +1,17 @@
-branch = "main"
-headless = true
-delays = 1.5
-max_retries = 3
-user_agent = "ipc-ushuaia-bot/1.0 (+https://github.com/AnonimaWebScrapping)"
-output_dirs = ["data/raw", "data/processed"]
+# Configuración general (editá según necesidad)
+
+base_url = "https://supermercado.laanonimaonline.com/"
+postal_code = "9410"
+branch_name = "USHUAIA 5"
+
+[paths]
+evidence_dir = "evidence"
+html_dump_dir = "evidence/html"
+exports_dir = "exports"
+reports_dir = "reports"
+
+[business]
+family_ae = "3.09"
+min_valid_price_ratio = "0.8"
+exclude_keywords = "sabor,premium,light,oliva extra,integral,sin azúcar"
+

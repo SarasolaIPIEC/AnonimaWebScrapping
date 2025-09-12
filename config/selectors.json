@@ -1,0 +1,57 @@
+{
+  "location_button": [
+    {"role": "button", "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci(o|ó)n)"},
+    {"css": "header button, header [role=button]"},
+    {"text": "(?i)Ushuaia"}
+  ],
+  "postal_input": [
+    {"placeholder": "(?i)(c(o|ó)digo postal|cp)"},
+    {"css": "input[placeholder*=postal i], input[placeholder*=CP i]"}
+  ],
+  "branch_option": [
+    {"text": "(?i)ushuaia\\s*5"}
+  ],
+  "confirm_button": [
+    {"role": "button", "name": "(?i)(confirmar|aplicar|aceptar|guardar)"}
+  ],
+  "search_input": [
+    {"placeholder": "(?i)(qu[eé] te gustar[ií]a encontrar|buscar|producto|¿qu[eé])"},
+    {"role": "textbox", "name": "(?i)(buscar|producto|¿qu[eé])"},
+    {"css": "input[type=search], input[placeholder*=buscar i], input[aria-label*=Buscar i]"}
+  ],
+  "product_card_root": [
+    {"css": "[data-product-card]"},
+    {"css": "article"},
+    {"css": "li"},
+    {"css": "div:has(.price)"}
+  ],
+  "price_now": [
+    {"css": "[data-price-final]"},
+    {"css": ".price__now, .product-price-now"},
+    {"css": ".precio.destacado, .precio-promo .precio, .precio-destacado"},
+    {"text": "\\$\\s*[\\d\\.,]+"}
+  ],
+  "price_original": [
+    {"css": ".precio.anterior, .precio-original, .price__before"}
+  ],
+  "title": [
+    {"css": "[data-product-title]"},
+    {"css": "h3, .card-title, a[title]"}
+  ],
+  "oos_flag": [
+    {"text": "(?i)(sin stock|agotado|no disponible)"},
+    {"css": ".oos, .sold-out"}
+  ],
+  "add_to_cart_button": [
+    {"role": "button", "name": "(?i)(agregar|comprar|añadir)"},
+    {"css": "button.add, button.add-to-cart, button[aria-label*=Agregar i]"}
+  ],
+  "pagination_next": [
+    {"role": "button", "name": "(?i)(siguiente|adelante)"},
+    {"css": ".pagination .next, .pagination-next button, a[rel=next]"}
+  ],
+  "cookie_accept_button": [
+    {"role": "button", "name": "(?i)(aceptar|entendido|continuar|cerrar|ok|acepto)"},
+    {"css": "button#onetrust-accept-btn-handler, .cookie-accept, .ot-sdk-container button[aria-label*=Aceptar i]"}
+  ]
+}

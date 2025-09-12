@@ -1,0 +1,15 @@
+date,period,item_id,name,query,title,url,price_final,qty_base,unit,unit_price_base,in_stock,promo_flag
+2025-09-11,2025-09,arroz_1kg,Arroz 1 kg,Arroz 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,harina000_1kg,Harina 000 1 kg,Harina 000 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,fideos_1kg,Fideos 1 kg,Fideos 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,aceite_girasol_1_5l,Aceite girasol 1.5 l,Aceite girasol 1.5 l,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,azucar_1kg,Azúcar 1 kg,Azúcar 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,yerba_1kg,Yerba mate 1 kg,Yerba mate 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,leche_1l,Leche 1 l,Leche 1 l,Leche entera,,,1.0,unit,,True,False
+2025-09-11,2025-09,huevos_docena,Huevos docena,Huevos docena,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,carne_picada_1kg,Carne picada 1 kg,Carne picada 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,pollo_1kg,Pollo 1 kg,Pollo 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,pan_1kg,Pan 1 kg,Pan 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,queso_cremoso_1kg,Queso cremoso 1 kg,Queso cremoso 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,manzana_1kg,Manzana 1 kg,Manzana 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
+2025-09-11,2025-09,papa_1kg,Papa 1 kg,Papa 1 kg,Pan fresco La Anónima,,,1.0,unit,,True,False
