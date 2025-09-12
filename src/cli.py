@@ -19,6 +19,7 @@ from .metrics.cba import compute_cba_values
 from .metrics.index import update_series
 from .reporting.render import render_report
 from .site.utils import json_log
+from .ingest.csv_input import read_sku_pins, read_by_category
 
 
 def load_selectors(config_path: str) -> Dict[str, Any]:
@@ -130,8 +131,9 @@ def read_catalog(path: str) -> List[Dict[str, Any]]:
 
 
 def write_breakdown(path: str, period: str, rows: List[Dict[str, Any]]) -> None:
+    # Campos ampliados para soportar filtros y metadatos de pins
     fields = [
-        'period','item_id','name','query','title','url','in_stock','promo_flag',
+        'period','item_id','name','query','title','url','brand_tier','cba_flag','category','in_stock','promo_flag',
         'price_original','price_promo','price_final','unit_price_base','qty_base','expected_qty','cost_item_ae','substitution'
     ]
     with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -180,20 +182,42 @@ def read_pins(path: str) -> Dict[str, Dict[str, Any]]:
 
 
 def write_pins(path: str, results: List[Dict[str, Any]]) -> None:
-    current = read_pins(path)
+    # Preservar columnas existentes y actualizar url/title y metadatos si están
+    existing_rows: Dict[str, Dict[str, Any]] = {}
+    existing_fields: List[str] = []
+    if os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            existing_fields = list(reader.fieldnames or [])
+            for row in reader:
+                if row.get('item_id'):
+                    existing_rows[row['item_id']] = dict(row)
     for r in results:
-        if r.get('item_id') and r.get('url') and r.get('title'):
-            current[r['item_id']] = {
-                'item_id': r['item_id'],
-                'url': r['url'],
-                'title': r['title']
-            }
+        iid = r.get('item_id')
+        if not iid:
+            continue
+        row = existing_rows.get(iid, {})
+        row['item_id'] = iid
+        if r.get('url'):
+            row['url'] = r['url']
+        if r.get('title'):
+            row['title'] = r['title']
+        for k in ('brand_tier','cba_flag','category'):
+            if r.get(k) not in (None, ''):
+                row[k] = r.get(k)
+        existing_rows[iid] = row
+    base = ['item_id','url','title']
+    keys_union = set(existing_fields)
+    for v in existing_rows.values():
+        keys_union.update(v.keys())
+    others = [k for k in keys_union if k not in base]
+    fieldnames = base + sorted(others)
     os.makedirs(os.path.dirname(path) or 'data', exist_ok=True)
     with open(path, 'w', newline='', encoding='utf-8') as f:
-        w = csv.DictWriter(f, fieldnames=['item_id','url','title'])
+        w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
-        for v in current.values():
-            w.writerow(v)
+        for v in existing_rows.values():
+            w.writerow({k: v.get(k, '') for k in fieldnames})
 
 
 def parse_period(p: Optional[str]) -> str:
@@ -261,15 +285,35 @@ def cmd_run(args: argparse.Namespace) -> int:
     catalog = read_catalog('data/cba_catalog.csv')
     exclude_keywords = [s.strip() for s in cfg.get('exclude_keywords', '').split(',') if s.strip()]
 
-    # 3) Pinned SKUs first, then searches and extract
+    # 3) Pinned SKUs first, luego búsquedas
     try:
         results: List[Dict[str, Any]] = []
         # Pinned map
         pins_map: Dict[str, Dict[str, Any]] = {}
         if os.path.exists('data/sku_pins.csv'):
-            with open('data/sku_pins.csv', 'r', encoding='utf-8') as f:
-                for prow in csv.DictReader(f):
+            for prow in read_sku_pins('data/sku_pins.csv'):
+                if prow.get('item_id'):
                     pins_map[prow['item_id']] = prow
+        # Incorporar entradas desde by_category/<cat>.csv del período actual
+        try:
+            bycat_rows = read_by_category('by_category/*.csv')
+        except Exception:
+            bycat_rows = []
+        bycat_rows = [r for r in bycat_rows if (r.get('period') == period)]
+        for r in bycat_rows:
+            iid = r.get('item_id') or ''
+            if not iid:
+                continue
+            # prioridad: si ya hay pin con URL, mantenerlo; si falta URL, completar
+            if (iid not in pins_map) or (not pins_map[iid].get('url')):
+                pins_map[iid] = {
+                    'item_id': iid,
+                    'url': r.get('url',''),
+                    'title': r.get('title','') or iid,
+                    'brand_tier': r.get('brand_tier',''),
+                    'cba_flag': r.get('cba_flag',''),
+                    'category': r.get('category',''),
+                }
         # Try pinned
         from .site.product import extract_product_page
         from .normalize.units import parse_title_size
@@ -295,12 +339,50 @@ def cmd_run(args: argparse.Namespace) -> int:
                     'unit': un,
                     'expected_qty': row['expected_qty'],
                     'monthly_qty_base': row['monthly_qty_base'],
-                    'substitution': ''
+                    'substitution': '',
+                    'brand_tier': pin.get('brand_tier', ''),
+                    'cba_flag': pin.get('cba_flag', ''),
+                    'category': pin.get('category', ''),
                 })
                 if res.get('price_final') and qb:
                     results.append(res)
             except Exception as e:
                 json_log(log_path, 'pinned_error', {'item_id': row['item_id'], 'error': str(e)})
+
+        # Ítems extras presentes en sku_pins pero no en el catálogo
+        extra_ids = [pid for pid in pins_map.keys() if pid not in {r['item_id'] for r in catalog}]
+        for pid in extra_ids:
+            pin = pins_map.get(pid) or {}
+            url = pin.get('url') or ''
+            if not url:
+                continue
+            try:
+                res = extract_product_page(
+                    page,
+                    url=url,
+                    selectors=selectors,
+                    evidence_dir=evidence_dir,
+                    html_dump_dir=html_dump_dir,
+                    save_basename=f"pinned_extra_{pid}"
+                )
+                qb, un = parse_title_size(res.get('title') or '')
+                res.update({
+                    'item_id': pid,
+                    'name': pin.get('title') or pid,
+                    'query': 'PINNED',
+                    'qty_base': qb,
+                    'unit': un,
+                    'expected_qty': 0.0,
+                    'monthly_qty_base': 0.0,
+                    'substitution': '',
+                    'brand_tier': pin.get('brand_tier', ''),
+                    'cba_flag': pin.get('cba_flag', ''),
+                    'category': pin.get('category', ''),
+                })
+                if res.get('price_final') and qb:
+                    results.append(res)
+            except Exception as e:
+                json_log(log_path, 'pinned_extra_error', {'item_id': pid, 'error': str(e)})
 
         remaining = [r for r in catalog if r['item_id'] not in {x['item_id'] for x in results}]
         search_results = run_searches(
@@ -475,10 +557,30 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
 
     catalog = read_catalog('data/cba_catalog.csv')
     pins_map = read_pins('data/sku_pins.csv')
+    # Merge per-category CSVs (período actual) para completar u ofrecer nuevos ítems
+    try:
+        bycat_rows = read_by_category('by_category/*.csv')
+    except Exception:
+        bycat_rows = []
+    bycat_rows = [r for r in bycat_rows if (r.get('period') == period)]
+    for r in bycat_rows:
+        iid = r.get('item_id') or ''
+        if not iid:
+            continue
+        base = pins_map.get(iid) or {}
+        if (not base) or (not base.get('url')):
+            pins_map[iid] = {
+                **base,
+                'item_id': iid,
+                'url': r.get('url',''),
+                'title': r.get('title','') or iid,
+                'brand_tier': r.get('brand_tier',''),
+                'cba_flag': r.get('cba_flag',''),
+                'category': r.get('category',''),
+            }
     missing = [row['item_id'] for row in catalog if not (pins_map.get(row['item_id']) or {}).get('url')]
     if missing:
-        print(f"[FATAL] Faltan URLs en data/sku_pins.csv para: {', '.join(missing)}")
-        return 1
+        print(f"[WARN] Se omitirán ítems sin URL en data/sku_pins.csv: {', '.join(missing)}")
 
     log_path = os.path.join(evidence_dir, f'run_{period}.jsonl')
     json_log(log_path, 'start_pins', {'period': period, 'mode': 'pins_only'})
@@ -493,9 +595,17 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
     from .site.product import extract_product_page
     from .normalize.units import parse_title_size
     results: List[Dict[str, Any]] = []
-    for row in catalog:
-        pin = pins_map.get(row['item_id'])
+    processed = 0
+    skipped = 0
+    catalog_ids = {r['item_id'] for r in catalog}
+    all_ids = list(catalog_ids | set(pins_map.keys()))
+    cat_index = {r['item_id']: r for r in catalog}
+    for iid in all_ids:
+        pin = pins_map.get(iid)
         url = pin.get('url') if pin else ''
+        if not url:
+            skipped += 1
+            continue
         try:
             res = extract_product_page(
                 page,
@@ -503,22 +613,27 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
                 selectors=selectors,
                 evidence_dir=evidence_dir,
                 html_dump_dir=html_dump_dir,
-                save_basename=f"pinned_{row['item_id']}"
+                save_basename=f"pinned_{iid}"
             )
             qb, un = parse_title_size(res.get('title') or '')
+            base = cat_index.get(iid)
             res.update({
-                'item_id': row['item_id'],
-                'name': row['name'],
+                'item_id': iid,
+                'name': (base['name'] if base else (pin.get('title') if pin else iid)),
                 'query': 'PINNED',
                 'qty_base': qb,
                 'unit': un,
-                'expected_qty': row['expected_qty'],
-                'monthly_qty_base': row['monthly_qty_base'],
-                'substitution': ''
+                'expected_qty': (base['expected_qty'] if base else 0.0),
+                'monthly_qty_base': (base['monthly_qty_base'] if base else 0.0),
+                'substitution': '',
+                'brand_tier': (pin.get('brand_tier') if pin else ''),
+                'cba_flag': (pin.get('cba_flag') if pin else ''),
+                'category': (pin.get('category') if pin else ''),
             })
             results.append(res)
+            processed += 1
         except Exception as e:
-            json_log(log_path, 'pinned_error', {'item_id': row['item_id'], 'error': str(e)})
+            json_log(log_path, 'pinned_error', {'item_id': iid, 'error': str(e)})
 
     # Close
     try:
@@ -549,6 +664,7 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
     ratio = len(valid_prices) / max(1, len(priced_rows))
     print("=== Resumen PINs IPC Ushuaia ===")
     print(f"Periodo: {period}")
+    print(f"Procesados con URL: {processed} | Omitidos sin URL: {skipped}")
     print(f"CBA AE: ${cba_ae:,.2f}")
     print(f"CBA Familia (x{family_ae}): ${cba_family:,.2f}")
     print(f"Series: {series_path}")

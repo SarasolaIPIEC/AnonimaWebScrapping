@@ -31,7 +31,19 @@
     a:hover { text-decoration:underline; }
     .orig { color: var(--strike); text-decoration: line-through; margin-right: 6px; }
     .promo { color: var(--promo); font-weight: 700; }
-    @media (max-width: 900px) { .grid { grid-template-columns:1fr; } .kpis { grid-template-columns: repeat(2, 1fr); } }
+    /* Filtros: diseño mínimo accesible */
+    .filters { margin: 16px 0; }
+    .controls-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
+    .control label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .control .row { display:flex; gap:8px; align-items:center; }
+    .control input[type='search'],
+    .control input[type='number'],
+    .control select { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+    .option-row { display:flex; flex-wrap:wrap; gap:8px; }
+    .option-row label { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); padding:6px 8px; border-radius:999px; cursor:pointer; background:#fff; }
+    button#sort-dir, button#reset-filters { border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 10px; cursor:pointer; }
+    button#sort-dir:focus, button#reset-filters:focus, .control input:focus, .control select:focus { outline:2px solid var(--accent); outline-offset:2px; }
+    @media (max-width: 900px) { .grid { grid-template-columns:1fr; } .kpis { grid-template-columns: repeat(2, 1fr); } .controls-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -42,8 +54,8 @@
     </header>
 
     <section class="kpis">
-      <div class="card kpi"><div class="label">CBA AE</div><div class="value">$71,428.00</div></div>
-      <div class="card kpi"><div class="label">CBA Familia (×3,09)</div><div class="value">$220,712.52</div></div>
+      <div class="card kpi"><div class="label">CBA AE</div><div class="value">$19,482.50</div></div>
+      <div class="card kpi"><div class="label">CBA Familia (×3,09)</div><div class="value">$60,200.92</div></div>
       <div class="card kpi"><div class="label">Índice (base=100)</div><div class="value">100.00</div></div>
       <div class="card kpi"><div class="label">m/m</div><div class="value">0.00%</div></div>
       <div class="card kpi"><div class="label">i.a.</div><div class="value">—%</div></div>
@@ -67,15 +79,64 @@
         <div class="section-title">Resumen del período</div>
         <table>
           <tbody>
-            <tr><th>Total ítems</th><td class="num">14</td></tr>
-            <tr><th>Con precio válido</th><td class="num">14 (100.0%)</td></tr>
-            <tr><th>En promoción</th><td class="num">14</td></tr>
+            <tr><th>Total ítems</th><td class="num">43</td></tr>
+            <tr><th>Con precio válido</th><td class="num">43 (100.0%)</td></tr>
+            <tr><th>En promoción</th><td class="num">43</td></tr>
             <tr><th>Sin stock</th><td class="num">0</td></tr>
-            <tr><th>Suma costo AE</th><td class="num">$71,428.00</td></tr>
+            <tr><th>Suma costo AE</th><td class="num">$19,482.50</td></tr>
           </tbody>
         </table>
         <div class="muted" style="margin-top:8px">Fuente: La Anónima Online (sucursal Ushuaia). Precios finales (promos vigentes incluidas).</div>
       </div>
+    </section>
+
+    <section class="card filters" id="filters" role="region" aria-label="Filtros del desglose">
+      <div class="section-title">Explorar desglose</div>
+      <form id="filter-form" onsubmit="return false;">
+        <div class="controls-grid">
+          <div class="control">
+            <label for="search">Buscar (título o item_id)</label>
+            <input type="search" id="search" placeholder="Ej: yerba 1 kg" />
+          </div>
+          <div class="control">
+            <label for="category">Categoría</label>
+            <select id="category"><option value="">Todas</option></select>
+          </div>
+          <div class="control">
+            <label>Marca (nivel)</label>
+            <div id="brand-tier-options" class="option-row" aria-label="Niveles de marca"></div>
+          </div>
+          <div class="control">
+            <label>Incluido en CBA</label>
+            <div id="cba-flag-options" class="option-row" aria-label="Incluido en CBA"></div>
+          </div>
+          <div class="control">
+            <label for="min-price">Precio final ($)</label>
+            <div class="row">
+              <input type="number" id="min-price" step="0.01" inputmode="decimal" placeholder="mín" />
+              <input type="number" id="max-price" step="0.01" inputmode="decimal" placeholder="máx" />
+            </div>
+          </div>
+          <div class="control">
+            <label for="sort-by">Ordenar por</label>
+            <div class="row">
+              <select id="sort-by">
+                <option value="">Relevancia</option>
+                <option value="price_final">Precio final</option>
+                <option value="unit_price_base">Precio unitario</option>
+                <option value="cost_item_ae">Costo AE</option>
+              </select>
+              <button type="button" id="sort-dir" aria-label="Cambiar orden" title="Cambiar orden" data-dir="asc">Asc</button>
+            </div>
+          </div>
+          <div class="control actions">
+            <label>&nbsp;</label>
+            <div class="row"><button type="button" id="reset-filters" title="Restablecer filtros">Reset</button></div>
+          </div>
+        </div>
+        <div id="filter-status" class="muted" aria-live="polite" style="margin-top:8px">&nbsp;</div>
+      </form>
+      <noscript><div class="muted">Los filtros requieren JavaScript. La tabla funciona sin interacción.</div></noscript>
     </section>
 
     <section style="margin-top:16px;">
@@ -83,30 +144,59 @@
       <table>
         <thead><tr><th>Ítem</th><th>Producto</th><th>Precio</th><th>Qty base</th><th>Unidad</th><th>Costo AE</th><th>Promo</th><th>Stock</th></tr></thead>
         <tbody>
-          <tr><td>Leche L Leche 1 l</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/' target='_blank' rel='noopener'>Leche L.V. Entera La Anónima x 1 lt.</a></td><td class='num'>$1,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$19,900.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Huevo Color D Huevos docena</td><td><a href='https://supermercado.laanonimaonline.com/frescos/huevos/huevo-color-d-t-x-12-un/art_7088/' target='_blank' rel='noopener'>Huevo Color D.T. x 12 un.</a></td><td class='num'>$4,700.00</td><td class='num'>1.0</td><td></td><td class='num'>$9,400.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Pollo Fresco La An Pollo 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/pollo-fresco-la-anonima-kg/art_2330/' target='_blank' rel='noopener'>Pollo Fresco La Anónima (Kg)</a></td><td class='num'><span class='orig'>$5,159.00</span> <span class='promo'>$3,690.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$7,380.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Pan Mignon Pan 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/' target='_blank' rel='noopener'>Pan Mignon (Kg)</a></td><td class='num'>$3,550.00</td><td class='num'>1.0</td><td></td><td class='num'>$7,100.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Manzana Red Elegida Manzana 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/' target='_blank' rel='noopener'>Manzana Red Elegida (Kg)</a></td><td class='num'>$2,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,980.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Queso Cremoso Horma Entera La Paulina x Queso cremoso 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-horma-entera-la-paulina-x-1-kg/art_11530/' target='_blank' rel='noopener'>Queso Cremoso Horma Entera La Paulina x 1 Kg.</a></td><td class='num'>$7,200.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,760.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Papa Granel Papa 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/papa-granel-kg/art_58/' target='_blank' rel='noopener'>Papa Granel (Kg)</a></td><td class='num'>$1,499.00</td><td class='num'>1.0</td><td></td><td class='num'>$4,497.00</td><td>Sí</td><td>Sí</td></tr><tr><td>Aceite de Girasol Natura x Aceite girasol 1.5 l</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/aceite-de-girasol-natura-x-1-5-lt/art_1963/' target='_blank' rel='noopener'>Aceite de Girasol Natura x 1,5 Lt.</a></td><td class='num'>$4,800.00</td><td class='num'>1.5</td><td></td><td class='num'>$3,200.00</td><td>Sí</td><td>Sí</td></tr>
+          <tr class='data-row'  data-item-id="huevos_docena" data-title="Huevo Blanco Extra Grande La Anónima x 12 un." data-name="Huevo Blanco Extra Grande La An Huevos docena" data-url="https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="5700.0" data-unit-price-base="5700.0" data-cost-ae="11400.0"><td>Huevo Blanco Extra Grande La An Huevos docena</td><td><a href='https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/' target='_blank' rel='noopener'>Huevo Blanco Extra Grande La Anónima x 12 un.</a></td><td class='num'>$5,700.00</td><td class='num'>1.0</td><td></td><td class='num'>$11,400.00</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="aceite_girasol_1_5l" data-title="Aceite de Girasol Natura x 1,5 Lt." data-name="Aceite de Girasol Natura x Aceite girasol 1.5 l" data-url="https://supermercado.laanonimaonline.com/almacen/aceite-de-girasol-natura-x-1-5-lt/art_1963/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="4800.0" data-unit-price-base="3200.0" data-cost-ae="3200.0"><td>Aceite de Girasol Natura x Aceite girasol 1.5 l</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-de-girasol-natura-x-1-5-lt/art_1963/' target='_blank' rel='noopener'>Aceite de Girasol Natura x 1,5 Lt.</a></td><td class='num'>$4,800.00</td><td class='num'>1.5</td><td></td><td class='num'>$3,200.00</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="arroz_1kg" data-title="Arroz Grano Largo Fino Molinos Ala x 1 kg." data-name="Arroz Grano Largo Fino Molinos Ala x Arroz 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1500.0" data-unit-price-base="1500.0" data-cost-ae="3000.0"><td>Arroz Grano Largo Fino Molinos Ala x Arroz 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/' target='_blank' rel='noopener'>Arroz Grano Largo Fino Molinos Ala x 1 kg.</a></td><td class='num'>$1,500.00</td><td class='num'>1.0</td><td></td><td class='num'>$3,000.00</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="azucar_1kg" data-title="Azúcar Blanca Ledesma x 1 Kg." data-name="Az Azúcar 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1255.0" data-unit-price-base="1255.0" data-cost-ae="1882.5"><td>Az Azúcar 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/' target='_blank' rel='noopener'>Azúcar Blanca Ledesma x 1 Kg.</a></td><td class='num'>$1,255.00</td><td class='num'>1.0</td><td></td><td class='num'>$1,882.50</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="fideos_tallarines_best_500g" data-title="Fideos Tallarín Best x 500 g." data-name="Fideos Tallar Fideos tallarÃ­n Best x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-best-x-500-g/art_3060/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="1250.0" data-unit-price-base="" data-cost-ae="0"><td>Fideos Tallar Fideos tallarÃ­n Best x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-best-x-500-g/art_3060/' target='_blank' rel='noopener'>Fideos Tallarín Best x 500 g.</a></td><td class='num'>$1,250.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="manteca_la_paulina_200g" data-title="Manteca La Paulina x 200 g." data-name="Manteca La Paulina x Manteca La Paulina x 200 g" data-url="https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-paulina-x-200-g/art_3614/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="4600.0" data-unit-price-base="" data-cost-ae="0"><td>Manteca La Paulina x Manteca La Paulina x 200 g</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-paulina-x-200-g/art_3614/' target='_blank' rel='noopener'>Manteca La Paulina x 200 g.</a></td><td class='num'>$4,600.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="vino_los_primos_750ml" data-title="Vino Tinto Cabernet Sauvignon Los Primos x 750 cc." data-name="Vino Tinto Cabernet Sauvignon Los Primos Vino tinto Cabernet Sauvignon Los Primos 750 ml" data-url="https://supermercado.laanonimaonline.com/bebidas/vinos-y-espumantes/tintos/vino-tinto-cabernet-sauvignon-los-primos-x-750-cc/art_23956/" data-brand-tier="estandar" data-cba-flag="no" data-category="" data-price-final="4550.0" data-unit-price-base="" data-cost-ae="0"><td>Vino Tinto Cabernet Sauvignon Los Primos Vino tinto Cabernet Sauvignon Los Primos 750 ml</td><td><a href='https://supermercado.laanonimaonline.com/bebidas/vinos-y-espumantes/tintos/vino-tinto-cabernet-sauvignon-los-primos-x-750-cc/art_23956/' target='_blank' rel='noopener'>Vino Tinto Cabernet Sauvignon Los Primos x 750 cc.</a></td><td class='num'>$4,550.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr><tr class='data-row'  data-item-id="tomate_redondo_kg" data-title="Tomate Redondo (Kg)" data-name="Tomate Redondo Tomate redondo (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/tomate-redondo-kg/art_2390/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="4690.0" data-unit-price-base="4690.0" data-cost-ae="0"><td>Tomate Redondo Tomate redondo (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/tomate-redondo-kg/art_2390/' target='_blank' rel='noopener'>Tomate Redondo (Kg)</a></td><td class='num'>$4,690.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
         </tbody>
       </table>
     </section>
 
     <section style="margin-top:16px;">
       <div class="section-title">Desglose completo</div>
-      <table>
+      <table id="breakdown-table">
         <thead><tr><th>Ítem</th><th>Producto</th><th>Precio</th><th>Qty base</th><th>Unidad</th><th>Costo AE</th><th>Promo</th><th>Stock</th></tr></thead>
         <tbody>
-          <tr><td>Arroz Grano Largo Fino Molinos Ala x Arroz 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/' target='_blank' rel='noopener'>Arroz Grano Largo Fino Molinos Ala x 1 kg.</a></td><td class='num'>$1,500.00</td><td class='num'>1.0</td><td></td><td class='num'>$3,000.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Harina de Trigo Harina 000 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-canuelas-x-1-kg/art_4/' target='_blank' rel='noopener'>Harina de Trigo 000 Cañuelas x 1 Kg.</a></td><td class='num'>$183.00</td><td class='num'>1.0</td><td></td><td class='num'>$366.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Fideos Spaghetti La An Fideos 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-spaghetti-la-anonima-x-500-g/art_2020/' target='_blank' rel='noopener'>Fideos Spaghetti La Anónima x 500 g.</a></td><td class='num'>$1,750.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Aceite de Girasol Natura x Aceite girasol 1.5 l</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/aceite-de-girasol-natura-x-1-5-lt/art_1963/' target='_blank' rel='noopener'>Aceite de Girasol Natura x 1,5 Lt.</a></td><td class='num'>$4,800.00</td><td class='num'>1.5</td><td></td><td class='num'>$3,200.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Az Azúcar 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/' target='_blank' rel='noopener'>Azúcar Blanca Ledesma x 1 Kg.</a></td><td class='num'>$1,255.00</td><td class='num'>1.0</td><td></td><td class='num'>$1,882.50</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Yerba Mate Tradicional Amanda x Yerba mate 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/yerba-mate-tradicional-amanda-x-1-kg/art_3180/' target='_blank' rel='noopener'>Yerba Mate Tradicional Amanda x 1 kg.</a></td><td class='num'><span class='orig'>$4,500.00</span> <span class='promo'>$3,950.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$2,962.50</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Leche L Leche 1 l</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/' target='_blank' rel='noopener'>Leche L.V. Entera La Anónima x 1 lt.</a></td><td class='num'>$1,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$19,900.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Huevo Color D Huevos docena</td><td><a href='https://supermercado.laanonimaonline.com/frescos/huevos/huevo-color-d-t-x-12-un/art_7088/' target='_blank' rel='noopener'>Huevo Color D.T. x 12 un.</a></td><td class='num'>$4,700.00</td><td class='num'>1.0</td><td></td><td class='num'>$9,400.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Carne Picada E Carne picada 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/carne-picada-e-v-estancias-la-x-500-g/art_1382/' target='_blank' rel='noopener'>Carne Picada E/V Estancias LA x 500 g.</a></td><td class='num'>$8,840.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Pollo Fresco La An Pollo 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/pollo-fresco-la-anonima-kg/art_2330/' target='_blank' rel='noopener'>Pollo Fresco La Anónima (Kg)</a></td><td class='num'><span class='orig'>$5,159.00</span> <span class='promo'>$3,690.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$7,380.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Pan Mignon Pan 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/' target='_blank' rel='noopener'>Pan Mignon (Kg)</a></td><td class='num'>$3,550.00</td><td class='num'>1.0</td><td></td><td class='num'>$7,100.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Queso Cremoso Horma Entera La Paulina x Queso cremoso 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-horma-entera-la-paulina-x-1-kg/art_11530/' target='_blank' rel='noopener'>Queso Cremoso Horma Entera La Paulina x 1 Kg.</a></td><td class='num'>$7,200.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,760.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Manzana Red Elegida Manzana 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/' target='_blank' rel='noopener'>Manzana Red Elegida (Kg)</a></td><td class='num'>$2,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$5,980.00</td><td>Sí</td><td>Sí</td></tr>
-<tr><td>Papa Granel Papa 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/papa-granel-kg/art_58/' target='_blank' rel='noopener'>Papa Granel (Kg)</a></td><td class='num'>$1,499.00</td><td class='num'>1.0</td><td></td><td class='num'>$4,497.00</td><td>Sí</td><td>Sí</td></tr>
+          <tr class='data-row'  data-item-id="fideos_tallarines_best_500g" data-title="Fideos Tallarín Best x 500 g." data-name="Fideos Tallar Fideos tallarÃ­n Best x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-best-x-500-g/art_3060/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="1250.0" data-unit-price-base="" data-cost-ae="0"><td>Fideos Tallar Fideos tallarÃ­n Best x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-best-x-500-g/art_3060/' target='_blank' rel='noopener'>Fideos Tallarín Best x 500 g.</a></td><td class='num'>$1,250.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="aceite_girasol_1_5l" data-title="Aceite de Girasol Natura x 1,5 Lt." data-name="Aceite de Girasol Natura x Aceite girasol 1.5 l" data-url="https://supermercado.laanonimaonline.com/almacen/aceite-de-girasol-natura-x-1-5-lt/art_1963/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="4800.0" data-unit-price-base="3200.0" data-cost-ae="3200.0"><td>Aceite de Girasol Natura x Aceite girasol 1.5 l</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-de-girasol-natura-x-1-5-lt/art_1963/' target='_blank' rel='noopener'>Aceite de Girasol Natura x 1,5 Lt.</a></td><td class='num'>$4,800.00</td><td class='num'>1.5</td><td></td><td class='num'>$3,200.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="manteca_la_paulina_200g" data-title="Manteca La Paulina x 200 g." data-name="Manteca La Paulina x Manteca La Paulina x 200 g" data-url="https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-paulina-x-200-g/art_3614/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="4600.0" data-unit-price-base="" data-cost-ae="0"><td>Manteca La Paulina x Manteca La Paulina x 200 g</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-paulina-x-200-g/art_3614/' target='_blank' rel='noopener'>Manteca La Paulina x 200 g.</a></td><td class='num'>$4,600.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="vino_los_primos_750ml" data-title="Vino Tinto Cabernet Sauvignon Los Primos x 750 cc." data-name="Vino Tinto Cabernet Sauvignon Los Primos Vino tinto Cabernet Sauvignon Los Primos 750 ml" data-url="https://supermercado.laanonimaonline.com/bebidas/vinos-y-espumantes/tintos/vino-tinto-cabernet-sauvignon-los-primos-x-750-cc/art_23956/" data-brand-tier="estandar" data-cba-flag="no" data-category="" data-price-final="4550.0" data-unit-price-base="" data-cost-ae="0"><td>Vino Tinto Cabernet Sauvignon Los Primos Vino tinto Cabernet Sauvignon Los Primos 750 ml</td><td><a href='https://supermercado.laanonimaonline.com/bebidas/vinos-y-espumantes/tintos/vino-tinto-cabernet-sauvignon-los-primos-x-750-cc/art_23956/' target='_blank' rel='noopener'>Vino Tinto Cabernet Sauvignon Los Primos x 750 cc.</a></td><td class='num'>$4,550.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="tomate_redondo_kg" data-title="Tomate Redondo (Kg)" data-name="Tomate Redondo Tomate redondo (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/tomate-redondo-kg/art_2390/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="4690.0" data-unit-price-base="4690.0" data-cost-ae="0"><td>Tomate Redondo Tomate redondo (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/tomate-redondo-kg/art_2390/' target='_blank' rel='noopener'>Tomate Redondo (Kg)</a></td><td class='num'>$4,690.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="pan_mignon_kg" data-title="Pan Mignon (Kg)" data-name="Pan Mignon Pan mignon (kg)" data-url="https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="3550.0" data-unit-price-base="3550.0" data-cost-ae="0"><td>Pan Mignon Pan mignon (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/' target='_blank' rel='noopener'>Pan Mignon (Kg)</a></td><td class='num'>$3,550.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="naranja_kg" data-title="Naranja (Kg)" data-name="Naranja Naranja (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/naranja-kg/art_2401/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1999.0" data-unit-price-base="1999.0" data-cost-ae="0"><td>Naranja Naranja (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/naranja-kg/art_2401/' target='_blank' rel='noopener'>Naranja (Kg)</a></td><td class='num'>$1,999.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="zanahoria_kg" data-title="Zanahoria Comercial Bolsita (Kg)" data-name="Zanahoria Comercial Bolsita Zanahoria (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/zanahoria-comercial-bolsita-kg/art_3114/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="799.0" data-unit-price-base="799.0" data-cost-ae="0"><td>Zanahoria Comercial Bolsita Zanahoria (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/zanahoria-comercial-bolsita-kg/art_3114/' target='_blank' rel='noopener'>Zanahoria Comercial Bolsita (Kg)</a></td><td class='num'>$799.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="mostaza_savora_250g" data-title="Mostaza Original Doy Pack Savora x 250 g." data-name="Mostaza Original Doy Pack Savora x Mostaza Savora original doypack x 250 g" data-url="https://supermercado.laanonimaonline.com/almacen/almacen/mostaza-original-doy-pack-savora-x-250-g/art_20083/" data-brand-tier="estandar" data-cba-flag="no" data-category="" data-price-final="1750.0" data-unit-price-base="" data-cost-ae="0"><td>Mostaza Original Doy Pack Savora x Mostaza Savora original doypack x 250 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/almacen/mostaza-original-doy-pack-savora-x-250-g/art_20083/' target='_blank' rel='noopener'>Mostaza Original Doy Pack Savora x 250 g.</a></td><td class='num'>$1,750.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="cebolla_kg" data-title="Cebolla Comercial Bolsita (Kg)" data-name="Cebolla Comercial Bolsita Cebolla comercial (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/cebolla-comercial-bolsita-kg/art_57/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="599.0" data-unit-price-base="599.0" data-cost-ae="0"><td>Cebolla Comercial Bolsita Cebolla comercial (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/cebolla-comercial-bolsita-kg/art_57/' target='_blank' rel='noopener'>Cebolla Comercial Bolsita (Kg)</a></td><td class='num'>$599.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="harina_000_morixe_1kg" data-title="Harina de Trigo 000 Morixe x 1 Kg." data-name="Harina de Trigo Harina de trigo 000 Morixe x 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-morixe-x-1-kg/art_2045/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="750.0" data-unit-price-base="750.0" data-cost-ae="0"><td>Harina de Trigo Harina de trigo 000 Morixe x 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-morixe-x-1-kg/art_2045/' target='_blank' rel='noopener'>Harina de Trigo 000 Morixe x 1 Kg.</a></td><td class='num'><span class='orig'>$940.00</span> <span class='promo'>$750.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="pollo_fresco_kg" data-title="Pollo Fresco La Anónima (Kg)" data-name="Pollo Fresco La An Pollo fresco La AnÃ³nima (kg)" data-url="https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-fresco-la-anonima-kg/art_2330/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="3690.0" data-unit-price-base="3690.0" data-cost-ae="0"><td>Pollo Fresco La An Pollo fresco La AnÃ³nima (kg)</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-fresco-la-anonima-kg/art_2330/' target='_blank' rel='noopener'>Pollo Fresco La Anónima (Kg)</a></td><td class='num'><span class='orig'>$5,159.00</span> <span class='promo'>$3,690.00</span></td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="garbanzos_500g" data-title="Garbanzos Secos Ramoneda x 500 g." data-name="Garbanzos Secos Ramoneda x Garbanzos secos Ramoneda x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/garbanzos-secos-ramoneda-x-500-g/art_7028/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="2800.0" data-unit-price-base="" data-cost-ae="0"><td>Garbanzos Secos Ramoneda x Garbanzos secos Ramoneda x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/garbanzos-secos-ramoneda-x-500-g/art_7028/' target='_blank' rel='noopener'>Garbanzos Secos Ramoneda x 500 g.</a></td><td class='num'>$2,800.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="harina_0000_pureza_1kg" data-title="Harina de Trigo 0000 Ultra Refinada Pureza x 1 kg." data-name="Harina de Trigo Harina de trigo 0000 Ultra Refinada Pureza x 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-0000-ultra-refinada-pureza-x-1-kg/art_179/" data-brand-tier="premium" data-cba-flag="no" data-category="" data-price-final="1162.5" data-unit-price-base="1162.5" data-cost-ae="0"><td>Harina de Trigo Harina de trigo 0000 Ultra Refinada Pureza x 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-0000-ultra-refinada-pureza-x-1-kg/art_179/' target='_blank' rel='noopener'>Harina de Trigo 0000 Ultra Refinada Pureza x 1 kg.</a></td><td class='num'><span class='orig'>$1,550.00</span> <span class='promo'>$1,162.50</span></td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="pan_lactal_lactal_460g" data-title="Pan de Mesa Blanco Grande Lactal Bimbo x 460 g." data-name="Pan de Mesa Blanco Grande Lactal Bimbo x Pan de mesa blanco grande Lactal x 460 g" data-url="https://supermercado.laanonimaonline.com/frescos/panificados/panes-de-molde-y-tortillas/pan-de-mesa-blanco-grande-lactal-bimbo-x-460-g/art_24387/" data-brand-tier="premium" data-cba-flag="no" data-category="" data-price-final="4550.0" data-unit-price-base="" data-cost-ae="0"><td>Pan de Mesa Blanco Grande Lactal Bimbo x Pan de mesa blanco grande Lactal x 460 g</td><td><a href='https://supermercado.laanonimaonline.com/frescos/panificados/panes-de-molde-y-tortillas/pan-de-mesa-blanco-grande-lactal-bimbo-x-460-g/art_24387/' target='_blank' rel='noopener'>Pan de Mesa Blanco Grande Lactal Bimbo x 460 g.</a></td><td class='num'>$4,550.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="lentejas_500g" data-title="Lentejas Secas Ramoneda x 500 g." data-name="Lentejas Secas Ramoneda x Lentejas secas Ramoneda x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/lentejas-secas-ramoneda-x-500-g/art_2223/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="2500.0" data-unit-price-base="" data-cost-ae="0"><td>Lentejas Secas Ramoneda x Lentejas secas Ramoneda x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/lentejas-secas-ramoneda-x-500-g/art_2223/' target='_blank' rel='noopener'>Lentejas Secas Ramoneda x 500 g.</a></td><td class='num'>$2,500.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="papa_granel_kg" data-title="Papa Granel (Kg)" data-name="Papa Granel Papa granel (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/papa-granel-kg/art_58/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1499.0" data-unit-price-base="1499.0" data-cost-ae="0"><td>Papa Granel Papa granel (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/papa-granel-kg/art_58/' target='_blank' rel='noopener'>Papa Granel (Kg)</a></td><td class='num'>$1,499.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="yogur_ilolay_bebible_1kg" data-title="Yogur Entero Bebible Frutilla Sachet Ilolay x 1 Kg." data-name="Yogur Entero Bebible Frutilla Sachet Ilo Yogur entero bebible Ilolay x 1 kg" data-url="https://supermercado.laanonimaonline.com/frescos/lacteos/yogur-entero-bebible-frutilla-sachet-ilolay-x-1-kg/art_7103/" data-brand-tier="estandar" data-cba-flag="no" data-category="" data-price-final="117.0" data-unit-price-base="117.0" data-cost-ae="0"><td>Yogur Entero Bebible Frutilla Sachet Ilo Yogur entero bebible Ilolay x 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/yogur-entero-bebible-frutilla-sachet-ilolay-x-1-kg/art_7103/' target='_blank' rel='noopener'>Yogur Entero Bebible Frutilla Sachet Ilolay x 1 Kg.</a></td><td class='num'>$117.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="arroz_1kg" data-title="Arroz Grano Largo Fino Molinos Ala x 1 kg." data-name="Arroz Grano Largo Fino Molinos Ala x Arroz 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1500.0" data-unit-price-base="1500.0" data-cost-ae="3000.0"><td>Arroz Grano Largo Fino Molinos Ala x Arroz 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/' target='_blank' rel='noopener'>Arroz Grano Largo Fino Molinos Ala x 1 kg.</a></td><td class='num'>$1,500.00</td><td class='num'>1.0</td><td></td><td class='num'>$3,000.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="coca_cola_1_5l" data-title="Gaseosa Cola Coca-Cola Pet x 1,5 lt." data-name="Gaseosa Cola Coca Gaseosa Cocaâ€‘Cola 1,5 L" data-url="https://supermercado.laanonimaonline.com/bebidas/gaseosa-cola-coca-cola-pet-x-1-5-lt/art_2175/" data-brand-tier="premium" data-cba-flag="no" data-category="" data-price-final="3300.0" data-unit-price-base="2200.0" data-cost-ae="0"><td>Gaseosa Cola Coca Gaseosa Cocaâ€‘Cola 1,5 L</td><td><a href='https://supermercado.laanonimaonline.com/bebidas/gaseosa-cola-coca-cola-pet-x-1-5-lt/art_2175/' target='_blank' rel='noopener'>Gaseosa Cola Coca-Cola Pet x 1,5 lt.</a></td><td class='num'>$3,300.00</td><td class='num'>1.5</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="agua_eco_2l" data-title="Agua Mineral sin gas Eco de los Andes x 2 lt." data-name="Agua Mineral sin gas Eco de los Andes x Agua mineral Eco de los Andes 2 L" data-url="https://supermercado.laanonimaonline.com/bebidas/agua-mineral-sin-gas-eco-de-los-andes-x-2-lt/art_2166/" data-brand-tier="premium" data-cba-flag="no" data-category="" data-price-final="1650.0" data-unit-price-base="825.0" data-cost-ae="0"><td>Agua Mineral sin gas Eco de los Andes x Agua mineral Eco de los Andes 2 L</td><td><a href='https://supermercado.laanonimaonline.com/bebidas/agua-mineral-sin-gas-eco-de-los-andes-x-2-lt/art_2166/' target='_blank' rel='noopener'>Agua Mineral sin gas Eco de los Andes x 2 lt.</a></td><td class='num'><span class='orig'>$2,750.00</span> <span class='promo'>$1,650.00</span></td><td class='num'>2.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="pure_tomate_520g" data-title="Pure de Tomate Brick Arcor x 520 g." data-name="Pure de Tomate Brick Arcor x PurÃ© de tomate Arcor x 520 g" data-url="https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pure-de-tomate-brick-arcor-x-520-g/art_27641/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="690.0" data-unit-price-base="" data-cost-ae="0"><td>Pure de Tomate Brick Arcor x PurÃ© de tomate Arcor x 520 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pure-de-tomate-brick-arcor-x-520-g/art_27641/' target='_blank' rel='noopener'>Pure de Tomate Brick Arcor x 520 g.</a></td><td class='num'>$690.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="mayonesa_hellmanns_475g" data-title="Mayonesa Clasica Doy Pack Hellmanns x 475 g." data-name="Mayonesa Clasica Doy Pack Hellmanns x Mayonesa clÃ¡sica Hellmannâ€™s doypack x 475 g" data-url="https://supermercado.laanonimaonline.com/almacen/aderezos/mayonesa/mayonesa-clasica-doy-pack-hellmanns-x-475-g/art_18098/" data-brand-tier="premium" data-cba-flag="no" data-category="" data-price-final="2750.0" data-unit-price-base="11702.127659574468" data-cost-ae="0"><td>Mayonesa Clasica Doy Pack Hellmanns x Mayonesa clÃ¡sica Hellmannâ€™s doypack x 475 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aderezos/mayonesa/mayonesa-clasica-doy-pack-hellmanns-x-475-g/art_18098/' target='_blank' rel='noopener'>Mayonesa Clasica Doy Pack Hellmanns x 475 g.</a></td><td class='num'><span class='orig'>$2,900.00</span> <span class='promo'>$2,750.00</span></td><td class='num'>0.23500000000000001</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="nalga_feteada_ev_kg" data-title="Nalga s/ Tapa Feteada E/V Estancias LA (Kg)" data-name="Nalga s Nalga s/tapa feteada E/V Estancias La (kg)" data-url="https://supermercado.laanonimaonline.com/carniceria/nalga-s-tapa-feteada-e-v-estancias-la-kg/art_1396/" data-brand-tier="premium" data-cba-flag="si" data-category="" data-price-final="21130.0" data-unit-price-base="21130.0" data-cost-ae="0"><td>Nalga s Nalga s/tapa feteada E/V Estancias La (kg)</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/nalga-s-tapa-feteada-e-v-estancias-la-kg/art_1396/' target='_blank' rel='noopener'>Nalga s/ Tapa Feteada E/V Estancias LA (Kg)</a></td><td class='num'>$21,130.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="fideos_tallarines_matarazzo_500g" data-title="Fideos Tallarin N5 Matarazzo x 500 g." data-name="Fideos Tallarin N Fideos tallarÃ­n NÂ°5 Matarazzo x 500 g" data-url="https://supermercado.laanonimaonline.com/producto/art_25877/" data-brand-tier="premium" data-cba-flag="si" data-category="" data-price-final="1950.0" data-unit-price-base="" data-cost-ae="0"><td>Fideos Tallarin N Fideos tallarÃ­n NÂ°5 Matarazzo x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/producto/art_25877/' target='_blank' rel='noopener'>Fideos Tallarin N5 Matarazzo x 500 g.</a></td><td class='num'>$1,950.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="carne_picada_ev_500g" data-title="Carne Picada E/V Estancias LA x 500 g." data-name="Carne Picada E Carne picada E/V Estancias La x 500 g" data-url="https://supermercado.laanonimaonline.com/carniceria/carne-picada-e-v-estancias-la-x-500-g/art_1382/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="8840.0" data-unit-price-base="" data-cost-ae="0"><td>Carne Picada E Carne picada E/V Estancias La x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/carne-picada-e-v-estancias-la-x-500-g/art_1382/' target='_blank' rel='noopener'>Carne Picada E/V Estancias LA x 500 g.</a></td><td class='num'>$8,840.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="fideos_tallarines_lucchetti_500g" data-title="Fideos Tallarín N 5 Lucchetti x 500 g." data-name="Fideos Tallar Fideos tallarÃ­n NÂ°5 Lucchetti x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-n-5-lucchetti-x-500-g/art_25600/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1700.0" data-unit-price-base="" data-cost-ae="0"><td>Fideos Tallar Fideos tallarÃ­n NÂ°5 Lucchetti x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-n-5-lucchetti-x-500-g/art_25600/' target='_blank' rel='noopener'>Fideos Tallarín N 5 Lucchetti x 500 g.</a></td><td class='num'>$1,700.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="fideos_tallarines_la_anonima_500g" data-title="Fideos Tallarín La Anónima x 500 g." data-name="Fideos Tallar Fideos tallarÃ­n La AnÃ³nima x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-la-anonima-x-500-g/art_2021/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="1750.0" data-unit-price-base="" data-cost-ae="0"><td>Fideos Tallar Fideos tallarÃ­n La AnÃ³nima x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-la-anonima-x-500-g/art_2021/' target='_blank' rel='noopener'>Fideos Tallarín La Anónima x 500 g.</a></td><td class='num'>$1,750.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="sal_fina_500g" data-title="Sal Fina Celusal Paquete x 500 g." data-name="Sal Fina Celusal Paquete x Sal fina Celusal x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-celusal-paquete-x-500-g/art_2118/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1350.0" data-unit-price-base="" data-cost-ae="0"><td>Sal Fina Celusal Paquete x Sal fina Celusal x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-celusal-paquete-x-500-g/art_2118/' target='_blank' rel='noopener'>Sal Fina Celusal Paquete x 500 g.</a></td><td class='num'>$1,350.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="azucar_1kg" data-title="Azúcar Blanca Ledesma x 1 Kg." data-name="Az Azúcar 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1255.0" data-unit-price-base="1255.0" data-cost-ae="1882.5"><td>Az Azúcar 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/' target='_blank' rel='noopener'>Azúcar Blanca Ledesma x 1 Kg.</a></td><td class='num'>$1,255.00</td><td class='num'>1.0</td><td></td><td class='num'>$1,882.50</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="tomate_perita_lata_400g" data-title="Tomate Perita Entero La Anónima x 400 g." data-name="Tomate Perita Entero La An Tomate perita entero La AnÃ³nima x 400 g" data-url="https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/tomates-y-salsas/tomate-perita-entero-la-anonima-x-400-g/art_25228/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="1300.0" data-unit-price-base="" data-cost-ae="0"><td>Tomate Perita Entero La An Tomate perita entero La AnÃ³nima x 400 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/tomates-y-salsas/tomate-perita-entero-la-anonima-x-400-g/art_25228/' target='_blank' rel='noopener'>Tomate Perita Entero La Anónima x 400 g.</a></td><td class='num'>$1,300.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="pan_lactal_best_600g" data-title="Pan Lacteado Grande Best x 600 g." data-name="Pan Lacteado Grande Best x Pan lacteado grande Best x 600 g" data-url="https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/pan-lactal/pan-lacteado-grande-best-x-600-g/art_1662/" data-brand-tier="segunda" data-cba-flag="no" data-category="" data-price-final="4200.0" data-unit-price-base="" data-cost-ae="0"><td>Pan Lacteado Grande Best x Pan lacteado grande Best x 600 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/pan-lactal/pan-lacteado-grande-best-x-600-g/art_1662/' target='_blank' rel='noopener'>Pan Lacteado Grande Best x 600 g.</a></td><td class='num'>$4,200.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="vinagre_alcohol_1l" data-title="Vinagre de Alcohol s/ Tacc Favinco x 1 Lt." data-name="Vinagre de Alcohol s Vinagre de alcohol Favinco x 1 L" data-url="https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/vinagre-de-alcohol-s-tacc-favinco-x-1-lt/art_14232/" data-brand-tier="estandar" data-cba-flag="no" data-category="" data-price-final="1500.0" data-unit-price-base="1500.0" data-cost-ae="0"><td>Vinagre de Alcohol s Vinagre de alcohol Favinco x 1 L</td><td><a href='https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/vinagre-de-alcohol-s-tacc-favinco-x-1-lt/art_14232/' target='_blank' rel='noopener'>Vinagre de Alcohol s/ Tacc Favinco x 1 Lt.</a></td><td class='num'>$1,500.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="asado_con_hueso_kg" data-title="Asado c/ Hueso Estancias LA (Kg)" data-name="Asado c Asado con hueso Estancias La (kg)" data-url="https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/asado-c-hueso-estancias-la-kg/art_2336/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="12990.0" data-unit-price-base="12990.0" data-cost-ae="0"><td>Asado c Asado con hueso Estancias La (kg)</td><td><a href='https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/asado-c-hueso-estancias-la-kg/art_2336/' target='_blank' rel='noopener'>Asado c/ Hueso Estancias LA (Kg)</a></td><td class='num'>$12,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="queso_cremoso_la_paulina_1kg" data-title="Queso Cremoso La Paulina Trozado x 1 kg." data-name="Queso Cremoso La Paulina Trozado x Queso cremoso La Paulina x 1 kg" data-url="https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-la-paulina-trozado-x-1-kg/art_3611/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="11400.0" data-unit-price-base="11400.0" data-cost-ae="0"><td>Queso Cremoso La Paulina Trozado x Queso cremoso La Paulina x 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-la-paulina-trozado-x-1-kg/art_3611/' target='_blank' rel='noopener'>Queso Cremoso La Paulina Trozado x 1 kg.</a></td><td class='num'>$11,400.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="huevos_docena" data-title="Huevo Blanco Extra Grande La Anónima x 12 un." data-name="Huevo Blanco Extra Grande La An Huevos docena" data-url="https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="5700.0" data-unit-price-base="5700.0" data-cost-ae="11400.0"><td>Huevo Blanco Extra Grande La An Huevos docena</td><td><a href='https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/' target='_blank' rel='noopener'>Huevo Blanco Extra Grande La Anónima x 12 un.</a></td><td class='num'>$5,700.00</td><td class='num'>1.0</td><td></td><td class='num'>$11,400.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="arvejas_partidas_500g" data-title="Arvejas Secas Partidas Ramoneda x 500 g." data-name="Arvejas Secas Partidas Ramoneda x Arvejas secas partidas Ramoneda x 500 g" data-url="https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/arvejas-secas-partidas-ramoneda-x-500-g/art_2221/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1850.0" data-unit-price-base="" data-cost-ae="0"><td>Arvejas Secas Partidas Ramoneda x Arvejas secas partidas Ramoneda x 500 g</td><td><a href='https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/arvejas-secas-partidas-ramoneda-x-500-g/art_2221/' target='_blank' rel='noopener'>Arvejas Secas Partidas Ramoneda x 500 g.</a></td><td class='num'>$1,850.00</td><td class='num'>0.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="harina_000_canuelas_1kg" data-title="Harina 000 Ultra Refinada Cañuelas x 1 Kg." data-name="Harina Harina de trigo 000 CaÃ±uelas x 1 kg" data-url="https://supermercado.laanonimaonline.com/almacen/harinas/harina-000-ultra-refinada-canuelas-x-1-kg/art_14030/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="1150.0" data-unit-price-base="1150.0" data-cost-ae="0"><td>Harina Harina de trigo 000 CaÃ±uelas x 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/almacen/harinas/harina-000-ultra-refinada-canuelas-x-1-kg/art_14030/' target='_blank' rel='noopener'>Harina 000 Ultra Refinada Cañuelas x 1 Kg.</a></td><td class='num'>$1,150.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="leche_entera_la_anonima_1l" data-title="Leche L.V. Entera La Anónima x 1 lt." data-name="Leche L Leche entera L.V. La AnÃ³nima x 1 L" data-url="https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/" data-brand-tier="segunda" data-cba-flag="si" data-category="" data-price-final="1990.0" data-unit-price-base="1990.0" data-cost-ae="0"><td>Leche L Leche entera L.V. La AnÃ³nima x 1 L</td><td><a href='https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/' target='_blank' rel='noopener'>Leche L.V. Entera La Anónima x 1 lt.</a></td><td class='num'>$1,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="manzana_red_kg" data-title="Manzana Red Elegida (Kg)" data-name="Manzana Red Elegida Manzana Red elegida (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="2990.0" data-unit-price-base="2990.0" data-cost-ae="0"><td>Manzana Red Elegida Manzana Red elegida (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/' target='_blank' rel='noopener'>Manzana Red Elegida (Kg)</a></td><td class='num'>$2,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="filet_merluza_1kg" data-title="Filet de Merluza Artesanos del Mar x 1 Kg." data-name="Filet de Merluza Artesanos del Mar x Filet de merluza Artesanos del Mar x 1 kg" data-url="https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/filet-de-merluza-artesanos-del-mar-x-1-kg/art_26600/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="15350.0" data-unit-price-base="15350.0" data-cost-ae="0"><td>Filet de Merluza Artesanos del Mar x Filet de merluza Artesanos del Mar x 1 kg</td><td><a href='https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/filet-de-merluza-artesanos-del-mar-x-1-kg/art_26600/' target='_blank' rel='noopener'>Filet de Merluza Artesanos del Mar x 1 Kg.</a></td><td class='num'>$15,350.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="cerveza_imperial_lata_473ml" data-title="Cerveza Imperial Lata x 473 cc." data-name="Cerveza Imperial Lata x Cerveza Imperial lata 473 ml" data-url="https://supermercado.laanonimaonline.com/bebidas/cervezas/cerveza-imperial-lata-x-473-cc/art_4313/" data-brand-tier="premium" data-cba-flag="no" data-category="" data-price-final="1600.0" data-unit-price-base="11347.517730496453" data-cost-ae="0"><td>Cerveza Imperial Lata x Cerveza Imperial lata 473 ml</td><td><a href='https://supermercado.laanonimaonline.com/bebidas/cervezas/cerveza-imperial-lata-x-473-cc/art_4313/' target='_blank' rel='noopener'>Cerveza Imperial Lata x 473 cc.</a></td><td class='num'><span class='orig'>$2,550.00</span> <span class='promo'>$1,600.00</span></td><td class='num'>0.14100000000000001</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
+<tr class='data-row'  data-item-id="banana_ecuador_kg" data-title="Banana Ecuador (Kg)" data-name="Banana Ecuador Banana Ecuador (kg)" data-url="https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/banana-ecuador-kg/art_2393/" data-brand-tier="estandar" data-cba-flag="si" data-category="" data-price-final="2990.0" data-unit-price-base="2990.0" data-cost-ae="0"><td>Banana Ecuador Banana Ecuador (kg)</td><td><a href='https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/banana-ecuador-kg/art_2393/' target='_blank' rel='noopener'>Banana Ecuador (Kg)</a></td><td class='num'>$2,990.00</td><td class='num'>1.0</td><td></td><td class='num'>$0.00</td><td>S��</td><td>S��</td></tr>
         </tbody>
       </table>
     </section>
@@ -116,5 +206,180 @@
       <div>Este reporte se generó automáticamente con IPC Ushuaia.</div>
     </footer>
   </div>
+  
+  <script>
+  // Filtros y ordenamiento (vanilla JS, sin dependencias)
+  (function(){
+    var $ = function(sel, root){ return (root||document).querySelector(sel); };
+    var $$ = function(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); };
+    var table = document.getElementById('breakdown-table');
+    if (!table) return;
+    var tbody = table.querySelector('tbody');
+    var searchInput = $('#search');
+    var categorySel = $('#category');
+    var brandBox = $('#brand-tier-options');
+    var cbaBox = $('#cba-flag-options');
+    var minPrice = $('#min-price');
+    var maxPrice = $('#max-price');
+    var sortBy = $('#sort-by');
+    var sortDirBtn = $('#sort-dir');
+    var statusEl = $('#filter-status');
+    var resetBtn = $('#reset-filters');
+
+    function inferCategoryFromUrl(url){
+      try {
+        var u = new URL(url);
+        var segs = u.pathname.split('/').filter(function(s){return s;});
+        if (segs.length) return segs[0].replace(/[-_]/g,' ').toLowerCase();
+      } catch(e){}
+      return '';
+    }
+
+    var rows = $$('.data-row', tbody).map(function(tr){
+      var d = tr.dataset;
+      var title = (d.title || '').toLowerCase();
+      var name = (d.name || '').toLowerCase();
+      var itemId = (d.itemId || '').toLowerCase();
+      var url = d.url || '';
+      var category = (d.category || inferCategoryFromUrl(url) || '').toLowerCase();
+      var brandTier = (d.brandTier || '').toLowerCase();
+      var cbaFlag = (d.cbaFlag || '').toLowerCase();
+      var pf = parseFloat(d.priceFinal);
+      var upb = parseFloat(d.unitPriceBase);
+      var cae = parseFloat(d.costAe);
+      return {
+        tr: tr,
+        data: {
+          title: title,
+          name: name,
+          itemId: itemId,
+          url: url,
+          category: category,
+          brandTier: brandTier,
+          cbaFlag: cbaFlag,
+          priceFinal: isFinite(pf) ? pf : NaN,
+          unitPriceBase: isFinite(upb) ? upb : NaN,
+          costAe: isFinite(cae) ? cae : NaN,
+          haystack: (title + ' ' + name + ' ' + itemId).trim()
+        }
+      };
+    });
+
+    function distinct(arr){
+      var out = [];
+      arr.forEach(function(v){ if(v && out.indexOf(v)===-1) out.push(v); });
+      return out;
+    }
+    function byFreq(vals){
+      var m = Object.create(null);
+      vals.forEach(function(v){ if(!v) return; m[v] = (m[v]||0)+1; });
+      return Object.keys(m).sort(function(a,b){ return m[b]-m[a]; });
+    }
+
+    // Poblar facets
+    byFreq(rows.map(function(r){return r.data.category;})).forEach(function(cat){
+      var opt = document.createElement('option');
+      opt.value = cat; opt.textContent = cat || '—';
+      categorySel.appendChild(opt);
+    });
+
+    var brandTiers = distinct(rows.map(function(r){return r.data.brandTier;})).sort();
+    brandTiers.forEach(function(bt){
+      var id = 'bt-' + (bt||'na');
+      var label = document.createElement('label');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = bt; cb.id = id;
+      var span = document.createElement('span'); span.textContent = bt || 'N/D';
+      label.htmlFor = id; label.appendChild(cb); label.appendChild(span);
+      brandBox.appendChild(label);
+    });
+    if (!brandTiers.length) brandBox.parentElement.style.display = 'none';
+
+    var cbaVals = distinct(rows.map(function(r){return r.data.cbaFlag;})).filter(function(v){return v==='si'||v==='no';});
+    cbaVals.forEach(function(v){
+      var id = 'cba-' + v;
+      var label = document.createElement('label');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = v; cb.id = id;
+      var span = document.createElement('span'); span.textContent = v.toUpperCase();
+      label.htmlFor = id; label.appendChild(cb); label.appendChild(span);
+      cbaBox.appendChild(label);
+    });
+    if (!cbaVals.length) cbaBox.parentElement.style.display = 'none';
+
+    // Rango sugerido
+    var prices = rows.map(function(r){return r.data.priceFinal;}).filter(function(v){return isFinite(v);});
+    if (prices.length){
+      var minP = Math.min.apply(null, prices);
+      var maxP = Math.max.apply(null, prices);
+      minPrice.placeholder = minP.toFixed(2);
+      maxPrice.placeholder = maxP.toFixed(2);
+    }
+
+    function getSelected(root){ return $$("input[type='checkbox']:checked", root).map(function(i){return i.value;}); }
+    function getSortDir(){ return sortDirBtn.dataset.dir || 'asc'; }
+    function toggleSortDir(){ sortDirBtn.dataset.dir = getSortDir()==='asc' ? 'desc' : 'asc'; sortDirBtn.textContent = getSortDir()==='asc' ? 'Asc' : 'Desc'; }
+
+    function applyFilters(){
+      var q = (searchInput.value || '').trim().toLowerCase();
+      var cat = (categorySel.value || '').toLowerCase();
+      var selBT = new Set(getSelected(brandBox));
+      var selCBA = new Set(getSelected(cbaBox));
+      var minV = minPrice.value !== '' ? parseFloat(minPrice.value) : null;
+      var maxV = maxPrice.value !== '' ? parseFloat(maxPrice.value) : null;
+
+      var visible = 0;
+      rows.forEach(function(row){
+        var d = row.data; var ok = true;
+        if (q) ok = ok && d.haystack.indexOf(q) !== -1;
+        if (ok && cat) ok = ok && d.category === cat;
+        if (ok && selBT.size) ok = ok && selBT.has(d.brandTier);
+        if (ok && selCBA.size) ok = ok && selCBA.has(d.cbaFlag);
+        if (ok && (minV !== null)) ok = ok && isFinite(d.priceFinal) && d.priceFinal >= minV;
+        if (ok && (maxV !== null)) ok = ok && isFinite(d.priceFinal) && d.priceFinal <= maxV;
+        row.tr.style.display = ok ? '' : 'none';
+        if (ok) visible += 1;
+      });
+
+      var key = sortBy.value;
+      if (key){
+        var dir = getSortDir();
+        var prop = key==='price_final' ? 'priceFinal' : (key==='unit_price_base' ? 'unitPriceBase' : (key==='cost_item_ae' ? 'costAe' : null));
+        if (prop){
+          var vis = rows.filter(function(r){return r.tr.style.display !== 'none';});
+          vis.sort(function(a,b){
+            var av = a.data[prop], bv = b.data[prop];
+            var aN = isFinite(av), bN = isFinite(bv);
+            if (aN && !bN) return -1;
+            if (!aN && bN) return 1;
+            if (!aN && !bN) return 0;
+            var cmp = av - bv; return dir==='asc' ? cmp : -cmp;
+          });
+          var frag = document.createDocumentFragment();
+          vis.forEach(function(r){ frag.appendChild(r.tr); });
+          tbody.appendChild(frag);
+        }
+      }
+
+      statusEl.textContent = 'Mostrando ' + visible + ' de ' + rows.length + ' ítems';
+    }
+
+    [searchInput, categorySel, minPrice, maxPrice, sortBy].forEach(function(el){ if(el) el.addEventListener('input', applyFilters); });
+    [brandBox, cbaBox].forEach(function(root){ if(root) root.addEventListener('change', applyFilters); });
+    sortDirBtn.addEventListener('click', function(){ toggleSortDir(); applyFilters(); });
+    resetBtn.addEventListener('click', function(){
+      searchInput.value = '';
+      categorySel.value = '';
+      minPrice.value = '';
+      maxPrice.value = '';
+      sortBy.value = '';
+      sortDirBtn.dataset.dir = 'asc'; sortDirBtn.textContent = 'Asc';
+      $$("input[type='checkbox']", brandBox).forEach(function(cb){ cb.checked = false; });
+      $$( "input[type='checkbox']", cbaBox).forEach(function(cb){ cb.checked = false; });
+      applyFilters();
+    });
+
+    applyFilters();
+  })();
+  </script>
+    
 </body>
 </html>

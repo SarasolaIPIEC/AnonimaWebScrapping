@@ -136,6 +136,50 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
             return f"<span class='orig'>{fmt_money(po)}</span> <span class='promo'>{fmt_money(pf)}</span>"
         return fmt_money(pf)
 
+    def row_html_enhanced(r: Dict[str, Any]) -> str:
+        """Fila HTML con atributos data-* para filtros/ordenamiento.
+        No rompe el look&feel existente; es compatible con el render estático.
+        """
+        url = r.get('url') or ''
+        title = r.get('title') or ''
+        if title.lower().strip() in ('almacǸn', 'almacen', 'producto') or len(title.strip()) < 4:
+            title = r.get('name') or title
+        brand = derive_brand(title)
+        name = (brand + ' ' if brand else '') + (r.get('name') or '')
+        qty = r.get('qty_base') or ''
+        unit = r.get('unit') or ''
+        cost_val = r.get('cost_item_ae') or 0
+        cost = fmt_money(cost_val)
+        promo = 'S��' if str(r.get('promo_flag', '')).lower() in ('1', 'true', 'yes', 'si', 's��') else 'No'
+        stock = 'S��' if str(r.get('in_stock', '1')).lower() in ('1', 'true', 'yes', 'si', 's��') else 'No'
+        link = f"<a href='{url}' target='_blank' rel='noopener'>{title or '(ver producto)'}</a>" if url else title
+
+        item_id = r.get('item_id') or ''
+        brand_tier = r.get('brand_tier') or ''
+        cba_flag = r.get('cba_flag') or ''
+        category = r.get('category') or ''
+        price_final = r.get('price_final') or ''
+        unit_price_base = r.get('unit_price_base') or ''
+        data_attrs = (
+            f" data-item-id=\"{item_id}\""
+            f" data-title=\"{(title or '').replace('\"','').strip()}\""
+            f" data-name=\"{(name or '').replace('\"','').strip()}\""
+            f" data-url=\"{url}\""
+            f" data-brand-tier=\"{brand_tier}\""
+            f" data-cba-flag=\"{cba_flag}\""
+            f" data-category=\"{category}\""
+            f" data-price-final=\"{price_final}\""
+            f" data-unit-price-base=\"{unit_price_base}\""
+            f" data-cost-ae=\"{cost_val}\""
+        )
+
+        return (
+            f"<tr class='data-row' {data_attrs}>"
+            f"<td>{name}</td><td>{link}</td><td class='num'>{price_cell(r)}</td>"
+            f"<td class='num'>{qty}</td><td>{unit}</td><td class='num'>{cost}</td>"
+            f"<td>{promo}</td><td>{stock}</td></tr>"
+        )
+
     def row_html(r: Dict[str, Any]) -> str:
         url = r.get('url') or ''
         title = r.get('title') or ''
@@ -151,7 +195,184 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
         link = f"<a href='{url}' target='_blank' rel='noopener'>{title or '(ver producto)'}</a>" if url else title
         return f"<tr><td>{name}</td><td>{link}</td><td class='num'>{price_cell(r)}</td><td class='num'>{qty}</td><td>{unit}</td><td class='num'>{cost}</td><td>{promo}</td><td>{stock}</td></tr>"
 
-    breakdown_rows = '\n'.join(row_html(r) for r in breakdown)
+    breakdown_rows = '\n'.join(row_html_enhanced(r) for r in breakdown)
+
+    # JS ligero para filtros/ordenamiento (sin dependencias). Se inyecta al final del HTML.
+    script_js = r"""
+  <script>
+  // Filtros y ordenamiento (vanilla JS, sin dependencias)
+  (function(){
+    var $ = function(sel, root){ return (root||document).querySelector(sel); };
+    var $$ = function(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); };
+    var table = document.getElementById('breakdown-table');
+    if (!table) return;
+    var tbody = table.querySelector('tbody');
+    var searchInput = $('#search');
+    var categorySel = $('#category');
+    var brandBox = $('#brand-tier-options');
+    var cbaBox = $('#cba-flag-options');
+    var minPrice = $('#min-price');
+    var maxPrice = $('#max-price');
+    var sortBy = $('#sort-by');
+    var sortDirBtn = $('#sort-dir');
+    var statusEl = $('#filter-status');
+    var resetBtn = $('#reset-filters');
+
+    function inferCategoryFromUrl(url){
+      try {
+        var u = new URL(url);
+        var segs = u.pathname.split('/').filter(function(s){return s;});
+        if (segs.length) return segs[0].replace(/[-_]/g,' ').toLowerCase();
+      } catch(e){}
+      return '';
+    }
+
+    var rows = $$('.data-row', tbody).map(function(tr){
+      var d = tr.dataset;
+      var title = (d.title || '').toLowerCase();
+      var name = (d.name || '').toLowerCase();
+      var itemId = (d.itemId || '').toLowerCase();
+      var url = d.url || '';
+      var category = (d.category || inferCategoryFromUrl(url) || '').toLowerCase();
+      var brandTier = (d.brandTier || '').toLowerCase();
+      var cbaFlag = (d.cbaFlag || '').toLowerCase();
+      var pf = parseFloat(d.priceFinal);
+      var upb = parseFloat(d.unitPriceBase);
+      var cae = parseFloat(d.costAe);
+      return {
+        tr: tr,
+        data: {
+          title: title,
+          name: name,
+          itemId: itemId,
+          url: url,
+          category: category,
+          brandTier: brandTier,
+          cbaFlag: cbaFlag,
+          priceFinal: isFinite(pf) ? pf : NaN,
+          unitPriceBase: isFinite(upb) ? upb : NaN,
+          costAe: isFinite(cae) ? cae : NaN,
+          haystack: (title + ' ' + name + ' ' + itemId).trim()
+        }
+      };
+    });
+
+    function distinct(arr){
+      var out = [];
+      arr.forEach(function(v){ if(v && out.indexOf(v)===-1) out.push(v); });
+      return out;
+    }
+    function byFreq(vals){
+      var m = Object.create(null);
+      vals.forEach(function(v){ if(!v) return; m[v] = (m[v]||0)+1; });
+      return Object.keys(m).sort(function(a,b){ return m[b]-m[a]; });
+    }
+
+    // Poblar facets
+    byFreq(rows.map(function(r){return r.data.category;})).forEach(function(cat){
+      var opt = document.createElement('option');
+      opt.value = cat; opt.textContent = cat || '—';
+      categorySel.appendChild(opt);
+    });
+
+    var brandTiers = distinct(rows.map(function(r){return r.data.brandTier;})).sort();
+    brandTiers.forEach(function(bt){
+      var id = 'bt-' + (bt||'na');
+      var label = document.createElement('label');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = bt; cb.id = id;
+      var span = document.createElement('span'); span.textContent = bt || 'N/D';
+      label.htmlFor = id; label.appendChild(cb); label.appendChild(span);
+      brandBox.appendChild(label);
+    });
+    if (!brandTiers.length) brandBox.parentElement.style.display = 'none';
+
+    var cbaVals = distinct(rows.map(function(r){return r.data.cbaFlag;})).filter(function(v){return v==='si'||v==='no';});
+    cbaVals.forEach(function(v){
+      var id = 'cba-' + v;
+      var label = document.createElement('label');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = v; cb.id = id;
+      var span = document.createElement('span'); span.textContent = v.toUpperCase();
+      label.htmlFor = id; label.appendChild(cb); label.appendChild(span);
+      cbaBox.appendChild(label);
+    });
+    if (!cbaVals.length) cbaBox.parentElement.style.display = 'none';
+
+    // Rango sugerido
+    var prices = rows.map(function(r){return r.data.priceFinal;}).filter(function(v){return isFinite(v);});
+    if (prices.length){
+      var minP = Math.min.apply(null, prices);
+      var maxP = Math.max.apply(null, prices);
+      minPrice.placeholder = minP.toFixed(2);
+      maxPrice.placeholder = maxP.toFixed(2);
+    }
+
+    function getSelected(root){ return $$("input[type='checkbox']:checked", root).map(function(i){return i.value;}); }
+    function getSortDir(){ return sortDirBtn.dataset.dir || 'asc'; }
+    function toggleSortDir(){ sortDirBtn.dataset.dir = getSortDir()==='asc' ? 'desc' : 'asc'; sortDirBtn.textContent = getSortDir()==='asc' ? 'Asc' : 'Desc'; }
+
+    function applyFilters(){
+      var q = (searchInput.value || '').trim().toLowerCase();
+      var cat = (categorySel.value || '').toLowerCase();
+      var selBT = new Set(getSelected(brandBox));
+      var selCBA = new Set(getSelected(cbaBox));
+      var minV = minPrice.value !== '' ? parseFloat(minPrice.value) : null;
+      var maxV = maxPrice.value !== '' ? parseFloat(maxPrice.value) : null;
+
+      var visible = 0;
+      rows.forEach(function(row){
+        var d = row.data; var ok = true;
+        if (q) ok = ok && d.haystack.indexOf(q) !== -1;
+        if (ok && cat) ok = ok && d.category === cat;
+        if (ok && selBT.size) ok = ok && selBT.has(d.brandTier);
+        if (ok && selCBA.size) ok = ok && selCBA.has(d.cbaFlag);
+        if (ok && (minV !== null)) ok = ok && isFinite(d.priceFinal) && d.priceFinal >= minV;
+        if (ok && (maxV !== null)) ok = ok && isFinite(d.priceFinal) && d.priceFinal <= maxV;
+        row.tr.style.display = ok ? '' : 'none';
+        if (ok) visible += 1;
+      });
+
+      var key = sortBy.value;
+      if (key){
+        var dir = getSortDir();
+        var prop = key==='price_final' ? 'priceFinal' : (key==='unit_price_base' ? 'unitPriceBase' : (key==='cost_item_ae' ? 'costAe' : null));
+        if (prop){
+          var vis = rows.filter(function(r){return r.tr.style.display !== 'none';});
+          vis.sort(function(a,b){
+            var av = a.data[prop], bv = b.data[prop];
+            var aN = isFinite(av), bN = isFinite(bv);
+            if (aN && !bN) return -1;
+            if (!aN && bN) return 1;
+            if (!aN && !bN) return 0;
+            var cmp = av - bv; return dir==='asc' ? cmp : -cmp;
+          });
+          var frag = document.createDocumentFragment();
+          vis.forEach(function(r){ frag.appendChild(r.tr); });
+          tbody.appendChild(frag);
+        }
+      }
+
+      statusEl.textContent = 'Mostrando ' + visible + ' de ' + rows.length + ' ítems';
+    }
+
+    [searchInput, categorySel, minPrice, maxPrice, sortBy].forEach(function(el){ if(el) el.addEventListener('input', applyFilters); });
+    [brandBox, cbaBox].forEach(function(root){ if(root) root.addEventListener('change', applyFilters); });
+    sortDirBtn.addEventListener('click', function(){ toggleSortDir(); applyFilters(); });
+    resetBtn.addEventListener('click', function(){
+      searchInput.value = '';
+      categorySel.value = '';
+      minPrice.value = '';
+      maxPrice.value = '';
+      sortBy.value = '';
+      sortDirBtn.dataset.dir = 'asc'; sortDirBtn.textContent = 'Asc';
+      $$("input[type='checkbox']", brandBox).forEach(function(cb){ cb.checked = false; });
+      $$( "input[type='checkbox']", cbaBox).forEach(function(cb){ cb.checked = false; });
+      applyFilters();
+    });
+
+    applyFilters();
+  })();
+  </script>
+    """
 
     html = f"""
 <!doctype html>
@@ -186,7 +407,19 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
     a:hover {{ text-decoration:underline; }}
     .orig {{ color: var(--strike); text-decoration: line-through; margin-right: 6px; }}
     .promo {{ color: var(--promo); font-weight: 700; }}
-    @media (max-width: 900px) {{ .grid {{ grid-template-columns:1fr; }} .kpis {{ grid-template-columns: repeat(2, 1fr); }} }}
+    /* Filtros: diseño mínimo accesible */
+    .filters {{ margin: 16px 0; }}
+    .controls-grid {{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }}
+    .control label {{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }}
+    .control .row {{ display:flex; gap:8px; align-items:center; }}
+    .control input[type='search'],
+    .control input[type='number'],
+    .control select {{ width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; }}
+    .option-row {{ display:flex; flex-wrap:wrap; gap:8px; }}
+    .option-row label {{ display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); padding:6px 8px; border-radius:999px; cursor:pointer; background:#fff; }}
+    button#sort-dir, button#reset-filters {{ border:1px solid var(--border); background:#fff; border-radius:8px; padding:8px 10px; cursor:pointer; }}
+    button#sort-dir:focus, button#reset-filters:focus, .control input:focus, .control select:focus {{ outline:2px solid var(--accent); outline-offset:2px; }}
+    @media (max-width: 900px) {{ .grid {{ grid-template-columns:1fr; }} .kpis {{ grid-template-columns: repeat(2, 1fr); }} .controls-grid {{ grid-template-columns:1fr; }} }}
   </style>
 </head>
 <body>
@@ -224,19 +457,68 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
       </div>
     </section>
 
+    <section class="card filters" id="filters" role="region" aria-label="Filtros del desglose">
+      <div class="section-title">Explorar desglose</div>
+      <form id="filter-form" onsubmit="return false;">
+        <div class="controls-grid">
+          <div class="control">
+            <label for="search">Buscar (título o item_id)</label>
+            <input type="search" id="search" placeholder="Ej: yerba 1 kg" />
+          </div>
+          <div class="control">
+            <label for="category">Categoría</label>
+            <select id="category"><option value="">Todas</option></select>
+          </div>
+          <div class="control">
+            <label>Marca (nivel)</label>
+            <div id="brand-tier-options" class="option-row" aria-label="Niveles de marca"></div>
+          </div>
+          <div class="control">
+            <label>Incluido en CBA</label>
+            <div id="cba-flag-options" class="option-row" aria-label="Incluido en CBA"></div>
+          </div>
+          <div class="control">
+            <label for="min-price">Precio final ($)</label>
+            <div class="row">
+              <input type="number" id="min-price" step="0.01" inputmode="decimal" placeholder="mín" />
+              <input type="number" id="max-price" step="0.01" inputmode="decimal" placeholder="máx" />
+            </div>
+          </div>
+          <div class="control">
+            <label for="sort-by">Ordenar por</label>
+            <div class="row">
+              <select id="sort-by">
+                <option value="">Relevancia</option>
+                <option value="price_final">Precio final</option>
+                <option value="unit_price_base">Precio unitario</option>
+                <option value="cost_item_ae">Costo AE</option>
+              </select>
+              <button type="button" id="sort-dir" aria-label="Cambiar orden" title="Cambiar orden" data-dir="asc">Asc</button>
+            </div>
+          </div>
+          <div class="control actions">
+            <label>&nbsp;</label>
+            <div class="row"><button type="button" id="reset-filters" title="Restablecer filtros">Reset</button></div>
+          </div>
+        </div>
+        <div id="filter-status" class="muted" aria-live="polite" style="margin-top:8px">&nbsp;</div>
+      </form>
+      <noscript><div class="muted">Los filtros requieren JavaScript. La tabla funciona sin interacción.</div></noscript>
+    </section>
+
     <section style="margin-top:16px;">
       <div class="section-title">Top aportes al costo (AE)</div>
       <table>
         <thead><tr><th>Ítem</th><th>Producto</th><th>Precio</th><th>Qty base</th><th>Unidad</th><th>Costo AE</th><th>Promo</th><th>Stock</th></tr></thead>
         <tbody>
-          {''.join(row_html(r) for r in top_cost)}
+          {''.join(row_html_enhanced(r) for r in top_cost)}
         </tbody>
       </table>
     </section>
 
     <section style="margin-top:16px;">
       <div class="section-title">Desglose completo</div>
-      <table>
+      <table id="breakdown-table">
         <thead><tr><th>Ítem</th><th>Producto</th><th>Precio</th><th>Qty base</th><th>Unidad</th><th>Costo AE</th><th>Promo</th><th>Stock</th></tr></thead>
         <tbody>
           {breakdown_rows}
@@ -249,6 +531,7 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
       <div>Este reporte se generó automáticamente con IPC Ushuaia.</div>
     </footer>
   </div>
+  {script_js}
 </body>
 </html>
 """
@@ -273,4 +556,3 @@ def export_pdf(html_path: str, pdf_path: str) -> None:
         browser.close()
     finally:
         p.stop()
-

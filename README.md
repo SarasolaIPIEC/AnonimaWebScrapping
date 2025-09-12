@@ -28,7 +28,7 @@ Opciones útiles:
 ### Modo con enlaces (pins)
 Si tenés los links de cada producto, podés fijarlos y extraer solo precios:
 
-1) Editá `data/sku_pins.csv` y completá la columna `url` para cada `item_id` (página de producto con sucursal Ushuaia).
+1) Editá `data/sku_pins.csv` y completá la columna `url` para los `item_id` que tengas (página de producto con sucursal Ushuaia). Los ítems sin URL serán omitidos.
 2) Ejecutá:
 
 ```
