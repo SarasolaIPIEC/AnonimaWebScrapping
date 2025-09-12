@@ -40,6 +40,7 @@ def search(page: Page, query: str, home_url: str = "https://supermercado.laanoni
             page.wait_for_selector("div.producto")
         except TimeoutError:
             save_html(page.content(), f"search_{query}")
+            raise
         return page.content()
     except Exception:
         save_html(page.content(), "search_error")
