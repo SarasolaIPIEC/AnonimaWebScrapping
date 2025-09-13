@@ -1,0 +1,24 @@
+{% macro chips(row) -%}
+  <div class="chips">
+    {% if row.cba_flag and row.cba_flag|lower == 'si' %}
+      <span class="chip cba">CBA</span>
+    {% endif %}
+    {% if row.brand_tier %}<span class="chip tier">{{ row.brand_tier|title }}</span>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro product_cell(row) -%}
+  {{ row.name }}{{ chips(row) }}
+{%- endmacro %}
+
+{% macro price_cell(row) -%}
+  {%- if row.promo_flag and row.price_original and row.price_original > row.price_final -%}
+    <span class="strike">{{ row.price_original|money }}</span> {{ row.price_final|money }}
+  {%- else -%}
+    {{ row.price_final|money }}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro presentation(row) -%}
+  {{ row.presentation_text or '' }}
+{%- endmacro %}

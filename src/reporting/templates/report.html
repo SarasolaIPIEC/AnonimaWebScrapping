@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% import "macros.html" as M %}
+
+{% block title %}IPC Ushuaia — Reporte {{ period }}{% endblock %}
+
+{% block body %}
+  <header>
+    <h1>IPC Ushuaia — Canasta Básica Alimentaria</h1>
+    <div class="period">Reporte del período {{ period }}</div>
+  </header>
+
+  <section class="kpis">
+    <div class="card kpi"><div class="label">CBA AE</div><div class="value">{{ kpi.cba_ae }}</div></div>
+    <div class="card kpi"><div class="label">CBA Hogar (×3,09)</div><div class="value">{{ kpi.cba_family }}</div></div>
+    <div class="card kpi"><div class="label">Índice (base=100)</div><div class="value">{{ kpi.idx }}</div></div>
+    <div class="card kpi"><div class="label">m/m</div><div class="value">{{ (kpi.mom if kpi.mom else 'N/D') ~ '%' }}</div></div>
+    <div class="card kpi"><div class="label">i.a.</div><div class="value">{{ (kpi.yoy if kpi.yoy else 'N/D') ~ '%' }}</div></div>
+  </section>
+
+  <section class="grid">
+    <div class="chart card">
+      <div class="section-title">Serie del índice (base=100)</div>
+      <svg id="index-chart" width="960" height="260" role="img" aria-label="Serie del índice"></svg>
+      <div id="chart-empty" class="muted" role="status" style="display:none"></div>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap">
+        <label><input type="checkbox" id="show-official" checked /> Oficial (AE)</label>
+        <label><input type="checkbox" id="show-family" /> Hogar</label>
+        <span class="spacer"></span>
+        <button type="button" id="export-series-csv">Exportar CSV</button>
+        <button type="button" id="export-series-png">Exportar PNG</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Resumen del período</div>
+      <table>
+        <tbody>
+          <tr><th>Total ítems</th><td class="num">{{ summary.total_items }}</td></tr>
+          <tr><th>Con precio válido</th><td class="num">{{ summary.valid_items }} ({{ summary.valid_ratio_pct }}%)</td></tr>
+          <tr><th>En promoción</th><td class="num">{{ summary.promo_count }}</td></tr>
+          <tr><th>Sin stock</th><td class="num">{{ summary.oos_count }}</td></tr>
+          <tr><th>Suma costo AE</th><td class="num">{{ summary.cba_ae_sum }}</td></tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:8px">Fuente: La Anónima Online (sucursal Ushuaia). Precios finales (promos vigentes incluidas).</div>
+      <div class="downloads" style="margin-top:8px">
+        <a href="{{ downloads.breakdown }}" download>Descargar breakdown (CSV)</a>
+        <a href="{{ downloads.series }}" download>Descargar serie (CSV)</a>
+        {% if downloads.dict %}<a href="{{ downloads.dict }}" download>Diccionario de datos</a>{% endif %}
+        {% if downloads.log %}<a href="{{ downloads.log }}">Log de sustituciones</a>{% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px;" id="mi-canasta" aria-label="Mi canasta">
+    <div class="section-title">Mi canasta (personalización local)</div>
+    <details open>
+      <summary>Editar selección</summary>
+      <div class="table-controls">
+        <label for="sel-cat">Categoría</label>
+        <select id="sel-cat"></select>
+        <button type="button" id="select-cat">Seleccionar categoría</button>
+        <button type="button" id="clear-selection">Limpiar selección</button>
+        <span class="spacer"></span>
+        <label>AE hogar</label>
+        <input id="ae-household" type="number" step="0.01" value="{{ ae_household }}" />
+      </div>
+      <table>
+        <caption>Seleccioná ítems y cantidades (por AE)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Incluir</th>
+            <th scope="col">Producto</th>
+            <th scope="col">Categoría</th>
+            <th scope="col" class="num">Cant. AE</th>
+            <th scope="col">Unidad</th>
+            <th scope="col" class="num">Unitario</th>
+          </tr>
+        </thead>
+        <tbody id="custom-rows">
+          {% for r in rows %}
+          <tr data-item-id="{{ r.item_id }}" data-category="{{ r.category or '' }}">
+            <td><input type="checkbox" class="inc" /></td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.category or '' }}</td>
+            <td class="num"><input type="number" class="qty" step="0.01" value="{{ (r.monthly_qty_base if r.monthly_qty_base else (r.cost_item_ae / r.unit_price_base if r.unit_price_base else 0)) }}" /></td>
+            <td>{{ r.unit if r.unit!='unit' else 'u' }}</td>
+            <td class="num">{{ r.unit_price_base|money }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:6px">La personalización no reemplaza el indicador oficial. Se calcula con precios por unidad para evitar distorsión por cambios de tamaño.</div>
+    </details>
+    <div class="kpis" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="card kpi"><div class="label">Mi CBA AE</div><div class="value" id="my-cba-ae">$ 0,00</div></div>
+      <div class="card kpi"><div class="label">Mi CBA Hogar</div><div class="value" id="my-cba-household">$ 0,00</div></div>
+      <div class="card kpi"><div class="label">Índice personalizado</div><div class="value" id="my-idx">N/D</div></div>
+    </div>
+  </section>
+
+  <section class="card" role="region" aria-label="Desglose">
+    <div class="section-title">Desglose completo</div>
+    <div class="table-controls">
+      <label for="search">Buscar</label>
+      <input class="table-search" id="search" type="search" placeholder="Ej: yerba 1 kg" />
+      <label for="cat">Categoría</label>
+      <select class="facet-category" id="cat"></select>
+      <label for="cba">CBA</label>
+      <select class="facet-cba" id="cba"><option value="">Todas</option><option value="si">si</option><option value="no">no</option></select>
+      <label for="tier">Nivel</label>
+      <select class="facet-tier" id="tier"></select>
+      <label for="min">Precio x kg/L</label>
+      <input class="range-min" id="min" type="number" step="0.01" placeholder="min" />
+      <input class="range-max" id="max" type="number" step="0.01" placeholder="max" />
+      <label title="Ocultar presentaciones atípicas"><input type="checkbox" class="hide-atypical"/> Ocultar atípicos</label>
+      <span class="spacer"></span>
+      <label for="rpp">Filas</label>
+      <select class="rows-per-page" id="rpp"><option>25</option><option selected>50</option><option>100</option></select>
+      <button class="page-prev" type="button" aria-label="Anterior">◀</button>
+      <button class="page-next" type="button" aria-label="Siguiente">▶</button>
+      <span class="table-status muted" aria-live="polite"></span>
+    </div>
+    <table id="breakdown">
+      <caption>Desglose por producto — Precio x kg/L</caption>
+      <thead>
+        <tr>
+          <th scope="col" data-col="name">Producto</th>
+          <th scope="col" data-col="">PDP</th>
+          <th scope="col" class="num" data-col="priceFinal" aria-sort="none" title="Precio final">Precio</th>
+          <th scope="col" class="num" data-col="pricePerKgL" title="Precio por kg/L">Precio x kg/L</th>
+          <th scope="col" class="num" data-col="aportePct" title="Aporte en %">Aporte %</th>
+          <th scope="col" class="num" data-col="var-mom-unit" title="Variación m/m del precio unitario">m/m unit</th>
+          <th scope="col" data-col="">Categoría</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr class="data-row"
+            data-title="{{ (r.title or '')|e }}"
+            data-name="{{ (r.name or '')|e }}"
+            data-item-id="{{ (r.item_id or '')|e }}"
+            data-url="{{ (r.url or '')|e }}"
+            data-category="{{ (r.category or '')|e }}"
+            data-brand-tier="{{ (r.brand_tier or '')|e }}"
+            data-cba-flag="{{ (r.cba_flag or '')|e }}"
+            data-price-final="{{ r.price_final }}"
+            data-price-per-kgl="{{ (r.price_per_kgl if r.price_per_kgl is not none else '') }}"
+            data-aporte-pct="{{ r.aporte_pct if r.aporte_pct is not none else '' }}"
+            data-shrink="{{ '1' if r.shrink_flag else '' }}"
+            data-atypical="{{ r.atypical }}"
+            data-var-mom-unit="{{ r.var_mom_unit_pct if r.var_mom_unit_pct is not none else '' }}"
+            data-var-mom-price="{{ r.var_mom_price_pct if r.var_mom_price_pct is not none else '' }}"
+        >
+          <td>{{ M.product_cell(r) }}</td>
+          <td>{% if r.url %}<a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title or '(ver producto)' }}</a>{% else %}{{ r.title or '' }}{% endif %}</td>
+          <td class="num">{{ M.price_cell(r) }}</td>
+          <td class="num">{{ r.price_per_kgl_text or 'N/D' }}</td>
+          <td class="num" data-value="{{ r.aporte_pct if r.aporte_pct is not none else '' }}">{{ (r.aporte_pct|num(2) ~ '%') if r.aporte_pct is not none else 'N/D' }}</td>
+          <td class="num" data-value="{{ r.var_mom_unit_pct if r.var_mom_unit_pct is not none else '' }}">{{ (r.var_mom_unit_pct|num(2) ~ '%') if r.var_mom_unit_pct is not none else 'N/D' }}</td>
+          <td>{{ r.category or '' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card" style="margin-top:16px;">
+    <div class="section-title">Resumen por categoría</div>
+    <table>
+      <caption>Subtotal y participación en CBA por categoría</caption>
+      <thead><tr><th>Categoría</th><th class="num">Subtotal</th><th class="num">Participación</th></tr></thead>
+      <tbody>
+        {% for row in category_summary %}
+        <tr><td>{{ row.category }}</td><td class="num">{{ row.subtotal }}</td><td class="num">{{ row.share_pct }}%</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section style="margin-top:16px;">
+    <div class="section-title">Top aportes al costo (AE)</div>
+    <table>
+      <caption>Ítems con mayor costo mensual (AE)</caption>
+      <thead><tr><th>Producto</th><th>PDP</th><th>Precio</th><th>Presentación</th><th class="num">Aporte $</th><th class="num">Aporte %</th><th class="num">m/m</th></tr></thead>
+      <tbody>
+        {% for r in top_cost %}
+        <tr>
+          <td>{{ r.name }}</td>
+          <td>{% if r.url %}<a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title or '(ver producto)' }}</a>{% else %}{{ r.title or '' }}{% endif %}</td>
+          <td class="num">{{ M.price_cell(r) }}</td>
+          <td>{{ r.presentation_text or '' }}</td>
+          <td class="num">{{ r.cost_item_ae|money }}</td>
+          <td class="num">{{ (r.aporte_pct|num(2) ~ '%') if r.aporte_pct is not none else 'N/D' }}</td>
+          <td class="num">{{ (r.var_mom_price_pct|num(2) ~ '%') if r.var_mom_price_pct is not none else 'N/D' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card" style="margin-top:16px;">
+    <div class="section-title">Metodología</div>
+    <details>
+      <summary>Ver metodología y supuestos</summary>
+      <ul>
+        <li>Adulto Equivalente (AE) = 1; Hogar = 3,09 AE.</li>
+        <li>Canasta fija; sustituciones documentadas ante faltantes. Se normaliza a kg/L/unidad.</li>
+        <li>Precio final al consumidor (si hay Antes/Ahora, se usa Ahora como precio efectivo).</li>
+        <li>Índice: base=100 en el primer período de la serie; m/m e i.a. derivados de la serie mensual.</li>
+        <li>Serie e insumos reproducibles desde <code>exports/</code> y <code>evidence/</code>.</li>
+        <li>Tratamiento de promociones: sólo se marca “En promoción” si la fuente lo indica (no se infiere 100%).</li>
+      </ul>
+    </details>
+  </section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  const $ = (s, r)=> (r||document).querySelector(s);
+  const $$ = (s, r)=> Array.prototype.slice.call((r||document).querySelectorAll(s));
+  const seriesData = {{ series_json | tojson | safe }};
+
+  // Accent-insensitive normalization
+  function norm(s){ return (s||'').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); }
+
+  // Single table enhancer
+  
+  function makeTableEnhancer(rootId, defSort){
+    const root = document;
+    if(!root) return ()=>{};
+    const table = $('#'+rootId);
+    const tbody = table.querySelector('tbody');
+    const headers = $$('th[scope="col"]', table);
+    const statusEl = $('.table-status');
+    const search = $('.table-search');
+    const rowsPerSel = $('.rows-per-page');
+    const pagPrev = $('.page-prev');
+    const pagNext = $('.page-next');
+    const selCat = $('.facet-category');
+    const selCba = $('.facet-cba');
+    const selTier = $('.facet-tier');
+    const minVal = $('.range-min');
+    const maxVal = $('.range-max');
+    const hideAtypical = $('.hide-atypical');
+    let page = 1;
+    function getRows(){ return $$('.data-row', tbody).map(tr=>({
+      tr,
+      d: Object.assign({}, tr.dataset, {
+        priceFinal: parseFloat(tr.dataset.priceFinal),
+        pricePerKgL: parseFloat(tr.dataset.pricePerKgl),
+        aportePct: parseFloat(tr.dataset.aportePct),
+        varMomUnit: parseFloat(tr.dataset.varMomUnit),
+        name: tr.dataset.name || '',
+        title: tr.dataset.title || '',
+        itemId: tr.dataset.itemId || '',
+        category: tr.dataset.category || '',
+        cbaFlag: tr.dataset.cbaFlag || '',
+        brandTier: tr.dataset.brandTier || '',
+        atypical: tr.dataset.atypical === '1'
+      })
+    })); }
+    let rows = getRows();
+
+    // Populate facets
+    function distinct(a){ return Array.from(new Set(a.filter(Boolean))); }
+    function fillSelect(sel, values){ if(!sel) return; sel.innerHTML = '<option value="">Todas</option>' + values.map(v=> `<option>${v}</option>`).join(''); }
+    fillSelect(selCat, distinct(rows.map(r=> r.d.category)).sort());
+    fillSelect(selTier, distinct(rows.map(r=> r.d.brandTier)).sort());
+    fillSelect(selCba, distinct(rows.map(r=> r.d.cbaFlag)).filter(v=> v==='si' || v==='no'));
+
+    function apply(){
+      const q = norm(search.value || '');
+      let filtered = rows.filter(r=> !q || norm(r.d.title+' '+r.d.name+' '+r.d.itemId).includes(q));
+      if (selCat && selCat.value) filtered = filtered.filter(r=> r.d.category===selCat.value);
+      if (selTier && selTier.value) filtered = filtered.filter(r=> r.d.brandTier===selTier.value);
+      if (selCba && selCba.value) filtered = filtered.filter(r=> r.d.cbaFlag===selCba.value);
+      if (hideAtypical && hideAtypical.checked) filtered = filtered.filter(r=> !r.d.atypical);
+      const rangeProp = 'pricePerKgL';
+      const min = minVal && minVal.value!=='' ? parseFloat(minVal.value) : null;
+      const max = maxVal && maxVal.value!=='' ? parseFloat(maxVal.value) : null;
+      if (min!==null) filtered = filtered.filter(r=> isFinite(r.d[rangeProp]) && r.d[rangeProp] >= min);
+      if (max!==null) filtered = filtered.filter(r=> isFinite(r.d[rangeProp]) && r.d[rangeProp] <= max);
+
+      const colKey = root.dataset.sortKey || defSort.key;
+      const dir = root.dataset.sortDir || defSort.dir;
+      const cmp = (a,b)=>{
+        let av, bv;
+        switch(colKey){
+          case 'aportePct': av=a.d.aportePct; bv=b.d.aportePct; break;
+          case 'pricePerKgL': av=a.d.pricePerKgL; bv=b.d.pricePerKgL; break;
+          case 'priceFinal': av=a.d.priceFinal; bv=b.d.priceFinal; break;
+          case 'var-mom-unit': av=a.d.varMomUnit; bv=b.d.varMomUnit; break;
+          case 'name': av=norm(a.d.name); bv=norm(b.d.name); break;
+          default: av=0; bv=0;
+        }
+        const aN = isFinite(av), bN = isFinite(bv);
+        if (aN && !bN) return -1;
+        if (!aN && bN) return 1;
+        if (!aN && !bN) return 0;
+        let d = (av > bv) ? 1 : (av < bv ? -1 : 0);
+        return dir==='asc' ? d : -d;
+      };
+      filtered.sort(cmp);
+      // pagination
+      const pageSize = parseInt(rowsPerSel.value || '50', 10);
+      const total = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      page = Math.min(page, totalPages);
+      const start = (page-1)*pageSize;
+      const end = start + pageSize;
+      const frag = document.createDocumentFragment();
+      filtered.slice(start, end).forEach(r=> frag.appendChild(r.tr));
+      tbody.innerHTML = '';
+      tbody.appendChild(frag);
+      statusEl.textContent = `Mostrando ${Math.min(end,total)} de ${total}`;
+      pagPrev.disabled = page<=1; pagNext.disabled = page>=totalPages;
+      // aria-sort update
+      headers.forEach(h=> h.removeAttribute('aria-sort'));
+      const h = headers.find(h=> h.dataset.col === colKey);
+      if(h){ h.setAttribute('aria-sort', dir==='asc'?'ascending':'descending'); }
+    }
+
+    function setSort(key){
+      let dir = 'asc';
+      if (root.dataset.sortKey === key){ dir = (root.dataset.sortDir==='asc') ? 'desc' : 'asc'; }
+      root.dataset.sortKey = key; root.dataset.sortDir = dir; apply();
+    }
+    headers.forEach(h=>{
+      h.tabIndex = 0;
+      h.addEventListener('click', ()=> setSort(h.dataset.col));
+      h.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); setSort(h.dataset.col);} });
+    });
+    search.addEventListener('input', ()=> { page=1; apply(); });
+    ;[selCat, selTier, selCba, hideAtypical].forEach(sel=>{ if(sel) sel.addEventListener('change', ()=> { page=1; apply(); });});
+    ;[minVal, maxVal].forEach(inp=>{ if(inp) inp.addEventListener('input', ()=> { page=1; apply(); });});
+
+    // initial sort
+    table.dataset.sortKey = defSort.key; table.dataset.sortDir = defSort.dir; apply();
+    return apply;
+  }
+  makeTableEnhancer('breakdown', { key:'pricePerKgL', dir:'asc' });
+
+  // Chart drawing (simple SVG, overlays official + family + custom)
+  const svg = $('#index-chart');
+  const emptyEl = $('#chart-empty');
+  function drawChart(customSeries){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    const W=960,H=260, M=40;
+    const ser = seriesData.filter(d=> isFinite(d.cba_ae));
+    if (ser.length<2){ emptyEl.textContent = 'Aún no hay serie histórica'; emptyEl.style.display=''; return; }
+    emptyEl.style.display='none';
+    const xs = ser.map((_,i)=> i);
+    const ysMain = ser.map(d=> d.cba_ae);
+    const ysFam = ser.map(d=> d.cba_family).filter(v=> isFinite(v));
+    const minY = Math.min.apply(null, ysMain);
+    const maxY = Math.max.apply(null, ysMain);
+    const sx = i=> M + i * (W-2*M)/Math.max(1,xs.length-1);
+    const sy = y=> H-M - (y - minY) * (H-2*M)/Math.max(1,(maxY-minY));
+    function poly(points, color){
+      const p = points.map((y,i)=> `${sx(i)},${sy(y)}`).join(' ');
+      const pl = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      pl.setAttribute('fill','none'); pl.setAttribute('stroke',color); pl.setAttribute('stroke-width','2'); pl.setAttribute('points',p);
+      svg.appendChild(pl);
+    }
+    // axes
+    const xAxis = document.createElementNS('http://www.w3.org/2000/svg','line'); xAxis.setAttribute('x1',M); xAxis.setAttribute('y1',H-M); xAxis.setAttribute('x2',W-M); xAxis.setAttribute('y2',H-M); xAxis.setAttribute('stroke','#bbb'); svg.appendChild(xAxis);
+    const yAxis = document.createElementNS('http://www.w3.org/2000/svg','line'); yAxis.setAttribute('x1',M); yAxis.setAttribute('y1',M); yAxis.setAttribute('x2',M); yAxis.setAttribute('y2',H-M); yAxis.setAttribute('stroke','#bbb'); svg.appendChild(yAxis);
+    // lines (conditional)
+    if ($('#show-official').checked) poly(ysMain,'#1976d2');
+    if ($('#show-family').checked){ const fam = ser.map(d=> d.cba_family); if (fam.every(v=> isFinite(v))) poly(fam,'#10b981'); }
+    if ($('#show-custom').checked && customSeries && customSeries.length===ser.length) poly(customSeries,'#b91c1c');
+    // dots + titles as tooltip
+    ser.forEach((d,i)=>{
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',sx(i)); c.setAttribute('cy',sy(d.cba_ae)); c.setAttribute('r','3'); c.setAttribute('fill','#1976d2');
+      const t = document.createElementNS('http://www.w3.org/2000/svg','title'); t.textContent = `${d.period}\nCBA AE: ${new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(d.cba_ae)}\nÍndice: ${isFinite(d.idx)? d.idx.toFixed(2) : 'N/D'}\nm/m: ${isFinite(d.mom)? d.mom.toFixed(2)+'%' : 'N/D'}\ni.a.: ${isFinite(d.yoy)? d.yoy.toFixed(2)+'%' : 'N/D'}`; c.appendChild(t);
+      svg.appendChild(c);
+    });
+  }
+  ['show-official','show-family'].forEach(id=> $('#'+id).addEventListener('change', ()=> drawChart(null)));
+
+  // No personalización
+
+  // Export CSV/PNG
+  $('#export-series-csv').addEventListener('click', ()=>{
+    const rows = seriesData.map((d,i)=>{
+      return [d.period, d.cba_ae, d.cba_family, d.idx, d.mom, d.yoy].join(',');
+    });
+    const header = 'period,cba_ae,cba_family,idx,mom,yoy';
+    const blob = new Blob([header+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='series_export.csv'; a.click();
+  });
+  $('#export-series-png').addEventListener('click', ()=>{
+    const xml = new XMLSerializer().serializeToString(svg);
+    const img = new Image(); const svg64 = btoa(unescape(encodeURIComponent(xml)));
+    img.onload = function(){ const c=document.createElement('canvas'); c.width=svg.viewBox.baseVal.width||960; c.height=svg.viewBox.baseVal.height||260; const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0); const a=document.createElement('a'); a.download='serie.png'; a.href=c.toDataURL('image/png'); a.click(); };
+    img.src = 'data:image/svg+xml;base64,'+svg64;
+  });
+})();
+</script>
+{% endblock %}

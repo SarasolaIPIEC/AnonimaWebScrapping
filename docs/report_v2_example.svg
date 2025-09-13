@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef5ff"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="800" height="420" fill="url(#g)"/>
+  <rect x="40" y="40" width="720" height="60" fill="#fff" stroke="#e5e7eb" rx="10"/>
+  <text x="60" y="78" font-family="Segoe UI, Roboto, Arial" font-size="22" fill="#0f172a">Reporte v2 — IPC Ushuaia (demo)</text>
+
+  <rect x="40" y="120" width="720" height="100" fill="#fff" stroke="#e5e7eb" rx="10"/>
+  <text x="60" y="150" font-family="Segoe UI, Roboto, Arial" font-size="16" fill="#667085">KPIs</text>
+  <text x="60" y="180" font-family="Segoe UI, Roboto, Arial" font-size="14" fill="#0f172a">CBA AE: $ 123.456,78 — Índice: 110,25 — m/m: 2,10%</text>
+
+  <rect x="40" y="240" width="350" height="140" fill="#fff" stroke="#e5e7eb" rx="10"/>
+  <text x="60" y="270" font-family="Segoe UI, Roboto, Arial" font-size="16" fill="#667085">Serie</text>
+  <polyline fill="none" stroke="#1976d2" stroke-width="3" points="60,350 120,320 180,330 240,300 300,310 360,280"/>
+  <circle cx="60" cy="350" r="3" fill="#1976d2"/><circle cx="120" cy="320" r="3" fill="#1976d2"/>
+  <circle cx="180" cy="330" r="3" fill="#1976d2"/><circle cx="240" cy="300" r="3" fill="#1976d2"/>
+  <circle cx="300" cy="310" r="3" fill="#1976d2"/><circle cx="360" cy="280" r="3" fill="#1976d2"/>
+
+  <rect x="410" y="240" width="350" height="140" fill="#fff" stroke="#e5e7eb" rx="10"/>
+  <text x="430" y="270" font-family="Segoe UI, Roboto, Arial" font-size="16" fill="#667085">Vista de tabla</text>
+  <rect x="430" y="285" width="310" height="20" fill="#f9fafb" stroke="#e5e7eb"/>
+  <rect x="430" y="305" width="310" height="20" fill="#ffffff" stroke="#e5e7eb"/>
+  <rect x="430" y="325" width="310" height="20" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="440" y="300" font-family="Segoe UI, Roboto, Arial" font-size="12" fill="#0f172a">Ítem — Producto — Precio — Aporte%</text>
+</svg>

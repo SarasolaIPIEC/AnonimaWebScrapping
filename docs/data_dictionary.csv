@@ -1,0 +1,25 @@
+field,description,example
+period,Período YYYY-MM del relevamiento,2025-08
+item_id,ID lógico del ítem en la canasta,yerba_1kg
+name,Nombre del ítem en canasta,Yerba mate 1 kg
+query,Texto de búsqueda usado en el sitio,yerba 1 kg
+title,Título del producto en el e-commerce,Yerba Mate Marca X 1 Kg
+url,URL del producto (sucursal Ushuaia),https://supermercado.laanonimaonline.com/...
+brand_tier,Nivel de marca (opcional; ej. 1a/2a),1a
+cba_flag,Si el producto pertenece a la CBA (si/no),si
+category,Categoría asignada/opcional (para resumen),almacén
+in_stock,Disponibilidad (True/False),True
+promo_flag,Marcado en promoción por la fuente (True/False),True
+price_original,Precio "Antes" si existiera, $ 1.234,00
+price_promo,Precio "Ahora" si existe etiqueta de promo,$ 1.099,00
+price_final,Precio final utilizado para cálculos,$ 1.099,00
+qty_base,Tamaño de presentación detectado (base kg/L/unidad),1.00
+unit,Unidad base (kg/l/unit),kg
+unit_price_base,Precio unitario normalizado a la unidad base, $ 1.099,00
+expected_qty,Cantidad esperada por presentación según canasta,1.00
+monthly_qty_base,Cantidad mensual por AE según canasta,0.75
+cost_item_ae,Costo mensual del ítem por AE, $ 824,25
+substitution,Detalle si hubo sustitución por faltante,(vacío o texto)
+timestamp_local,Fecha y hora local de relevamiento (ISO-8601),2025-09-13T12:34:56
+basket_version,Versión de canasta utilizada para Laspeyres,v1
+source,Fuente/sucursal para el período (display),USHUAIA 5

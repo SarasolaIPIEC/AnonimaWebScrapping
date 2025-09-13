@@ -1,0 +1,10 @@
+def write_breakdown(path: str, period: str, rows: List[Dict[str, Any]]) -> None:
+    series_path = os.path.join(exports_dir, 'series_cba.csv')
+    write_breakdown(breakdown_path, period, priced_rows)
+    series_path = os.path.join(exports_dir, 'series_cba.csv')
+    series_path = os.path.join(exports_dir, 'series_cba.csv')
+    write_breakdown(breakdown_path, period, priced_rows)
+    series_path = os.path.join(exports_dir, 'series_cba.csv')
+    write_breakdown(breakdown_path, period, priced_rows)
+    series_path = getattr(args, 'series', None) or os.path.join(exports_dir, 'series_cba.csv')
+    p_rr.add_argument('--series', type=str, required=False, help='Ruta a exports/series_cba.csv')

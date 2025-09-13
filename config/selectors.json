@@ -14,6 +14,16 @@
   "confirm_button": [
     {"role": "button", "name": "(?i)(confirmar|aplicar|aceptar|guardar)"}
   ],
+  "change_location_link": [
+    {"css": ".callout_sucursal_in a.btn.btn10"},
+    {"text": "(?i)cambiar"}
+  ],
+  "verify_nodes": [
+    {"css": "#menu_usuario_resp a[title='Sucursal']"},
+    {"css": ".sucursal_actual .local_actual"},
+    {"css": ".sucursal_actual_mobile_in"},
+    {"css": "[title*='Localidad de entrega']"}
+  ],
   "search_input": [
     {"placeholder": "(?i)(qu[eé] te gustar[ií]a encontrar|buscar|producto|¿qu[eé])"},
     {"role": "textbox", "name": "(?i)(buscar|producto|¿qu[eé])"},

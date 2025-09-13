@@ -109,6 +109,9 @@ def load_config_toml(path: str) -> Dict[str, Any]:
             flat['family_ae'] = float(flat['family_ae'])
         except ValueError:
             flat['family_ae'] = 3.09
+    # defaults
+    if 'basket_version' not in flat:
+        flat['basket_version'] = 'v1'
     return flat
 
 
@@ -134,7 +137,8 @@ def write_breakdown(path: str, period: str, rows: List[Dict[str, Any]]) -> None:
     # Campos ampliados para soportar filtros y metadatos de pins
     fields = [
         'period','item_id','name','query','title','url','brand_tier','cba_flag','category','in_stock','promo_flag',
-        'price_original','price_promo','price_final','unit_price_base','qty_base','expected_qty','cost_item_ae','substitution'
+        'price_original','price_promo','price_final','unit_price_base','qty_base','expected_qty','monthly_qty_base','unit','cost_item_ae','substitution',
+        'timestamp_local','basket_version','source'
     ]
     with open(path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fields)
@@ -222,6 +226,12 @@ def write_pins(path: str, results: List[Dict[str, Any]]) -> None:
 
 def parse_period(p: Optional[str]) -> str:
     if p:
+        # normalize to YYYY-MM if YYYY-MM-DD provided
+        try:
+            if len(p) >= 10 and p[4] == '-' and p[7] == '-':
+                return p[:7]
+        except Exception:
+            pass
         return p
     # default to current year-month
     return datetime.utcnow().strftime('%Y-%m')
@@ -413,15 +423,24 @@ def cmd_run(args: argparse.Namespace) -> int:
     family_ae = float(cfg.get('family_ae', 3.09))
     cba_ae, cba_family = compute_cba_values(priced_rows, family_ae)
 
-    # 6) Update index series
-    series_path = os.path.join(exports_dir, 'series_cba.csv')
-    series_row = update_series(series_path, period, cba_ae, cba_family)
-
-    # 7) Write breakdown
+    # 6) Write breakdown
     breakdown_path = os.path.join(exports_dir, f'breakdown_{period}.csv')
     for r in priced_rows:
         r['period'] = period
+    try:
+        _now_local = datetime.now(ZoneInfo("America/Argentina/Ushuaia")) if ZoneInfo else datetime.utcnow()
+        ts_local = _now_local.isoformat(timespec='seconds')
+    except Exception:
+        ts_local = datetime.utcnow().isoformat(timespec='seconds')
+    for r in priced_rows:
+        r['timestamp_local'] = ts_local
+        r['basket_version'] = str(cfg.get('basket_version','v1'))
+        r['source'] = str(cfg.get('branch_name',''))
     write_breakdown(breakdown_path, period, priced_rows)
+
+    # 6b) Update index series (requires current breakdown for chaining)
+    series_path = os.path.join(exports_dir, 'series_cba.csv')
+    series_row = update_series(series_path, period, cba_ae, cba_family, breakdown_path=breakdown_path, basket_version=str(cfg.get('basket_version','v1')))
 
     # 7b) Daily prices CSV (fecha del dÃ­a)
     run_date = (datetime.now(ZoneInfo("America/Argentina/Ushuaia")) if ZoneInfo else datetime.utcnow()).date().isoformat()
@@ -584,13 +603,24 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
 
     log_path = os.path.join(evidence_dir, f'run_{period}.jsonl')
     json_log(log_path, 'start_pins', {'period': period, 'mode': 'pins_only'})
-
-    # Start Playwright minimal
-    from playwright.sync_api import sync_playwright
-    p = sync_playwright().start()
-    browser = p.chromium.launch(headless=(not args.debug))
-    context = browser.new_context()
-    page = context.new_page()
+    # Enforce branch context and verify header
+    try:
+        from .site.branch import ensure_branch
+        page = ensure_branch(
+            base_url=cfg.get('base_url', 'https://supermercado.laanonimaonline.com/'),
+            postal_code=cfg.get('postal_code', '9410'),
+            branch_name=cfg.get('branch_name', 'USHUAIA 5'),
+            selectors=selectors,
+            evidence_dir=evidence_dir,
+            html_dump_dir=html_dump_dir,
+            log_path=log_path,
+            headless=(not args.debug),
+            strict_verify=(not getattr(args, 'skip_branch_verify', False))
+        )
+    except Exception as e:
+        json_log(log_path, 'branch_error', {'error': str(e)})
+        print(f"[FATAL] No se pudo fijar/verificar sucursal: {e}")
+        return 1
 
     from .site.product import extract_product_page
     from .normalize.units import parse_title_size
@@ -638,8 +668,8 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
     # Close
     try:
         if not args.debug:
-            context.close()
-            browser.close()
+            page.context.close()
+            page.context.browser.close()
     except Exception:
         pass
 
@@ -648,10 +678,20 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
     family_ae = float(cfg.get('family_ae', 3.09))
     cba_ae, cba_family = compute_cba_values(priced_rows, family_ae)
     series_path = os.path.join(exports_dir, 'series_cba.csv')
-    series_row = update_series(series_path, period, cba_ae, cba_family)
+    series_row = update_series(series_path, period, cba_ae, cba_family, breakdown_path=breakdown_path, basket_version=str(cfg.get('basket_version','v1')))
     breakdown_path = os.path.join(exports_dir, f'breakdown_{period}.csv')
     for r in priced_rows:
         r['period'] = period
+    # enrich breakdown rows with timestamp/basket/source
+    try:
+        _now_local = datetime.now(ZoneInfo("America/Argentina/Ushuaia")) if ZoneInfo else datetime.utcnow()
+        ts_local = _now_local.isoformat(timespec='seconds')
+    except Exception:
+        ts_local = datetime.utcnow().isoformat(timespec='seconds')
+    for r in priced_rows:
+        r['timestamp_local'] = ts_local
+        r['basket_version'] = str(cfg.get('basket_version','v1'))
+        r['source'] = str(cfg.get('branch_name',''))
     write_breakdown(breakdown_path, period, priced_rows)
     run_date = (datetime.now(ZoneInfo("America/Argentina/Ushuaia")) if ZoneInfo else datetime.utcnow()).date().isoformat()
     daily_path = os.path.join(exports_dir, f'daily_prices_{run_date}.csv')
@@ -760,11 +800,16 @@ def cmd_dry_run(args: argparse.Namespace) -> int:
     reports_dir = 'reports'
     ensure_dirs([exports_dir, reports_dir, 'data'])
     series_path = os.path.join(exports_dir, 'series_cba.csv')
-    series_row = update_series(series_path, period, cba_ae, cba_family)
     breakdown_path = os.path.join(exports_dir, f'breakdown_{period}.csv')
     for r in priced_rows:
         r['period'] = period
+    # minimal enrich
+    for r in priced_rows:
+        r.setdefault('timestamp_local','')
+        r.setdefault('basket_version','v1')
+        r.setdefault('source','dry-run')
     write_breakdown(breakdown_path, period, priced_rows)
+    series_row = update_series(series_path, period, cba_ae, cba_family, breakdown_path=breakdown_path, basket_version='v1')
     report_path = os.path.join(reports_dir, f'{period}.html')
     render_report(report_path, period, series_path, breakdown_path)
 
@@ -777,6 +822,21 @@ def cmd_dry_run(args: argparse.Namespace) -> int:
     daily_path = os.path.join(exports_dir, f'daily_prices_{run_date}.csv')
     write_daily_prices(daily_path, run_date, period, priced_rows)
     print(f"Precios diarios: {daily_path}")
+    return 0
+
+
+def cmd_render_report(args: argparse.Namespace) -> int:
+    """Renderiza reporte HTML desde exports sin scraping."""
+    period = parse_period(getattr(args, 'period', None))
+    cfg = load_config_toml('config.toml')
+    exports_dir = cfg.get('exports_dir', 'exports')
+    reports_dir = cfg.get('reports_dir', 'reports')
+    series_path = getattr(args, 'series', None) or os.path.join(exports_dir, 'series_cba.csv')
+    breakdown_path = getattr(args, 'inp', None) or os.path.join(exports_dir, f'breakdown_{period}.csv')
+    out_path = getattr(args, 'out', None) or os.path.join(reports_dir, f'{period}.html')
+    ensure_dirs([reports_dir])
+    render_report(out_path, period, series_path, breakdown_path)
+    print(f"Reporte generado: {out_path}")
     return 0
 
 
@@ -805,7 +865,16 @@ def main():
     p_pins = sub.add_parser('pins-run', help='Ejecuta extracción usando data/sku_pins.csv (sin sucursal)')
     p_pins.add_argument('--period', type=str, required=False, help='YYYY-MM')
     p_pins.add_argument('--debug', action='store_true', help='No headless, deja navegador abierto')
+    p_pins.add_argument('--skip-branch-verify', action='store_true', help='No abortar si no se verifica Ushuaia en header')
     p_pins.set_defaults(func=cmd_pins_run)
+
+    # Render-only subcommand (no scraping)
+    p_rr = sub.add_parser('render-report', help='Renderiza reporte desde exports (sin scraping)')
+    p_rr.add_argument('--period', type=str, required=False, help='YYYY-MM')
+    p_rr.add_argument('--in', dest='inp', type=str, required=False, help='Ruta a exports/breakdown_<period>.csv')
+    p_rr.add_argument('--series', type=str, required=False, help='Ruta a exports/series_cba.csv')
+    p_rr.add_argument('--out', type=str, required=False, help='Ruta de salida reports/<period>.html')
+    p_rr.set_defaults(func=cmd_render_report)
 
     args = parser.parse_args()
     if not getattr(args, 'func', None):
