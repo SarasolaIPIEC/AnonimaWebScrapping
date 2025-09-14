@@ -141,6 +141,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Ver navegador (pasa --debug al CLI real)",
     )
 
+    # subcomando: check-branch (delegado al CLI real)
+    cb_parser = subparsers.add_parser(
+        "check-branch",
+        parents=[common],
+        help="Selecciona y verifica sucursal (delegado)",
+    )
+    cb_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Ver navegador (pasa --debug al CLI real)",
+    )
+
     return parser
 
 

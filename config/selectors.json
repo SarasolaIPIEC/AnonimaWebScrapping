@@ -1,11 +1,58 @@
 {
+  "branch": {
+    "open_widget": [
+      {"role": "button", "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci[oó]n|env[ií]o|retiro)"},
+      {"css": "header button, header [role=button]"},
+      {"text": "(?i)Ushuaia"}
+    ],
+    "zip_input": [
+      {"css": "#nro_codigo_postal"},
+      {"placeholder": "(?i)(c[oó]digo postal|cp|localidad)"},
+      {"css": "input[placeholder*=postal i], input[placeholder*=CP i], input[type=search]"}
+    ],
+    "result_item": [
+      {"css": "#sel_sucursal label:has-text('Ushuaia')"},
+      {"css": "label[for^=sucursal_]:has-text('Ushuaia')"},
+      {"css": "input[name=sucursal][data-sucursal*='Ushuaia' i]"},
+      {"text": "(?i)ushuaia"},
+      {"css": "li:has-text('Ushuaia'), [role=option]:has-text('Ushuaia')"}
+    ],
+    "confirm": [
+      {"css": "#btn_Confirmar"},
+      {"css": ".button-adelante"},
+      {"role": "button", "name": "(?i)(confirmar|aplicar|aceptar|continuar|guardar|ver productos|ir a la tienda)"},
+      {"css": "button.btn.btn-primary, button[type=submit]"}
+    ],
+    "change_link": [
+      {"css": ".callout_sucursal_in a.btn.btn10"},
+      {"text": "(?i)cambiar"}
+    ],
+    "pickup_tab": [
+      {"role": "tab", "name": "(?i)(retiro|sucursal)"},
+      {"text": "(?i)(retirar|retiro en sucursal)"}
+    ],
+    "province_combobox": [
+      {"role": "combobox", "name": "(?i)provincia"},
+      {"css": "select[name*=provincia i], [role=combobox][aria-label*=Provincia i]"}
+    ],
+    "city_combobox": [
+      {"role": "combobox", "name": "(?i)(localidad|ciudad)"},
+      {"css": "select[name*=localidad i], [role=combobox][aria-label*=Localidad i]"}
+    ],
+    "verify_nodes": [
+      {"css": "#menu_usuario_resp a[title='Sucursal']"},
+      {"css": ".sucursal_actual .local_actual"},
+      {"css": ".sucursal_actual_mobile_in"},
+      {"css": "[title*='Localidad de entrega']"}
+    ]
+  },
   "location_button": [
-    {"role": "button", "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci(o|ó)n)"},
+    {"role": "button", "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci[oó]n)"},
     {"css": "header button, header [role=button]"},
     {"text": "(?i)Ushuaia"}
   ],
   "postal_input": [
-    {"placeholder": "(?i)(c(o|ó)digo postal|cp)"},
+    {"placeholder": "(?i)(c[oó]digo postal|cp)"},
     {"css": "input[placeholder*=postal i], input[placeholder*=CP i]"}
   ],
   "branch_option": [
@@ -53,7 +100,7 @@
     {"css": ".oos, .sold-out"}
   ],
   "add_to_cart_button": [
-    {"role": "button", "name": "(?i)(agregar|comprar|añadir)"},
+    {"role": "button", "name": "(?i)(agregar|comprar|a[nñ]adir)"},
     {"css": "button.add, button.add-to-cart, button[aria-label*=Agregar i]"}
   ],
   "pagination_next": [

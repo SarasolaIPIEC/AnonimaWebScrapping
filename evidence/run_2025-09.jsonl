@@ -23,3 +23,14 @@
 {"ts": "2025-09-13T17:55:10.474831Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
 {"ts": "2025-09-13T17:55:28.066966Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
 {"ts": "2025-09-13T17:55:28.066966Z", "event": "branch_error", "error": "No se verificó la sucursal en header (no aparece \"Ushuaia\")."}
+{"ts": "2025-09-13T18:04:59.260974Z", "event": "start_pins", "period": "2025-09", "mode": "pins_only"}
+{"ts": "2025-09-13T18:05:02.191903Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
+{"ts": "2025-09-13T18:05:19.666921Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
+{"ts": "2025-09-13T18:05:19.668010Z", "event": "branch_error", "error": "No se verificó la sucursal en header (no aparece \"Ushuaia\")."}
+{"ts": "2025-09-14T20:13:43.396096Z", "event": "start_pins", "period": "2025-09", "mode": "pins_only"}
+{"ts": "2025-09-14T20:13:50.296088Z", "event": "nav", "url": "https://supermercado.laanonimaonline.com/"}
+{"ts": "2025-09-14T20:14:08.461206Z", "event": "branch_verify_fail", "expected": "Ushuaia"}
+{"ts": "2025-09-14T20:14:08.461206Z", "event": "branch_error", "error": "No se verificó la sucursal en header (no aparece \"Ushuaia\")."}
+{"ts": "2025-09-14T20:34:23.985792Z", "event": "start_pins", "period": "2025-09", "mode": "pins_only"}
+{"ts": "2025-09-14T20:35:07.329979Z", "event": "branch_error", "error": "No se pudo seleccionar la sucursal de Ushuaia (widget/confirmación fallida)."}
+{"ts": "2025-09-14T20:49:36.588893Z", "event": "start_pins", "period": "2025-09", "mode": "pins_only"}

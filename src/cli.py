@@ -237,6 +237,12 @@ def parse_period(p: Optional[str]) -> str:
     return datetime.utcnow().strftime('%Y-%m')
 
 
+def _resolve_branch_params(args: argparse.Namespace, cfg: Dict[str, Any]) -> Dict[str, str]:
+    postal = getattr(args, 'zip', None) or os.getenv('ZIPCODE_DEFAULT') or cfg.get('postal_code', '9410')
+    hint = getattr(args, 'branch', None) or os.getenv('BRANCH_TEXT_HINT') or cfg.get('branch_name', 'USHUAIA')
+    return {'postal_code': str(postal), 'branch_hint': str(hint)}
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     period = parse_period(args.period)
     cfg = load_config_toml('config.toml')
@@ -259,6 +265,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     ensure_catalog('data/cba_catalog.csv')
 
     log_path = os.path.join(evidence_dir, f'run_{period}.jsonl')
+    branch_jsonl = os.path.join(evidence_dir, 'branch_steps.jsonl')
     # Add checksums for traceability
     def _md5(path: str) -> str:
         import hashlib
@@ -273,19 +280,48 @@ def cmd_run(args: argparse.Namespace) -> int:
         'config_md5': _md5('config.toml')
     })
 
-    # 1) Select branch via Playwright
+    # 1) Select branch via Playwright + strong verification
     try:
+        params = _resolve_branch_params(args, cfg)
+        from .site.branch import ensure_branch
         page = ensure_branch(
             base_url=cfg.get('base_url', 'https://supermercado.laanonimaonline.com/'),
-            postal_code=cfg.get('postal_code', '9410'),
-            branch_name=args.branch or cfg.get('branch_name', 'USHUAIA 5'),
+            postal_code=params['postal_code'],
+            branch_name=params['branch_hint'],
             selectors=selectors,
             evidence_dir=evidence_dir,
             html_dump_dir=html_dump_dir,
-            log_path=log_path,
+            log_path=branch_jsonl,
             headless=(not args.debug),
-            strict_verify=(not getattr(args, 'skip_branch_verify', False))
+            strict_verify=False
         )
+        from .site.branch import assert_branch_is_ushuaia, ensure_branch_on_page
+        try:
+            assert_branch_is_ushuaia(
+                page,
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+        except Exception:
+            # retry once
+            ensure_branch_on_page(
+                page,
+                zipcode=params['postal_code'],
+                branch_hint=params['branch_hint'],
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+            assert_branch_is_ushuaia(
+                page,
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
     except Exception as e:
         json_log(log_path, 'error', {'stage': 'branch', 'error': str(e)})
         print(f"[FATAL] SelecciÃ³n de sucursal fallÃ³: {e}")
@@ -603,20 +639,48 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
 
     log_path = os.path.join(evidence_dir, f'run_{period}.jsonl')
     json_log(log_path, 'start_pins', {'period': period, 'mode': 'pins_only'})
+    branch_jsonl = os.path.join(evidence_dir, 'branch_steps.jsonl')
     # Enforce branch context and verify header
     try:
-        from .site.branch import ensure_branch
+        from .site.branch import ensure_branch, assert_branch_is_ushuaia
+        params = _resolve_branch_params(args, cfg)
         page = ensure_branch(
             base_url=cfg.get('base_url', 'https://supermercado.laanonimaonline.com/'),
-            postal_code=cfg.get('postal_code', '9410'),
-            branch_name=cfg.get('branch_name', 'USHUAIA 5'),
+            postal_code=params['postal_code'],
+            branch_name=params['branch_hint'],
             selectors=selectors,
             evidence_dir=evidence_dir,
             html_dump_dir=html_dump_dir,
-            log_path=log_path,
+            log_path=branch_jsonl,
             headless=(not args.debug),
-            strict_verify=(not getattr(args, 'skip_branch_verify', False))
+            strict_verify=False
         )
+        try:
+            assert_branch_is_ushuaia(
+                page,
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+        except Exception:
+            from .site.branch import ensure_branch_on_page
+            ensure_branch_on_page(
+                page,
+                zipcode=params['postal_code'],
+                branch_hint=params['branch_hint'],
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+            assert_branch_is_ushuaia(
+                page,
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
     except Exception as e:
         json_log(log_path, 'branch_error', {'error': str(e)})
         print(f"[FATAL] No se pudo fijar/verificar sucursal: {e}")
@@ -825,6 +889,90 @@ def cmd_dry_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_check_branch(args: argparse.Namespace) -> int:
+    """Solo ejecuta selección + verificación de sucursal y genera evidencia."""
+    period = parse_period(getattr(args, 'period', None))
+    cfg = load_config_toml('config.toml')
+    selectors = load_selectors('config/selectors.json')
+
+    evidence_dir = cfg.get('evidence_dir', 'evidence')
+    html_dump_dir = cfg.get('html_dump_dir', os.path.join(evidence_dir, 'html'))
+    try:
+        _now_local = datetime.now(ZoneInfo("America/Argentina/Ushuaia")) if ZoneInfo else datetime.utcnow()
+        _date_str = _now_local.date().isoformat()
+        evidence_dir = os.path.join(evidence_dir, f"{period}_{_date_str}")
+        html_dump_dir = os.path.join(evidence_dir, 'html')
+    except Exception:
+        pass
+    ensure_dirs([evidence_dir, html_dump_dir, 'data'])
+
+    branch_jsonl = os.path.join(evidence_dir, 'branch_steps.jsonl')
+    params = _resolve_branch_params(args, cfg)
+    base_url = cfg.get('base_url', 'https://supermercado.laanonimaonline.com/')
+    from .site.branch import ensure_branch, assert_branch_is_ushuaia
+    try:
+        page = ensure_branch(
+            base_url=base_url,
+            postal_code=params['postal_code'],
+            branch_name=params['branch_hint'],
+            selectors=selectors,
+            evidence_dir=evidence_dir,
+            html_dump_dir=html_dump_dir,
+            log_path=branch_jsonl,
+            headless=(not args.debug),
+            strict_verify=False,
+        )
+        try:
+            assert_branch_is_ushuaia(
+                page,
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+        except Exception:
+            from .site.branch import ensure_branch_on_page
+            ensure_branch_on_page(
+                page,
+                zipcode=params['postal_code'],
+                branch_hint=params['branch_hint'],
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+            assert_branch_is_ushuaia(
+                page,
+                selectors=selectors,
+                evidence_dir=evidence_dir,
+                html_dump_dir=html_dump_dir,
+                log_path=branch_jsonl,
+            )
+        try:
+            if not args.debug:
+                page.context.close()
+                page.context.browser.close()
+        except Exception:
+            pass
+    except Exception as e:
+        print(f"[FATAL] Verificacion de sucursal fallo: {e}")
+        print(f"Evidencia: {evidence_dir}")
+        return 2
+
+    # Human-readable summary
+    summary_path = os.path.join(evidence_dir, 'branch_check.log')
+    try:
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            f.write("Sucursal verificada: Ushuaia (CP 9410)\n")
+            f.write(f"Evidence dir: {evidence_dir}\n")
+            f.write("Artifacts: branch_before.png, branch_after.png, branch_dom_after.html, branch_storage.json, branch_steps.jsonl\n")
+    except Exception:
+        pass
+    print("OK: sucursal Ushuaia verificada")
+    print(f"Evidencia: {evidence_dir}")
+    return 0
+
+
 def cmd_render_report(args: argparse.Namespace) -> int:
     """Renderiza reporte HTML desde exports sin scraping."""
     period = parse_period(getattr(args, 'period', None))
@@ -847,6 +995,7 @@ def main():
     p_run = sub.add_parser('run', help='Ejecución E2E con Playwright')
     p_run.add_argument('--period', type=str, required=False, help='YYYY-MM')
     p_run.add_argument('--branch', type=str, required=False, help='Nombre de sucursal (ej. USHUAIA 5)')
+    p_run.add_argument('--zip', type=str, required=False, help='Codigo postal (ej. 9410)')
     p_run.add_argument('--debug', action='store_true', help='No headless, no cierre automÃ¡tico')
     p_run.add_argument('--skip-branch-verify', action='store_true', help='No abortar si no se verifica Ushuaia en header')
     p_run.set_defaults(func=cmd_run)
@@ -866,6 +1015,8 @@ def main():
     p_pins.add_argument('--period', type=str, required=False, help='YYYY-MM')
     p_pins.add_argument('--debug', action='store_true', help='No headless, deja navegador abierto')
     p_pins.add_argument('--skip-branch-verify', action='store_true', help='No abortar si no se verifica Ushuaia en header')
+    p_pins.add_argument('--branch', type=str, required=False, help='Nombre de sucursal (hint de filtro)')
+    p_pins.add_argument('--zip', type=str, required=False, help='Codigo postal (ej. 9410)')
     p_pins.set_defaults(func=cmd_pins_run)
 
     # Render-only subcommand (no scraping)
@@ -875,6 +1026,14 @@ def main():
     p_rr.add_argument('--series', type=str, required=False, help='Ruta a exports/series_cba.csv')
     p_rr.add_argument('--out', type=str, required=False, help='Ruta de salida reports/<period>.html')
     p_rr.set_defaults(func=cmd_render_report)
+
+    # Branch-only selection/verification
+    p_cb = sub.add_parser('check-branch', help='Selecciona y verifica la sucursal Ushuaia y genera evidencia')
+    p_cb.add_argument('--period', type=str, required=False, help='YYYY-MM')
+    p_cb.add_argument('--branch', type=str, required=False, help='Nombre de sucursal (hint de filtro)')
+    p_cb.add_argument('--zip', type=str, required=False, help='Codigo postal (ej. 9410)')
+    p_cb.add_argument('--debug', action='store_true', help='Headed/browser abierto para diagnostico')
+    p_cb.set_defaults(func=cmd_check_branch)
 
     args = parser.parse_args()
     if not getattr(args, 'func', None):

@@ -13,6 +13,27 @@ CLI E2E para: fijar sucursal por CP 9410 (USHUAIA 5), buscar CBA por barra, extr
 
 ## Uso
 
+### Selección y verificación de sucursal
+
+Antes de cualquier scraping, la app fija y verifica la sucursal de Ushuaia (CP 9410). Podés ejecutar solo ese paso y ver la evidencia:
+
+```
+python -m src.cli check-branch [--period YYYY-MM] [--zip 9410] [--branch "USHUAIA"] [--debug]
+```
+
+Genera en `evidence/<period>_<YYYY-MM-DD>/` los archivos:
+- branch_before.png, branch_after.png
+- branch_dom_after.html
+- branch_storage.json
+- branch_steps.jsonl (log estructurado)
+- branch_check.log (resumen humano)
+
+Flags/env soportados:
+- `--zip` o env `ZIPCODE_DEFAULT` (default: 9410)
+- `--branch` o env `BRANCH_TEXT_HINT` (default: "USHUAIA")
+
+La verificación combina señales en header, una PDP de control y storage/cookies; si falla, termina con código ≠ 0.
+
 ### Uso mÃ­nimo
 Ejecutar E2E (headless por defecto):
 
