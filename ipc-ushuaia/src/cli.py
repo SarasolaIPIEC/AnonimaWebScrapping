@@ -1,6 +1,6 @@
 ﻿"""Command-line interface for IPC Ushuaia.
 
-Provides three subcommands:
+Provides several subcommands:
 
 ``run``
     Ejecuta el pipeline completo en lÃ­nea.
@@ -8,6 +8,10 @@ Provides three subcommands:
     Usa HTML guardado para depurar selectores y normalizaciÃ³n.
 ``export-series``
     Reexporta CSV/HTML a partir de datos ya persistidos.
+``pins-run``
+    Delegado al CLI real para extracciÃ³n basada en SKU pins.
+``check-branch``
+    Delegado al CLI real para verificar la sucursal seleccionada.
 
 All subcommands comparten argumentos comunes como ``--period`` (formato
 ``YYYY-MM``), ``--branch`` y ``--headless``. Las entradas se validan antes de
@@ -217,11 +221,26 @@ def _cmd_pins_run(args: argparse.Namespace) -> None:
     sys.exit(proc.returncode)
 
 
+def _cmd_check_branch(args: argparse.Namespace) -> None:
+    root = Path(__file__).resolve().parents[2]
+    cmd = [sys.executable, "-m", "src.cli", "check-branch"]
+    if args.period:
+        cmd.extend(["--period", args.period])
+    if args.debug:
+        cmd.append("--debug")
+    print(f"Delegando a CLI real: {' '.join(cmd)}\n(cwd={root})")
+    proc = subprocess.run(cmd, cwd=root)
+    if proc.returncode != 0:
+        print(f"[WARN] check-branch terminó con código {proc.returncode}")
+    sys.exit(proc.returncode)
+
+
 COMMAND_DISPATCH = {
     "run": _cmd_run,
     "dry-run": _cmd_dry_run,
     "export-series": _cmd_export_series,
     "pins-run": _cmd_pins_run,
+    "check-branch": _cmd_check_branch,
 }
 
 
