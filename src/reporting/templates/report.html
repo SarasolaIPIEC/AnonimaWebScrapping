@@ -2,220 +2,239 @@
 {% from 'macros.html' import chips, price_cell %}
 
 {% block body %}
+  <section class="card" style="margin-top:24px;">
+    <div class="section-title">Canasta Básica Alimentaria (por AE)</div>
+    <details style="margin-bottom:12px;">
+      <summary style="font-weight:600; color:#1976d2;">¿Qué contiene la CBA?</summary>
+      <div class="muted" style="margin-top:8px;">
+        <ul style="margin-left:16px;">
+        {% for item in canasta_base if item.marca == 'estandar' %}
+          <li><b>{{ item.categoria }}</b>: {{ item.nombre }} ({{ item.cantidad_ae }} {{ item.unidad }})</li>
+        {% endfor %}
+        </ul>
+      </div>
+    </details>
+    <details style="margin-bottom:12px;">
+      <summary style="font-weight:600; color:#1976d2;">Metodología oficial INDEC</summary>
+      <div class="muted" style="margin-top:8px;">
+        <ul style="margin-left:16px;">
+          <li>La CBA se compone de una canasta fija de alimentos representativa de los requerimientos normativos de un adulto equivalente (AE), según la estructura oficial del INDEC.</li>
+          <li>Las cantidades mensuales por AE se determinan según la composición y necesidades nutricionales promedio.</li>
+          <li>Los precios relevados corresponden al valor final al consumidor, incluyendo promociones vigentes.</li>
+          <li>Las unidades se normalizan a kg, litro o unidad para asegurar comparabilidad y reproducibilidad.</li>
+          <li>Cuando un producto está fuera de stock o cambia de presentación, se documenta la sustitución siguiendo criterios de equivalencia y trazabilidad.</li>
+          <li>La variación mensual y anual del índice se calcula sobre la serie de costos de la CBA, con base 100 en el primer período.</li>
+        </ul>
+      </div>
+    </details>
+    <table style="margin-bottom:16px;">
+      <thead>
+        <tr style="background:#e3eaf2;">
+          <th>Categoría</th><th>Ítem</th><th>Marca</th><th>Cantidad mensual</th><th>Unidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in canasta_base if item.marca == 'estandar' %}
+        <tr>
+          <td>{{ item.categoria }}</td>
+          <td>{{ item.nombre }}</td>
+          <td>{{ item.marca }}</td>
+          <td>{{ item.cantidad_ae }}</td>
+          <td>{{ item.unidad }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="muted" style="margin-bottom:8px;">Multiplicador familia tipo: {{ meta.family_ae }}</div>
+  </section>
+
+
   <section class="kpis">
     <div class="card kpi"><div class="label">CBA AE</div><div class="value">{{ kpis.cba_ae|currency }}</div></div>
     <div class="card kpi"><div class="label">CBA Familia (x{{ meta.family_ae|number }})</div><div class="value">{{ kpis.cba_family|currency }}</div></div>
     <div class="card kpi"><div class="label">Índice (base=100)</div><div class="value">{{ kpis.idx|number }}</div></div>
     <div class="card kpi"><div class="label">m/m</div><div class="value">{{ kpis.mom if kpis.mom is not none else 'N/D' | pct }}</div></div>
     <div class="card kpi"><div class="label">i.a.</div><div class="value">{{ kpis.yoy if kpis.yoy is not none else 'N/D' | pct }}</div></div>
-    <div class="muted" style="margin-top:6px">Nota: "Equivalente base" indica el tamaño de la presentación normalizado a kg/l/unidad (ej.: 0,47 l). Se usa para precio unitario y costo por AE.</div>
   </section>
 
-  <section class="grid">
-    <div>
-      <div class="section-title">Serie del índice (base=100)</div>
-      <div class="chart">{% if chart_index %}{{ chart_index|safe }}{% else %}<div class="muted">Sin suficiente historial; el gráfico aparece desde el 2.º mes.</div>{% endif %}</div>
-    </div>
-    <div class="card">
-      <div class="section-title">Resumen del período</div>
-      <table>
-        <tbody>
-          <tr><th>Total ítems</th><td class="num">{{ summary.total_items }}</td></tr>
-          <tr><th>Con precio válido</th><td class="num">{{ summary.valid_items }} ({{ (summary.valid_ratio*100)|round(1) }}%)</td></tr>
-          <tr><th>En promoción</th><td class="num">{{ summary.promo_count }}</td></tr>
-          <tr><th>Sin stock</th><td class="num">{{ summary.oos_count }}</td></tr>
-          <tr><th>Suma costo AE</th><td class="num">{{ summary.cba_ae_sum|currency }}</td></tr>
-        </tbody>
-      </table>
-      <div class="muted" style="margin-top:8px">Fuente: {{ meta.source }}. Precios finales (promos vigentes incluidas).</div>
-    </div>
-  </section>
-
-  <div class="muted" style="margin:12px 0">
-    <a href="{{ links.breakdown }}" download>Descargar breakdown CSV</a>
-     · <a href="../docs/DATA_MODEL_GUIDE.md" target="_blank" rel="noopener">Diccionario de datos</a>
-  </div>
-
-  <div class="tabs" role="tablist" aria-label="Vistas del reporte">
-    <button id="tab-A" class="active" role="tab" aria-selected="true" aria-controls="panel-A">Por producto</button>
-    <button id="tab-B" role="tab" aria-selected="false" aria-controls="panel-B">Por kg/L/un</button>
-  </div>
-
-  <section id="panel-A" role="tabpanel" aria-labelledby="tab-A">
-    <div class="card filters" id="filters-A" role="region" aria-label="Filtros de Por producto">
-      <form onsubmit="return false;">
-        <div class="controls-grid">
-          <div class="control"><label>Buscar</label><input type="search" id="A-search" placeholder="Ej: yerba 1 kg"></div>
-          <div class="control"><label>Categoría</label><select id="A-category"><option value="">Todas</option>{% for c in filters.categories %}<option value="{{c}}">{{c}}</option>{% endfor %}</select></div>
-          <div class="control"><label>Marca (nivel)</label><div class="option-row">{% for bt in filters.brand_tiers %}<label><input type="checkbox" name="A-bt" value="{{bt}}"> {{ bt }}</label>{% endfor %}</div></div>
-          <div class="control"><label>Estado</label><div class="option-row"><label><input type="checkbox" id="A-only-promo"> Promo</label><label><input type="checkbox" id="A-only-stock"> En stock</label></div></div>
-          <div class="control"><label>Rango precio final</label><div class="row"><input type="number" id="A-min-price" step="1" placeholder="mín"> <input type="number" id="A-max-price" step="1" placeholder="máx"></div></div>
-          <div class="control"><label>Orden</label><div class="row"><select id="A-sort"><option value="contrib_pct_desc">Aporte AE % (desc)</option><option value="price_final_asc">Precio final (asc)</option><option value="price_final_desc">Precio final (desc)</option></select><button class="tiny" id="A-reset">Reset</button></div></div>
-          <div class="control"><label>&nbsp;</label><label><input type="checkbox" id="A-show-money"> Ver aporte en $</label></div>
+  <section class="card" style="margin-top:24px;">
+    <div class="section-title">Listado de productos relevados</div>
+    <div class="muted" style="margin-bottom:8px">Filtra, busca y ordena por nombre. Máx. 50 ítems por página.</div>
+    <div style="margin-bottom:8px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+      <input type="search" id="table-search" placeholder="Buscar producto..." style="padding:8px; width:220px; border-radius:8px; border:1px solid #e5e7eb;">
+      <div style="display:flex; gap:16px;">
+        <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
+          <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">CBA</div>
+          <label style="margin-bottom:4px;"><input type="checkbox" name="table-cba" value="si"> Sí</label>
+          <label><input type="checkbox" name="table-cba" value="no"> No</label>
         </div>
-      </form>
+        <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
+          <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Marca</div>
+          <label style="margin-bottom:4px;"><input type="checkbox" name="table-brand" value="premium"> Premium</label>
+          <label style="margin-bottom:4px;"><input type="checkbox" name="table-brand" value="estandar"> Estandar</label>
+          <label><input type="checkbox" name="table-brand" value="segunda"> Segunda</label>
+        </div>
+        <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
+          <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Categoría</div>
+          <select id="table-category" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;">
+            <option value="">Todas</option>
+            <option value="almacen">Almacén</option>
+            <option value="bebidas">Bebidas</option>
+            <option value="frutas_verduras">Frutas y verduras</option>
+            <option value="lacteos_huevos">Lácteos y huevos</option>
+            <option value="limpieza_higiene">Limpieza e higiene</option>
+            <option value="panificados">Panificados</option>
+          </select>
+        </div>
+        <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
+          <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Ordenar por</div>
+          <select id="table-sort" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;">
+            <option value="alpha">Alfabético</option>
+            <option value="contrib_pct_desc">AE % (desc)</option>
+            <option value="price_final_asc">Precio ↑</option>
+            <option value="price_final_desc">Precio ↓</option>
+          </select>
+        </div>
+      </div>
+      <button id="table-reset" style="padding:8px 16px; border-radius:8px; border:1px solid #1976d2; background:#e3eaf2; color:#1976d2; font-weight:600;">Reset</button>
+      <span id="table-count" style="margin-left:auto; color:#1976d2; font-weight:600;"></span>
     </div>
-    <table id="table-A">
-      <thead><tr><th>Producto</th><th>Presentación</th><th>Precio</th><th>Aporte AE</th><th>m/m</th></tr></thead>
-      <tbody>
+    <table id="table-A" style="box-shadow:0 2px 8px rgba(16,24,40,.08);">
+      <thead style="position:sticky; top:0; background:#e3eaf2; z-index:2;">
+        <tr style="background:#e3eaf2;">
+          <th style="width:32%;">Producto</th>
+          <th style="width:14%; text-align:center;">Presentación</th>
+          <th class="price" style="width:14%;">Precio</th>
+           <th style="width:14%; text-align:center;">Aporte AE</th>
+           <th style="width:14%; text-align:center;">m/m</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
       {% for r in viewA %}
-        <tr data-title="{{r.title|e}}" data-category="{{r.category}}" data-brand-tier="{{r.brand_tier}}" data-promo="{{ 1 if r.promo_flag else 0 }}" data-stock="{{ 1 if r.in_stock else 0 }}" data-price-final="{{ r.price_final }}" data-contrib-pct="{{ r.contrib_AE_pct }}">
-          <td><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title }}</a><div class="item-meta">{{ chips(r.cba_flag, r.brand_tier) }}</div></td>
-          <td>{{ r.presentation_text }}</td>
-          <td class="num">{{ price_cell(r.price_list, r.price_final) }}</td>
-          <td class="num"><span class="_A_pct">{{ r.contrib_AE_pct|pct }}</span> <span class="_A_money" style="display:none;">{{ r.contrib_AE_$|currency }}</span></td>
-          <td class="num">{{ r.variation_mom_pct if r.variation_mom_pct is not none else 'N/D' | pct }}</td>
+  <tr style="border-bottom:1px solid #e5e7eb;" data-cba="{{ r.cba_flag }}" data-brand="{{ r.brand_tier }}" data-title="{{ r.title|e }}" data-price="{{ r.price_final }}" data-category="{{ r.category }}">
+          <td><a href="{{ r.url }}" target="_blank" rel="noopener" style="font-weight:600; color:#1e40af;">{{ r.title }}</a><div class="item-meta">{{ chips(r.cba_flag, r.brand_tier) }}</div></td>
+          <td style="text-align:center;">{{ r.presentation_text }}</td>
+          <td class="price">{{ r.price_final|currency|replace(',00','') }}</td>
+          <td class="num" style="text-align:center;">
+            {% if r.contrib_AE_pct > 0 %}
+                <span class="_A_pct" style="font-weight:600; color:#1976d2;">{{ r.contrib_AE_pct|pct }}</span>
+                <span class="_A_money" style="font-weight:600; color:#1976d2;">{{ r.contrib_AE_money|currency|replace(',00','') }}</span>
+            {% else %}
+              <span class="_A_money" style="font-weight:600; color:#1976d2;">{{ r.contrib_AE_money|currency|replace(',00','') }}</span>
+            {% endif %}
+          </td>
+           <td class="num" style="text-align:center;">{{ r.variation_mom_pct if r.variation_mom_pct is not none else 'N/D' | pct }}</td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
-  </section>
-
-  <section id="panel-B" role="tabpanel" aria-labelledby="tab-B" hidden>
-    <div class="card filters" id="filters-B" role="region" aria-label="Filtros de Por unidad">
-      <form onsubmit="return false;">
-        <div class="controls-grid">
-          <div class="control"><label>Buscar</label><input type="search" id="B-search" placeholder="Ej: leche 1 l"></div>
-          <div class="control"><label>Categoría</label><select id="B-category"><option value="">Todas</option>{% for c in filters.categories %}<option value="{{c}}">{{c}}</option>{% endfor %}</select></div>
-          <div class="control"><label>Marca (nivel)</label><div class="option-row">{% for bt in filters.brand_tiers %}<label><input type="checkbox" name="B-bt" value="{{bt}}"> {{ bt }}</label>{% endfor %}</div></div>
-          <div class="control"><label>Rango precio unitario</label><div class="row"><input type="number" id="B-min-unit" step="1" placeholder="mín"> <input type="number" id="B-max-unit" step="1" placeholder="máx"></div></div>
-          <div class="control"><label><input type="checkbox" id="B-hide-atypical"> Ocultar presentaciones atípicas</label></div>
-          <div class="control"><label>Orden</label><div class="row"><select id="B-sort"><option value="unit_price_asc">$/kg·$/L·$/un (asc)</option><option value="unit_price_desc">$/kg·$/L·$/un (desc)</option></select><button class="tiny" id="B-reset">Reset</button></div></div>
-        </div>
-      </form>
+    <div id="table-pagination" style="margin-top:16px; text-align:center;"></div>
+    <div class="muted" style="margin:18px 0 0; text-align:right; font-size:13px; border-top:1px solid #e5e7eb; padding-top:8px;">
+      <span style="font-weight:600; color:#1976d2;">Aporte AE</span>: porcentaje del costo mensual de la canasta básica por adulto equivalente.<br>
+      Si el aporte es 0%, se muestra el valor en pesos.<br>
+      <span style="color:#667085;">Fuente: La Anónima Online Ushuaia. Precios finales, promociones incluidas.</span>
     </div>
-    <details><summary>Metodología</summary><div class="muted">Precio unitario se calcula como <code>price_final / base_equiv_value</code> y se expresa en <code>ARS/kg</code>, <code>ARS/L</code> o <code>ARS/un</code>. Se normalizan tolerancias comunes (ej.: 900 ml ≈ 1 L).</div></details>
-    <table id="table-B">
-      <thead><tr><th>Producto</th><th>Equivalente base</th><th>Precio por unidad</th><th>Aporte AE %</th><th>m/m unitario</th></tr></thead>
-      <tbody>
-      {% for r in viewB %}
-        <tr data-title="{{r.title|e}}" data-category="{{r.category}}" data-brand-tier="{{r.brand_tier}}" data-unit-price="{{ r.unit_price }}" data-eq-val="{{ r.base_equiv_value }}" data-eq-unit="{{ r.base_equiv_unit }}">
-          <td><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title }}</a><div class="item-meta">{{ chips(r.cba_flag, r.brand_tier) }}</div></td>
-          <td class="num">{{ r.base_equiv_value|number }} {{ r.base_equiv_unit }}</td>
-          <td class="num">{{ r.unit_price|currency }}</td>
-          <td class="num">{{ r.contrib_AE_pct|pct }}</td>
-          <td class="num">{{ r.variation_mom_unit_pct if r.variation_mom_unit_pct is not none else 'N/D' | pct }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
   </section>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
 (function(){
-  function qs(s, r){ return (r||document).querySelector(s); }
-  function qsa(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
-  // Tabs
-  var tabA = qs('#tab-A'), tabB = qs('#tab-B');
-  var panelA = qs('#panel-A'), panelB = qs('#panel-B');
-  function activate(which){
-    if (which==='A'){ tabA.classList.add('active'); tabB.classList.remove('active'); panelA.hidden=false; panelB.hidden=true; }
-    else { tabB.classList.add('active'); tabA.classList.remove('active'); panelB.hidden=false; panelA.hidden=true; }
-  }
-  tabA.addEventListener('click', function(){ activate('A'); });
-  tabB.addEventListener('click', function(){ activate('B'); });
-
-  // Filters A
-  var rowsA = qsa('#table-A tbody tr');
-  function applyA(){
-    var q = (qs('#A-search').value||'').toLowerCase();
-    var cat = qs('#A-category').value;
-    var tiers = qsa('input[name="A-bt"]:checked').map(el => el.value);
-    var onlyPromo = qs('#A-only-promo').checked;
-    var onlyStock = qs('#A-only-stock').checked;
-    var minP = parseFloat(qs('#A-min-price').value);
-    var maxP = parseFloat(qs('#A-max-price').value);
-    rowsA.forEach(function(tr){
-      var d = tr.dataset;
-      var ok = true;
-      if (q && !(d.title||'').toLowerCase().includes(q)) ok=false;
-      if (cat && d.category!==cat) ok=false;
-      if (tiers.length && !tiers.includes(d.brandTier)) ok=false;
-      if (onlyPromo && d.promo!=='1') ok=false;
-      if (onlyStock && d.stock!=='1') ok=false;
-      var pf = parseFloat(d.priceFinal||'NaN');
-      if (!isNaN(minP) && !(pf>=minP)) ok=false;
-      if (!isNaN(maxP) && !(pf<=maxP)) ok=false;
-      tr.style.display = ok? '' : 'none';
+  const rows = Array.from(document.querySelectorAll('#table-body tr'));
+  let currentPage = 1;
+  const pageSize = 50;
+  // Eliminar resaltado azul, solo mantener estilo limpio
+  function highlightFilters() {}
+  function renderTable(page=1) {
+    const search = document.getElementById('table-search').value.toLowerCase();
+  const sort = document.getElementById('table-sort').value;
+  const cbaChecked = Array.from(document.querySelectorAll('input[name="table-cba"]:checked')).map(el=>el.value);
+  const brandChecked = Array.from(document.querySelectorAll('input[name="table-brand"]:checked')).map(el=>el.value);
+  const category = document.getElementById('table-category').value;
+    highlightFilters();
+    let filtered = rows.filter(row => {
+      let ok = row.textContent.toLowerCase().includes(search);
+      if (cbaChecked.length && !cbaChecked.includes(row.getAttribute('data-cba'))) ok = false;
+      if (brandChecked.length && !brandChecked.includes(row.getAttribute('data-brand'))) ok = false;
+      if (category && row.getAttribute('data-category') !== category) ok = false;
+      return ok;
     });
-    // sort
-    var mode = qs('#A-sort').value;
-    var arr = rowsA.slice();
-    arr.sort(function(a,b){
-      function num(x,k){ return parseFloat(x.dataset[k]||'NaN'); }
-      if (mode==='contrib_pct_desc') return (num(b,'contribPct')||0) - (num(a,'contribPct')||0);
-      if (mode==='price_final_asc') return (num(a,'priceFinal')||0) - (num(b,'priceFinal')||0);
-      if (mode==='price_final_desc') return (num(b,'priceFinal')||0) - (num(a,'priceFinal')||0);
-      return 0;
-    });
-    var tb = qs('#table-A tbody'); arr.forEach(tr=>tb.appendChild(tr));
-  }
-  qsa('#filters-A input, #filters-A select').forEach(el=>el.addEventListener('input', applyA));
-  // Toggle aporte $ vs %
-  var chkMoney = qs('#A-show-money');
-  function toggleMoney(){
-    var show = chkMoney && chkMoney.checked;
-    rowsA.forEach(function(tr){
-      var pct = tr.querySelector('._A_pct');
-      var mon = tr.querySelector('._A_money');
-      if (pct && mon){ pct.style.display = show? 'none':'inline'; mon.style.display = show? 'inline':'none'; }
-    });
-  }
-  if (chkMoney){ chkMoney.addEventListener('change', toggleMoney); }
-  qs('#A-reset').addEventListener('click', function(){
-    qsa('#filters-A input').forEach(function(el){ if(el.type==='checkbox'){ el.checked=false; } else { el.value=''; }});
-    qsa('#filters-A select').forEach(function(el){ el.value=''; });
-    applyA();
-    toggleMoney();
-  });
-  applyA();
-  toggleMoney();
-
-  // Filters B
-  var rowsB = qsa('#table-B tbody tr');
-  function applyB(){
-    var q = (qs('#B-search').value||'').toLowerCase();
-    var cat = qs('#B-category').value;
-    var tiers = qsa('input[name="B-bt"]:checked').map(el => el.value);
-    var minU = parseFloat(qs('#B-min-unit').value);
-    var maxU = parseFloat(qs('#B-max-unit').value);
-    var hideAtyp = qs('#B-hide-atypical').checked;
-    rowsB.forEach(function(tr){
-      var d = tr.dataset;
-      var ok = true;
-      if (q && !(d.title||'').toLowerCase().includes(q)) ok=false;
-      if (cat && d.category!==cat) ok=false;
-      if (tiers.length && !tiers.includes(d.brandTier)) ok=false;
-      var up = parseFloat(d.unitPrice||'NaN');
-      if (!isNaN(minU) && !(up>=minU)) ok=false;
-      if (!isNaN(maxU) && !(up<=maxU)) ok=false;
-      if (hideAtyp){
-        var v = parseFloat(d.eqVal||'NaN'); var u = d.eqUnit||'';
-        // heurística: atípico si menos de 0.35 L o 0.35 kg (latas muy chicas) y no es unidad
-        if (u!=='unit' && !isNaN(v) && v<0.35) ok=false;
+    document.getElementById('table-count').textContent = filtered.length + ' resultados';
+    // Ordenar SIEMPRE después de filtrar
+    function getAE(row) {
+      const aeSpan = row.querySelector('span._A_pct');
+      if (aeSpan) {
+        return parseFloat(aeSpan.textContent.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
       }
-      tr.style.display = ok? '' : 'none';
-    });
-    var mode = qs('#B-sort').value; var arr = rowsB.slice();
-    arr.sort(function(a,b){
-      var ua = parseFloat(a.dataset.unitPrice||'NaN')||Infinity;
-      var ub = parseFloat(b.dataset.unitPrice||'NaN')||Infinity;
-      if (mode==='unit_price_asc') return ua - ub;
-      if (mode==='unit_price_desc') return ub - ua;
+      const aeCell = row.children[3];
+      if (aeCell) {
+        return parseFloat(aeCell.textContent.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
+      }
       return 0;
+    }
+    function getPrice(row) {
+      let price = row.getAttribute('data-price');
+      if (price !== null && price !== undefined && price !== '') {
+        return parseFloat(price.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
+      }
+      const priceCell = row.querySelector('.price');
+      if (priceCell) {
+        return parseFloat(priceCell.textContent.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
+      }
+      return 0;
+    }
+    function getTitle(row) {
+      return row.getAttribute('data-title') || row.querySelector('td').textContent;
+    }
+    if (sort === 'alpha') {
+      filtered.sort((a,b) => getTitle(a).localeCompare(getTitle(b)));
+    } else if (sort === 'contrib_pct_desc') {
+      filtered.sort((a,b) => getAE(b) - getAE(a));
+    } else if (sort === 'price_final_asc') {
+      filtered.sort((a,b) => getPrice(a) - getPrice(b));
+    } else if (sort === 'price_final_desc') {
+      filtered.sort((a,b) => getPrice(b) - getPrice(a));
+    }
+    const start = (page-1)*pageSize;
+    const end = start+pageSize;
+    rows.forEach(r => r.style.display='none');
+    filtered.slice(start,end).forEach(r => {
+      r.style.display='';
+      r.style.transition = 'opacity 0.3s';
+      r.style.opacity = 0.7;
+      setTimeout(()=>{r.style.opacity=1;},100);
     });
-    var tb = qs('#table-B tbody'); arr.forEach(tr=>tb.appendChild(tr));
+    // paginación
+    const totalPages = Math.ceil(filtered.length/pageSize);
+    const pagDiv = document.getElementById('table-pagination');
+    pagDiv.innerHTML = '';
+    for(let i=1;i<=totalPages;i++){
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.style.margin='0 4px';
+      btn.style.padding='6px 12px';
+      btn.style.borderRadius='6px';
+      btn.style.border='1px solid #1976d2';
+      btn.style.background=(i===page?'#1976d2':'#e3eaf2');
+      btn.style.color=(i===page?'#fff':'#1976d2');
+      btn.style.fontWeight='bold';
+      btn.onclick=()=>{currentPage=i;renderTable(i);};
+      pagDiv.appendChild(btn);
+    }
   }
-  qsa('#filters-B input, #filters-B select').forEach(el=>el.addEventListener('input', applyB));
-  qs('#B-reset').addEventListener('click', function(){
-    qsa('#filters-B input').forEach(function(el){ if(el.type==='checkbox'){ el.checked=false; } else { el.value=''; }});
-    qsa('#filters-B select').forEach(function(el){ el.value=''; });
-    applyB();
-  });
-  applyB();
+  document.getElementById('table-search').oninput=()=>renderTable(1);
+  document.getElementById('table-sort').onchange=()=>renderTable(1);
+  document.querySelectorAll('input[name="table-cba"]').forEach(el=>el.onchange=()=>renderTable(1));
+  document.querySelectorAll('input[name="table-brand"]').forEach(el=>el.onchange=()=>renderTable(1));
+  document.getElementById('table-category').onchange=()=>renderTable(1);
+  document.getElementById('table-reset').onclick=function(){
+    document.getElementById('table-search').value = '';
+    document.getElementById('table-sort').value = 'alpha';
+    document.querySelectorAll('input[name="table-cba"], input[name="table-brand"]').forEach(el=>el.checked=false);
+    document.getElementById('table-category').value = '';
+    renderTable(1);
+  };
+  renderTable(1);
 })();
 </script>
 {% endblock %}

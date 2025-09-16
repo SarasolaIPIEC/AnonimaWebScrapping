@@ -83,6 +83,23 @@ def _score_card(row: Dict[str, Any], title: str, in_stock: bool, unit_price: flo
 
 
 def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Dict[str, Any], evidence_dir: str, html_dump_dir: str, exclude_keywords: List[str], log_path: str, base_url: str = "") -> List[Dict[str, Any]]:
+    # Selección de sucursal Ushuaia (9410)
+    location_btn = _try_loc(page, selectors.get('location_button', []))
+    if location_btn:
+        location_btn.click()
+        page.wait_for_timeout(500)
+        postal_input = _try_loc(page, selectors.get('postal_input', []))
+        if postal_input:
+            postal_input.fill('9410')
+            page.wait_for_timeout(500)
+        branch_opt = _try_loc(page, selectors.get('branch_option', []))
+        if branch_opt:
+            branch_opt.click()
+            page.wait_for_timeout(300)
+            confirm_btn = _try_loc(page, selectors.get('confirm_button', []))
+            if confirm_btn:
+                confirm_btn.click()
+                page.wait_for_timeout(500)
     search_input_specs = selectors.get('search_input', [])
     card_specs = selectors.get('product_card_root', [])
 

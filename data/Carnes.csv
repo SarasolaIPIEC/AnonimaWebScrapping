@@ -1,0 +1,40 @@
+item_id,url,title,brand_tier,cba_flag
+carne_picada_estancias_500g,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/carne-picada-e-v-estancias-la-x-500-g/art_1382/,Carne picada E/V Estancias LA x 500 g,premium,si
+nalga_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/nalga-s-tapa-feteada-e-v-estancias-la-kg/art_1396/,Nalga s/ tapa feteada E/V Estancias LA (Kg),premium,si
+cuadrada_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/cuadrada-feteada-e-v-estancias-la-kg/art_1397/,Cuadrada feteada E/V Estancias LA (Kg),premium,si
+tapa_asado_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/tapa-de-asado-estancias-la-kg/art_2346/,Tapa de asado Estancias LA (Kg),premium,si
+bola_lomo_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/bola-de-lomo-feteada-e-v-estancias-la-kg/art_1398/,Bola de lomo feteada E/V Estancias LA (Kg),premium,si
+vacio_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/vacio-envasado-al-vacio-fb-meats-kg/art_28177/,Vacío envasado al vacío FB MEATS (Kg),estándar,no
+tapa_bife_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/tapa-de-bife-envasado-al-vacio-fb-meats-kg/art_28184/,Tapa de bife envasado al vacío FB MEATS (Kg),estándar,no
+matambre_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/matambre-envasado-al-vacio-fb-meats-kg/art_28176/,Matambre envasado al vacío FB MEATS (Kg),estándar,no
+chingolo_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/chingolo-envasado-al-vacio-fb-meats-kg/art_28180/,Chingolo envasado al vacío FB MEATS (Kg),estándar,no
+carne_picada_best_500g,https://supermercado.laanonimaonline.com/carniceria/carne-picada-envasado-al-vacio-best-x-500-g/art_1380/,Carne picada envasado al vacío Best x 500 g,2da marca,si
+tapa_asado_best_kg,https://supermercado.laanonimaonline.com/tapa-de-asado-best-kg/art_1296/,Tapa de asado Best (Kg),2da marca,si
+roast_beef_best_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/roast-beef-fraccionado-f-e-v-best-kg/art_1838/,Roast beef fraccionado E/V Best (Kg),2da marca,si
+bola_lomo_best_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/bola-de-lomo-best-kg/art_3294/,Bola de lomo Best (Kg),2da marca,si
+falda_nt_kg,https://supermercado.laanonimaonline.com/carniceria/falda-nt-kg/art_6775/,Falda NT (Kg),estándar,si
+milanesa_carne_la_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/milanesa-de-carne-la-anonima-kg/art_741/,Milanesa de carne La Anónima (Kg),estándar,si
+pollo_fresco_la_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-fresco-la-anonima-kg/art_2330/,Pollo fresco La Anónima (Kg),estándar,si
+filet_pechuga_la_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/filet-de-pechuga-la-anonima-kg/art_1625/,Filet de pechuga La Anónima (Kg),estándar,si
+patamuslo_la_kg,https://supermercado.laanonimaonline.com/carniceria/patamuslo-de-pollo-la-anonima-kg/art_1627/,Pata muslo de pollo La Anónima (Kg),estándar,si
+cuarto_trasero_la_kg,https://supermercado.laanonimaonline.com/carniceria/cuarto-trasero-de-pollo-la-anonima-kg/art_1624/,Cuarto trasero de pollo La Anónima (Kg),estándar,si
+filet_pechuga_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/filet-de-pechuga-bandeja-pollolin-kg/art_2327/,Filet de pechuga bandeja Pollolín (Kg),estándar,si
+pollo_parrillero_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-parrillero-pollolin-kg/art_26804/,Pollo parrillero Pollolín (Kg),estándar,si
+pata_muslo_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pata-muslo-bandeja-pollolin-kg/art_2333/,Pata muslo bandeja Pollolín (Kg),estándar,si
+milanesa_pechuga_la_kg,https://supermercado.laanonimaonline.com/carniceria/milanesas-de-pechuga-de-pollo-la-anonima-kg/art_1389/,Milanesas de pechuga de pollo La Anónima (Kg),estándar,no
+milanesa_pechuga_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/milanesas-de-pechuga-de-pollo-pollolin-kg/art_2326/,Milanesas de pechuga de pollo Pollolín (Kg),estándar,no
+pechito_cerdo_la_kg,https://supermercado.laanonimaonline.com/carniceria/cerdo/pechito-de-cerdo-c-hueso-la-anonima-kg/art_776/,Pechito de cerdo c/ hueso La Anónima (Kg),estándar,no
+carre_hueso_la_kg,https://supermercado.laanonimaonline.com/carniceria/cerdo/carre-c-hueso-de-cerdo-la-anonima-kg/art_14315/,Carré c/ hueso de cerdo La Anónima (Kg),estándar,no
+carre_sin_hueso_tutto_kg,https://supermercado.laanonimaonline.com/carniceria/cerdo/carre-sin-hueso-congelado-tutto-porkys-kg/art_26964/,Carré s/ hueso congelado Tutto Porkys (Kg),estándar,no
+pecho_cerdo_delipork_kg,https://supermercado.laanonimaonline.com/carniceria/pecho-de-cerdo-c-manta-delipork-kg/art_1507/,Pecho de cerdo c/ manta Delipork (Kg),estándar,no
+bondiola_la_kg,https://supermercado.laanonimaonline.com/carniceria/n1_8/,Bondiola de cerdo La Anónima (Kg),estándar,no
+chorizo_vacuno_la_x4_kg,https://supermercado.laanonimaonline.com/carniceria/chorizo-fresco-vacuno-e-v-la-anonima-x-4-un-kg/art_3096/,Chorizo fresco vacuno E/V La Anónima x 4 (Kg),estándar,no
+chorizo_parrillero_la_x4_kg,https://supermercado.laanonimaonline.com/carniceria/chorizo-fresco-tipo-parrillero-e-v-la-anonima-x-4-un-kg/art_3093/,Chorizo fresco tipo parrillero E/V La Anónima x 4 (Kg),estándar,no
+filet_merluza_la_500g,https://supermercado.laanonimaonline.com/congelados/filet-de-merluza-s-espinas-la-anonima-x-500-gr/art_3119/,Filet de merluza s/ espinas La Anónima x 500 g,estándar,si
+filet_merluza_artesanos_1kg,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/filet-de-merluza-artesanos-del-mar-x-1-kg/art_26600/,Filet de merluza Artesanos del Mar x 1 kg,estándar,si
+bastones_merluza_la_300g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/bastones-de-merluza-rebozados-la-anonima-x-300-gr/art_3122/,Bastones de merluza rebozados La Anónima x 300 g,estándar,no
+bastones_merluza_best_300g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/bastones-de-merluza-rebozados-best-x-300-g/art_28985/,Bastones de merluza rebozados Best x 300 g,2da marca,no
+medallones_merluza_la_300g,https://supermercado.laanonimaonline.com/congelados/medallones-de-merluza-rebozados-la-anonima-x-300-g/art_3121/,Medallones de merluza rebozados La Anónima x 300 g,estándar,no
+medallones_merluza_best_300g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/medallones-de-merluza-rebozados-best-x-300-g/art_28986/,Medallones de merluza rebozados Best x 300 g,2da marca,no
+bastoncitos_merluza_artico_300g,https://supermercado.laanonimaonline.com/congelados/bastoncitos-de-merluza-crocantes-artico-x-300-g/art_28971/,Bastoncitos de merluza crocantes Artico x 300 g,estándar,no
+langostinos_oceanblue_500g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/langostinos-pelados-crudos-ocean-blue-x-500-gr/art_3234/,Langostinos pelados crudos Ocean Blue x 500 g,premium,no

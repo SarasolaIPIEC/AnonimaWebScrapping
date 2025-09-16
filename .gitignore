@@ -1,3 +1,5 @@
+evidence/html/*.html
+evidence/*.png
 # Ignore generated images
 ipc-ushuaia/reports/img/*.png
 

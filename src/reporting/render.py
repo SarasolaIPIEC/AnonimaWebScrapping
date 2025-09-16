@@ -18,8 +18,8 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
         os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(html)
-        if write_by_category:
-            _export_by_category(enriched, period)
+        # if write_by_category:
+        #     _export_by_category(enriched, period)
         return
     # fallback heredado
     _legacy_report_impl(out_path, period, series_path, breakdown_path)
@@ -138,6 +138,7 @@ def validate(rows):
 
 
 def enrich(rows, period: str, prev_rows):
+    from src.canasta_base import CANASTA_BASE, FAMILIA_AE, get_cantidad
     from ..normalize.units import parse_title_size
     prev_map = {r.get('item_id'): r for r in prev_rows if r.get('item_id')}
     total_cba = 0.0
@@ -155,12 +156,28 @@ def enrich(rows, period: str, prev_rows):
             q, u = parse_title_size(title)
             qty = qty or q
             unit = unit or u
-        presentation_text = f"{_fmt_number_ar(qty)} {('u' if unit in ('unit','un') else unit)}".strip()
+        qty_float = _ensure_float(qty)
+        # Presentación: respeta la unidad reportada por el producto
+        # Si el título contiene una unidad específica, úsala tal cual
+        import re
+        match = re.search(r"(\d+[\.,]?\d*)\s*(kg|g|l|ml|cc|unidad|docena|u)", title.lower())
+        if match:
+            presentation_text = match.group(0).replace(",", ".")
+        else:
+            unit_map = {
+                'unit': 'u', 'un': 'u', 'kg': 'kg', 'g': 'g', 'l': 'L', 'lt': 'L', 'ml': 'mL', 'cc': 'mL'
+            }
+            unit_disp = unit_map.get(str(unit).lower(), str(unit))
+            presentation_text = f"{_fmt_number_ar(qty_float)} {unit_disp}".strip()
         price_final = _ensure_float(r.get('price_final')) or 0.0
         price_original = _ensure_float(r.get('price_original')) or 0.0
         price_list = price_original if (price_original > price_final > 0) else None
-        unit_price = (price_final / qty) if (price_final and qty) else None
-        contrib_ae = _ensure_float(r.get('cost_item_ae')) or (unit_price * (_ensure_float(r.get('monthly_qty_base')) or 0.0) if unit_price else 0.0)
+        unit_price = (price_final / qty_float) if (price_final and qty_float) else None
+        # Obtener cantidad mensual por AE desde canasta base
+        item_id = r.get('item_id')
+        qty_ae = get_cantidad(item_id, 1.0)  # por AE
+        qty_fam = get_cantidad(item_id, FAMILIA_AE)  # por familia tipo
+        contrib_ae = unit_price * qty_ae if unit_price and qty_ae else 0.0
         contrib_pct = (contrib_ae / total_cba * 100.0) if total_cba else 0.0
         prev = prev_map.get(r.get('item_id'))
         var_mom = None
@@ -188,19 +205,19 @@ def enrich(rows, period: str, prev_rows):
             'brand_tier': brand_tier,
             'cba_flag': 'si' if cba_flag in ('si','sí','s','1',True) else ('no' if cba_flag else ''),
             'presentation_text': presentation_text,
-            'base_equiv_value': qty or 0.0,
+            'base_equiv_value': _ensure_float(qty) or 0.0,
             'base_equiv_unit': ('un' if unit in ('unit','un') else unit) or '',
-            'price_final': price_final,
-            'price_list': price_list,
+            'price_final': _ensure_float(price_final) or 0.0,
+            'price_list': _ensure_float(price_list) if price_list is not None else None,
             'promo_flag': promo_flag,
             'in_stock': in_stock,
-            'qty_AE': qty_ae,
-            'contrib_AE_$': contrib_ae,
-            'contrib_AE_pct': contrib_pct,
-            'unit_price': unit_price or 0.0,
-            'variation_mom_pct': var_mom,
+            'qty_AE': _ensure_float(qty_ae) or 0.0,
+            'contrib_AE_money': _ensure_float(contrib_ae) or 0.0,
+            'contrib_AE_pct': _ensure_float(contrib_pct) or 0.0,
+            'unit_price': _ensure_float(unit_price) or 0.0,
+            'variation_mom_pct': _ensure_float(var_mom) if var_mom is not None else None,
             'variation_yoy_pct': None,
-            'variation_mom_unit_pct': var_mom_unit,
+            'variation_mom_unit_pct': _ensure_float(var_mom_unit) if var_mom_unit is not None else None,
             'basket_version': r.get('basket_version') or 'v1',
         })
     return out
@@ -220,7 +237,7 @@ def compute_kpis(series_rows, enriched_rows):
     idx = _ensure_float(latest.get('idx')) or 0.0
     mom = _ensure_float(latest.get('mom'))
     yoy = _ensure_float(latest.get('yoy'))
-    total_cba = sum((r.get('contrib_AE_$') or 0.0) for r in enriched_rows)
+    total_cba = sum((r.get('contrib_AE_money') or 0.0) for r in enriched_rows)
     summary = {
         'total_items': len(enriched_rows),
         'valid_items': sum(1 for r in enriched_rows if (r.get('price_final') or 0) > 0),
@@ -251,7 +268,7 @@ def build_context(period: str, series_rows, enriched_rows, series_svg: str):
             "item_id": r["item_id"], "title": r["title"], "url": r["url"], "category": r["category"],
             "brand_tier": r["brand_tier"], "cba_flag": r["cba_flag"],
             "presentation_text": r["presentation_text"], "price_final": r["price_final"], "price_list": r["price_list"],
-            "contrib_AE_$": r["contrib_AE_$"], "contrib_AE_pct": r["contrib_AE_pct"],
+            "contrib_AE_money": r["contrib_AE_money"], "contrib_AE_pct": r["contrib_AE_pct"],
             "variation_mom_pct": r["variation_mom_pct"], "in_stock": r["in_stock"], "promo_flag": r["promo_flag"]
         } for r in enriched_rows
     ], key=lambda x: x["contrib_AE_pct"], reverse=True)
@@ -282,22 +299,15 @@ def build_context(period: str, series_rows, enriched_rows, series_svg: str):
 def _build_jinja_env():
     if Environment is None:
         return None
-    loader = FileSystemLoader(os.path.join('src', 'reporting', 'templates'))
-    env = Environment(loader=loader, autoescape=select_autoescape(['html']))
-    env.filters['currency'] = _fmt_currency_ar
-    env.filters['number'] = _fmt_number_ar
-    env.filters['pct'] = _fmt_pct_ar
+    env = Environment(
+        loader=FileSystemLoader("src/reporting/templates"),
+        autoescape=select_autoescape(["html", "xml"])
+    )
+    # Registrar filtros personalizados
+    env.filters["currency"] = _fmt_currency_ar
+    env.filters["number"] = _fmt_number_ar
+    env.filters["pct"] = _fmt_pct_ar
     return env
-
-
-def _export_by_category(rows: List[Dict[str, Any]], period: str) -> None:
-    bydir = os.path.join('by_category')
-    os.makedirs(bydir, exist_ok=True)
-    buckets: Dict[str, List[Dict[str, Any]]] = {}
-    for r in rows:
-        cat = r.get('category') or 'sin_categoria'
-        buckets.setdefault(cat, []).append(r)
-    fields = ['period','item_id','title','url','brand_tier','cba_flag','category']
     for cat, items in buckets.items():
         path = os.path.join(bydir, f"{cat}.csv")
         with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -319,7 +329,7 @@ def _read_series(path: str) -> List[Dict[str, Any]]:
     if not os.path.exists(path):
         return []
     with open(path, 'r', encoding='utf-8') as f:
-        return list(csv.DictReader(f))
+        buckets: Dict[str, List[Dict[str, Any]]] = {}  # Initialize buckets for categorization
 
 
 def _read_breakdown(path: str) -> List[Dict[str, Any]]:

@@ -21,7 +21,8 @@
     .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; align-items:start; }
     table { border-collapse:collapse; width:100%; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
     thead th { background:#f3f4f6; color:#111827; font-weight:600; font-size:13px; position:sticky; top:0; z-index:1; }
-    th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
+  th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
+  th.price, td.price { text-align:center !important; }
     tbody tr:nth-child(even) { background:#fafafa; }
     td.num { text-align:right; font-variant-numeric: tabular-nums; }
     .muted { color:var(--muted); }
