@@ -1,10 +1,35 @@
-﻿import csv
+﻿
+"""
+Módulo de reporting HTML (Jinja2) para IPC Ushuaia.
 
+Consume los insumos `series_cba.csv` y `breakdown_<period>.csv` y produce
+`reports/<period>.html` con dos vistas conmutables.
+
+Funciones principales:
+- render_report: renderiza el reporte mensual usando Jinja2 si está disponible, si no usa fallback heredado.
+- enrich: enriquece las filas del breakdown con cálculos y normalizaciones.
+- validate: valida las filas y acumula advertencias.
+- build_context: arma el contexto para la plantilla HTML.
+"""
+
+import csv
 
 def render_report(out_path: str, period: str, series_path: str, breakdown_path: str, write_by_category: bool = False) -> None:
-    """Render del reporte mensual (Jinja2 si está disponible, si no fallback)."""
+    """
+    Renderiza el reporte mensual IPC Ushuaia en HTML.
+
+    Args:
+        out_path (str): Ruta de salida del HTML.
+        period (str): Período YYYY-MM.
+        series_path (str): Ruta a series_cba.csv.
+        breakdown_path (str): Ruta a breakdown_<period>.csv.
+        write_by_category (bool): Si True, exporta breakdown por categoría (opcional).
+
+    Usa Jinja2 si está disponible, si no utiliza el fallback heredado.
+    """
     env = _build_jinja_env()
     if env is not None:
+        # Carga insumos y valida datos
         series, breakdown, prev = load_data(series_path, breakdown_path, period)
         v = validate(breakdown)
         rows = v["rows"]
@@ -21,7 +46,7 @@ def render_report(out_path: str, period: str, series_path: str, breakdown_path: 
         # if write_by_category:
         #     _export_by_category(enriched, period)
         return
-    # fallback heredado
+    # fallback heredado si no hay Jinja2
     _legacy_report_impl(out_path, period, series_path, breakdown_path)
 
 """Reporting HTML (Jinja2) para IPC Ushuaia.
@@ -141,10 +166,19 @@ def enrich(rows, period: str, prev_rows):
     from src.canasta_base import CANASTA_BASE, FAMILIA_AE, get_cantidad
     from ..normalize.units import parse_title_size
     prev_map = {r.get('item_id'): r for r in prev_rows if r.get('item_id')}
+    # Sumar total CBA: si cost_item_ae no está presente, usar qty_AE * unit_price
     total_cba = 0.0
     for r in rows:
         try:
-            total_cba += float(r.get('cost_item_ae') or 0)
+            if r.get('cost_item_ae') is not None:
+                total_cba += float(r.get('cost_item_ae') or 0)
+            else:
+                # fallback para tests y casos sin cost_item_ae
+                qty_ae = _ensure_float(r.get('monthly_qty_base')) or get_cantidad(r.get('item_id'), 1.0)
+                price_final = _ensure_float(r.get('price_final')) or 0.0
+                qty_base = _ensure_float(r.get('qty_base')) or 1.0
+                unit_price = price_final / qty_base if price_final and qty_base else 0.0
+                total_cba += unit_price * qty_ae
         except Exception:
             pass
     out = []
@@ -177,7 +211,11 @@ def enrich(rows, period: str, prev_rows):
         item_id = r.get('item_id')
         qty_ae = get_cantidad(item_id, 1.0)  # por AE
         qty_fam = get_cantidad(item_id, FAMILIA_AE)  # por familia tipo
-        contrib_ae = unit_price * qty_ae if unit_price and qty_ae else 0.0
+        # Si cost_item_ae está presente, usarlo como contribución AE; si no, calcular
+        if r.get('cost_item_ae') is not None:
+            contrib_ae = _ensure_float(r.get('cost_item_ae')) or 0.0
+        else:
+            contrib_ae = unit_price * qty_ae if unit_price and qty_ae else 0.0
         contrib_pct = (contrib_ae / total_cba * 100.0) if total_cba else 0.0
         prev = prev_map.get(r.get('item_id'))
         var_mom = None

@@ -1,57 +1,181 @@
 {
   "location_button": [
-    {"role": "button", "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci(o|ó)n)"},
-    {"css": "header button, header [role=button]"},
-    {"text": "(?i)Ushuaia"}
+    {
+      "role": "button",
+      "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci(o|\u00f3)n)"
+    },
+    {
+      "css": "header button, header [role=button]"
+    },
+    {
+      "text": "(?i)Ushuaia"
+    }
   ],
   "postal_input": [
-    {"placeholder": "(?i)(c(o|ó)digo postal|cp)"},
-    {"css": "input[placeholder*=postal i], input[placeholder*=CP i]"}
+    {
+      "placeholder": "(?i)(c(o|\u00f3)digo postal|cp)"
+    },
+    {
+      "css": "input[placeholder*=postal i], input[placeholder*=CP i]"
+    }
   ],
   "branch_option": [
-    {"text": "(?i)ushuaia\\s*5"}
+    {
+      "text": "(?i)ushuaia\\s*5"
+    },
+    {
+      "text": "(?i)166\\s*-\\s*ushuaia"
+    }
+  ],
+  "branch_entry_modal": [
+    {
+      "role": "button",
+      "name": "(?i)(continuar|empezar|comprar|aceptar)"
+    }
+  ],
+  "branch_entry_header": [
+    {
+      "role": "button",
+      "name": "(?i)(mi tienda|cambiar sucursal|disponibilidad)"
+    }
+  ],
+  "branch_entry_menu": [
+    {
+      "text": "(?i)(mi tienda|cambiar sucursal|sucursal)"
+    }
+  ],
+  "branch_menu_trigger": [
+    {
+      "role": "button",
+      "name": "(?i)(menu|categorias)"
+    }
+  ],
+  "branch_fulfillment_option": [
+    {
+      "role": "button",
+      "name": "(?i)(retirar|retiro en tienda|retiro en sucursal)"
+    },
+    {
+      "text": "(?i)retirar por"
+    },
+    {
+      "text": "(?i)retiro en sucursal"
+    }
+  ],
+  "branch_header_label": [
+    {
+      "css": "header [data-testid*=store], header [class*=store]"
+    }
   ],
   "confirm_button": [
-    {"role": "button", "name": "(?i)(confirmar|aplicar|aceptar|guardar)"}
+    {
+      "css": "#btn_Confirmar"
+    },
+    {
+      "role": "button",
+      "name": "(?i)(confirmar|aplicar|aceptar|guardar)"
+    }
   ],
   "search_input": [
-    {"placeholder": "(?i)(qu[eé] te gustar[ií]a encontrar|buscar|producto|¿qu[eé])"},
-    {"role": "textbox", "name": "(?i)(buscar|producto|¿qu[eé])"},
-    {"css": "input[type=search], input[placeholder*=buscar i], input[aria-label*=Buscar i]"}
+    {
+      "css": "input#buscar, form#form_buscar input[name=clave]"
+    },
+    {
+      "placeholder": "(?i)(qu[e\u00e9] te gustar[i\u00ed]a encontrar|buscar|producto|\u00bfqu[e\u00e9])"
+    },
+    {
+      "role": "textbox",
+      "name": "(?i)(buscar|producto|\u00bfqu[e\u00e9])"
+    },
+    {
+      "css": "input[type=search], input[placeholder*=buscar i], input[aria-label*=Buscar i]"
+    }
   ],
   "product_card_root": [
-    {"css": "[data-product-card]"},
-    {"css": "article"},
-    {"css": "li"},
-    {"css": "div:has(.price)"}
+    {
+      "css": "[data-product-card]"
+    },
+    {
+      "css": "article"
+    },
+    {
+      "css": "li"
+    },
+    {
+      "css": "div:has(.price)"
+    }
   ],
   "price_now": [
-    {"css": "[data-price-final]"},
-    {"css": ".price__now, .product-price-now"},
-    {"css": ".precio.destacado, .precio-promo .precio, .precio-destacado"},
-    {"text": "\\$\\s*[\\d\\.,]+"}
+    {
+      "css": "[data-price-final]"
+    },
+    {
+      "css": ".price__now, .product-price-now"
+    },
+    {
+      "css": ".precio.destacado, .precio-promo .precio, .precio-destacado"
+    },
+    {
+      "text": "\\$\\s*[\\d\\.,]+"
+    }
   ],
   "price_original": [
-    {"css": ".precio.anterior, .precio-original, .price__before"}
+    {
+      "css": ".precio.anterior, .precio-original, .price__before"
+    }
   ],
   "title": [
-    {"css": "[data-product-title]"},
-    {"css": "h3, .card-title, a[title]"}
+    {
+      "css": "[data-product-title]"
+    },
+    {
+      "css": "h3, .card-title, a[title]"
+    }
   ],
   "oos_flag": [
-    {"text": "(?i)(sin stock|agotado|no disponible)"},
-    {"css": ".oos, .sold-out"}
+    {
+      "text": "(?i)(sin stock|agotado|no disponible)"
+    },
+    {
+      "css": ".oos, .sold-out"
+    }
   ],
   "add_to_cart_button": [
-    {"role": "button", "name": "(?i)(agregar|comprar|añadir)"},
-    {"css": "button.add, button.add-to-cart, button[aria-label*=Agregar i]"}
+    {
+      "role": "button",
+      "name": "(?i)(agregar|comprar|a\u00f1adir)"
+    },
+    {
+      "css": "button.add, button.add-to-cart, button[aria-label*=Agregar i]"
+    }
   ],
   "pagination_next": [
-    {"role": "button", "name": "(?i)(siguiente|adelante)"},
-    {"css": ".pagination .next, .pagination-next button, a[rel=next]"}
+    {
+      "role": "button",
+      "name": "(?i)(siguiente|adelante)"
+    },
+    {
+      "css": ".pagination .next, .pagination-next button, a[rel=next]"
+    }
   ],
   "cookie_accept_button": [
-    {"role": "button", "name": "(?i)(aceptar|entendido|continuar|cerrar|ok|acepto)"},
-    {"css": "button#onetrust-accept-btn-handler, .cookie-accept, .ot-sdk-container button[aria-label*=Aceptar i]"}
+    {
+      "role": "button",
+      "name": "(?i)(aceptar|entendido|continuar|cerrar|ok|acepto)"
+    },
+    {
+      "css": "button#onetrust-accept-btn-handler, .cookie-accept, .ot-sdk-container button[aria-label*=Aceptar i]"
+    }
+  ],
+  "branch_results_container": [
+    {
+      "css": "#sel_sucursal"
+    },
+    {
+      "css": "#resultado_sucursales, .resultado-sucursal, .sucursales-lista"
+    },
+    {
+      "text": "(?i)sucursal"
+    }
   ]
 }

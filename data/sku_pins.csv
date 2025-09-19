@@ -1,44 +1,270 @@
-item_id,url,title,brand_tier,cba_flag
-arroz_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/,Arroz grano largo fino Molinos Ala x 1 kg,estandar,si
-harina_000_canuelas_1kg,https://supermercado.laanonimaonline.com/almacen/harinas/harina-000-ultra-refinada-canuelas-x-1-kg/art_14030/,Harina de trigo 000 CaÃ±uelas x 1 kg,estandar,si
-harina_000_morixe_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-morixe-x-1-kg/art_2045/,Harina de trigo 000 Morixe x 1 kg,estandar,si
-harina_0000_pureza_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-0000-ultra-refinada-pureza-x-1-kg/art_179/,Harina de trigo 0000 Ultra Refinada Pureza x 1 kg,premium,no
-fideos_tallarines_la_anonima_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-la-anonima-x-500-g/art_2021/,Fideos tallarÃ­n La AnÃ³nima x 500 g,segunda,si
-fideos_tallarines_matarazzo_500g,https://supermercado.laanonimaonline.com/producto/art_25877/,Fideos tallarÃ­n NÂ°5 Matarazzo x 500 g,premium,si
-fideos_tallarines_lucchetti_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-n-5-lucchetti-x-500-g/art_25600/,Fideos tallarÃ­n NÂ°5 Lucchetti x 500 g,estandar,si
-fideos_tallarines_best_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-best-x-500-g/art_3060/,Fideos tallarÃ­n Best x 500 g,segunda,si
-azucar_1kg,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/,AzÃºcar blanca Ledesma x 1 kg,estandar,si
-aceite_girasol_1_5l,https://supermercado.laanonimaonline.com/almacen/aceite-de-girasol-natura-x-1-5-lt/art_1963/,"Aceite de girasol Natura x 1,5 L",estandar,si
-pure_tomate_520g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pure-de-tomate-brick-arcor-x-520-g/art_27641/,PurÃ© de tomate Arcor x 520 g,estandar,si
-tomate_perita_lata_400g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/tomates-y-salsas/tomate-perita-entero-la-anonima-x-400-g/art_25228/,Tomate perita entero La AnÃ³nima x 400 g,segunda,si
-lentejas_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/lentejas-secas-ramoneda-x-500-g/art_2223/,Lentejas secas Ramoneda x 500 g,estandar,si
-arvejas_partidas_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/arvejas-secas-partidas-ramoneda-x-500-g/art_2221/,Arvejas secas partidas Ramoneda x 500 g,estandar,si
-garbanzos_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/garbanzos-secos-ramoneda-x-500-g/art_7028/,Garbanzos secos Ramoneda x 500 g,estandar,si
-sal_fina_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-celusal-paquete-x-500-g/art_2118/,Sal fina Celusal x 500 g,estandar,si
-vinagre_alcohol_1l,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/vinagre-de-alcohol-s-tacc-favinco-x-1-lt/art_14232/,Vinagre de alcohol Favinco x 1 L,estandar,no
-mayonesa_hellmanns_475g,https://supermercado.laanonimaonline.com/almacen/aderezos/mayonesa/mayonesa-clasica-doy-pack-hellmanns-x-475-g/art_18098/,Mayonesa clÃ¡sica Hellmannâ€™s doypack x 475 g,premium,no
-mostaza_savora_250g,https://supermercado.laanonimaonline.com/almacen/almacen/mostaza-original-doy-pack-savora-x-250-g/art_20083/,Mostaza Savora original doypack x 250 g,estandar,no
-leche_entera_la_anonima_1l,https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/,Leche entera L.V. La AnÃ³nima x 1 L,segunda,si
-yogur_ilolay_bebible_1kg,https://supermercado.laanonimaonline.com/frescos/lacteos/yogur-entero-bebible-frutilla-sachet-ilolay-x-1-kg/art_7103/,Yogur entero bebible Ilolay x 1 kg,estandar,no
-queso_cremoso_la_paulina_1kg,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-la-paulina-trozado-x-1-kg/art_3611/,Queso cremoso La Paulina x 1 kg,estandar,si
-manteca_la_paulina_200g,https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-paulina-x-200-g/art_3614/,Manteca La Paulina x 200 g,estandar,si
-huevos_docena,https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/,Huevo blanco extra grande La AnÃ³nima x 12 un,segunda,si
-pan_mignon_kg,https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/,Pan mignon (kg),estandar,si
-pan_lactal_best_600g,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/pan-lactal/pan-lacteado-grande-best-x-600-g/art_1662/,Pan lacteado grande Best x 600 g,segunda,no
-pan_lactal_lactal_460g,https://supermercado.laanonimaonline.com/frescos/panificados/panes-de-molde-y-tortillas/pan-de-mesa-blanco-grande-lactal-bimbo-x-460-g/art_24387/,Pan de mesa blanco grande Lactal x 460 g,premium,no
-carne_picada_ev_500g,https://supermercado.laanonimaonline.com/carniceria/carne-picada-e-v-estancias-la-x-500-g/art_1382/,Carne picada E/V Estancias La x 500 g,estandar,si
-nalga_feteada_ev_kg,https://supermercado.laanonimaonline.com/carniceria/nalga-s-tapa-feteada-e-v-estancias-la-kg/art_1396/,Nalga s/tapa feteada E/V Estancias La (kg),premium,si
-pollo_fresco_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-fresco-la-anonima-kg/art_2330/,Pollo fresco La AnÃ³nima (kg),estandar,si
-asado_con_hueso_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/asado-c-hueso-estancias-la-kg/art_2336/,Asado con hueso Estancias La (kg),estandar,si
-filet_merluza_1kg,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/filet-de-merluza-artesanos-del-mar-x-1-kg/art_26600/,Filet de merluza Artesanos del Mar x 1 kg,estandar,si
-manzana_red_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/,Manzana Red elegida (kg),estandar,si
-banana_ecuador_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/banana-ecuador-kg/art_2393/,Banana Ecuador (kg),estandar,si
-naranja_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/naranja-kg/art_2401/,Naranja (kg),estandar,si
-tomate_redondo_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/tomate-redondo-kg/art_2390/,Tomate redondo (kg),estandar,si
-papa_granel_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/papa-granel-kg/art_58/,Papa granel (kg),estandar,si
-cebolla_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/cebolla-comercial-bolsita-kg/art_57/,Cebolla comercial (kg),estandar,si
-zanahoria_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/zanahoria-comercial-bolsita-kg/art_3114/,Zanahoria (kg),estandar,si
-coca_cola_1_5l,https://supermercado.laanonimaonline.com/bebidas/gaseosa-cola-coca-cola-pet-x-1-5-lt/art_2175/,"Gaseosa Cocaâ€‘Cola 1,5 L",premium,no
-agua_eco_2l,https://supermercado.laanonimaonline.com/bebidas/agua-mineral-sin-gas-eco-de-los-andes-x-2-lt/art_2166/,Agua mineral Eco de los Andes 2 L,premium,no
-vino_los_primos_750ml,https://supermercado.laanonimaonline.com/bebidas/vinos-y-espumantes/tintos/vino-tinto-cabernet-sauvignon-los-primos-x-750-cc/art_23956/,Vino tinto Cabernet Sauvignon Los Primos 750 ml,estandar,no
-cerveza_imperial_lata_473ml,https://supermercado.laanonimaonline.com/bebidas/cervezas/cerveza-imperial-lata-x-473-cc/art_4313/,Cerveza Imperial lata 473 ml,premium,no
+item_id,url,title,brand_tier,category,cba_flag
+arroz_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/,Arroz Grano Largo Fino Molinos Ala x 1 kg.,estandar,,si
+harina_000_canuelas_1kg,https://supermercado.laanonimaonline.com/almacen/harinas/harina-000-ultra-refinada-canuelas-x-1-kg/art_14030/,Harina 000 Ultra Refinada Cañuelas x 1 Kg.,estandar,,si
+harina_000_morixe_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-morixe-x-1-kg/art_2045/,Harina de Trigo 000 Morixe x 1 Kg.,estandar,,si
+harina_0000_pureza_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-0000-ultra-refinada-pureza-x-1-kg/art_179/,Harina de Trigo 0000 Ultra Refinada Pureza x 1 kg.,premium,,no
+fideos_tallarines_la_anonima_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-la-anonima-x-500-g/art_2021/,Fideos Tallarín La Anónima x 500 g.,segunda,,si
+fideos_tallarines_matarazzo_500g,https://supermercado.laanonimaonline.com/producto/art_25877/,Fideos Tallarin N5 Matarazzo x 500 g.,premium,,si
+fideos_tallarines_lucchetti_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-n-5-lucchetti-x-500-g/art_25600/,Fideos Tallarín N 5 Lucchetti x 500 g.,estandar,,si
+fideos_tallarines_best_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-best-x-500-g/art_3060/,Fideos Tallarín Best x 500 g.,segunda,,si
+azucar_1kg,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/,Azúcar Blanca Ledesma x 1 Kg.,estandar,,si
+aceite_girasol_1_5l,https://supermercado.laanonimaonline.com/almacen/aceite-de-girasol-natura-x-1-5-lt/art_1963/,"Aceite de Girasol Natura x 1,5 Lt.",estandar,,si
+pure_tomate_520g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pure-de-tomate-brick-arcor-x-520-g/art_27641/,Pure de Tomate Brick Arcor x 520 g.,estandar,,si
+tomate_perita_lata_400g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/tomates-y-salsas/tomate-perita-entero-la-anonima-x-400-g/art_25228/,Tomate Perita Entero La Anónima x 400 g.,segunda,,si
+lentejas_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/lentejas-secas-ramoneda-x-500-g/art_2223/,Lentejas Secas Ramoneda x 500 g.,estandar,,si
+arvejas_partidas_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/arvejas-secas-partidas-ramoneda-x-500-g/art_2221/,Arvejas Secas Partidas Ramoneda x 500 g.,estandar,,si
+garbanzos_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/legumbres/garbanzos-secos-ramoneda-x-500-g/art_7028/,Garbanzos Secos Ramoneda x 500 g.,estandar,,si
+sal_fina_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-celusal-paquete-x-500-g/art_2118/,Sal Fina Celusal Paquete x 500 g.,estandar,,si
+vinagre_alcohol_1l,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/vinagre-de-alcohol-s-tacc-favinco-x-1-lt/art_14232/,Vinagre de Alcohol s/ Tacc Favinco x 1 Lt.,estandar,,no
+mayonesa_hellmanns_475g,https://supermercado.laanonimaonline.com/almacen/aderezos/mayonesa/mayonesa-clasica-doy-pack-hellmanns-x-475-g/art_18098/,Mayonesa Clasica Doy Pack Hellmanns x 475 g.,premium,,no
+mostaza_savora_250g,https://supermercado.laanonimaonline.com/almacen/almacen/mostaza-original-doy-pack-savora-x-250-g/art_20083/,Mostaza Original Doy Pack Savora x 250 g.,estandar,,no
+leche_entera_la_anonima_1l,https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/,Leche L.V. Entera La Anónima x 1 lt.,segunda,,si
+yogur_ilolay_bebible_1kg,https://supermercado.laanonimaonline.com/frescos/lacteos/yogur-entero-bebible-frutilla-sachet-ilolay-x-1-kg/art_7103/,Yogur Entero Bebible Frutilla Sachet Ilolay x 1 Kg.,estandar,,no
+queso_cremoso_la_paulina_1kg,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-la-paulina-trozado-x-1-kg/art_3611/,Queso Cremoso La Paulina Trozado x 1 kg.,estandar,,si
+manteca_la_paulina_200g,https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-paulina-x-200-g/art_3614/,Manteca La Paulina x 200 g.,estandar,,si
+huevos_docena,https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/,Huevo Blanco Extra Grande La Anónima x 12 un.,segunda,,si
+pan_mignon_kg,https://supermercado.laanonimaonline.com/frescos/panes-y-tortillas/pan-mignon-kg/art_12063/,Pan Mignon (Kg),estandar,,si
+pan_lactal_best_600g,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/pan-lactal/pan-lacteado-grande-best-x-600-g/art_1662/,Pan Lacteado Grande Best x 600 g.,segunda,,no
+pan_lactal_lactal_460g,https://supermercado.laanonimaonline.com/frescos/panificados/panes-de-molde-y-tortillas/pan-de-mesa-blanco-grande-lactal-bimbo-x-460-g/art_24387/,Pan de Mesa Blanco Grande Lactal Bimbo x 460 g.,premium,,no
+carne_picada_ev_500g,https://supermercado.laanonimaonline.com/carniceria/carne-picada-e-v-estancias-la-x-500-g/art_1382/,Carne Picada E/V Estancias LA x 500 g.,estandar,,si
+nalga_feteada_ev_kg,https://supermercado.laanonimaonline.com/carniceria/nalga-s-tapa-feteada-e-v-estancias-la-kg/art_1396/,Nalga s/ Tapa Feteada E/V Estancias LA (Kg),premium,,si
+pollo_fresco_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-fresco-la-anonima-kg/art_2330/,Pollo Fresco La Anónima (Kg),estandar,,si
+asado_con_hueso_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/asado-c-hueso-estancias-la-kg/art_2336/,Asado c/ Hueso Estancias LA (Kg),estandar,,si
+filet_merluza_1kg,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/filet-de-merluza-artesanos-del-mar-x-1-kg/art_26600/,Filet de Merluza Artesanos del Mar x 1 Kg.,estandar,,si
+manzana_red_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/manzana-red-elegida-kg/art_2399/,Manzana Red Elegida (Kg),estandar,,si
+banana_ecuador_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/banana-ecuador-kg/art_2393/,Banana Ecuador (Kg),estandar,,si
+naranja_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/naranja-kg/art_2401/,Naranja (Kg),estandar,,si
+tomate_redondo_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/tomate-redondo-kg/art_2390/,Tomate Redondo (Kg),estandar,,si
+papa_granel_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/papa-granel-kg/art_58/,Papa Granel (Kg),estandar,,si
+cebolla_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/cebolla-comercial-bolsita-kg/art_57/,Cebolla Comercial Bolsita (Kg),estandar,,si
+zanahoria_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/zanahoria-comercial-bolsita-kg/art_3114/,Zanahoria Comercial Bolsita (Kg),estandar,,si
+coca_cola_1_5l,https://supermercado.laanonimaonline.com/bebidas/gaseosa-cola-coca-cola-pet-x-1-5-lt/art_2175/,"Gaseosa Cola Coca-Cola Pet x 1,5 lt.",premium,,no
+agua_eco_2l,https://supermercado.laanonimaonline.com/bebidas/agua-mineral-sin-gas-eco-de-los-andes-x-2-lt/art_2166/,Agua Mineral sin gas Eco de los Andes x 2 lt.,premium,,no
+vino_los_primos_750ml,https://supermercado.laanonimaonline.com/bebidas/vinos-y-espumantes/tintos/vino-tinto-cabernet-sauvignon-los-primos-x-750-cc/art_23956/,Vino Tinto Cabernet Sauvignon Los Primos x 750 cc.,estandar,,no
+cerveza_imperial_lata_473ml,https://supermercado.laanonimaonline.com/bebidas/cervezas/cerveza-imperial-lata-x-473-cc/art_4313/,Cerveza Imperial Lata x 473 cc.,premium,,no
+harina000_1kg,https://supermercado.laanonimaonline.com/ingresar/,Iniciar Sesión,,,
+fideos_1kg,https://supermercado.laanonimaonline.com/ingresar/,Iniciar Sesión,,,
+yerba_1kg,https://supermercado.laanonimaonline.com/ingresar/,Iniciar Sesión,,,
+leche_1l,https://supermercado.laanonimaonline.com/ingresar/,Iniciar Sesión,,,
+carne_picada_1kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/n2_77/,Carne Vacuna,,,
+pollo_1kg,https://supermercado.laanonimaonline.com/carniceria/pollo/n2_78/,Pollo,,,
+pan_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/n2_18/,Harina y Pan Rallado,,,
+queso_cremoso_1kg,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/n2_70/,Quesos y Fiambres,,,
+manzana_1kg,https://supermercado.laanonimaonline.com/ingresar/,Iniciar Sesión,,,
+papa_1kg,https://supermercado.laanonimaonline.com/congelados/papas-y-vegetales/n2_299/,Papas y Vegetales,,,
+arroz_molinos_ala_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-molinos-ala-x-1-kg/art_2440/,Arroz Grano Largo Fino Molinos Ala x 1 kg.,estándar,Almacen,si
+arroz_dos_hermanos_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz-grano-largo-fino-00000-dos-hermanos-x-1-kg/art_14392/,Arroz Grano Largo Fino 00000 Dos Hermanos x 1 Kg.,estándar,Almacen,si
+arroz_primor_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-y-legumbres/arroz-largo-fino-primor-x-1-kg/art_1601/,Arroz Largo Fino Primor x 1 Kg.,estándar,Almacen,si
+arroz_apostoles_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz/arroz-grano-largo-fino-00000-apostoles-x-1-kg/art_2686/,Arroz Grano Largo Fino 00000 Apóstoles x 1 Kg.,estándar,Almacen,si
+arroz_maximo_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/arroz/arroz-largo-fino-maximo-x-1-kg/art_13240/,Arroz Largo Fino Maximo x 1 Kg.,2da marca,Almacen,si
+arroz_knorr_1kg,https://supermercado.laanonimaonline.com/almacen/arroz-y-legumbres/arroz-grano-largo-fino-00000-knorr-x-1-kg/art_5581/,Arroz Grano Largo Fino 00000 Knorr x 1 Kg.,premium,Almacen,si
+aceite_girasol_natura_1_5l,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/aceite-de-girasol-natura-x-1-5-lt/art_1963/,"Aceite de Girasol Natura x 1,5 Lt.",estándar,Almacen,si
+azucar_ledesma_1kg,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-blanca-ledesma-x-1-kg/art_1/,Azúcar Blanca Ledesma x 1 Kg.,estándar,Almacen,si
+azucar_chango_1kg,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/azucar-y-endulzantes/azucar-comun-a-chango-x-1-kg/art_3354/,Azúcar Común A Chango x 1 Kg.,estándar,Almacen,si
+harina_canuelas_000_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-canuelas-x-1-kg/art_4/,Harina de Trigo 000 Cañuelas x 1 Kg.,estándar,Almacen,si
+harina_pureza_000_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-ultra-refinada-pureza-x-1-kg/art_22451/,Harina de Trigo 000 Ultra Refinada Pureza x 1 Kg.,estándar,Almacen,si
+harina_morixe_000_1kg,https://supermercado.laanonimaonline.com/almacen/harinas/harinas-de-trigo/harina-de-trigo-000-morixe-x-1-kg/art_2045/,Harina de Trigo 000 Morixe x 1 Kg.,estándar,Almacen,si
+harina_chacabuco_000_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-000-chacabuco-x-1-kg/art_13/,Harina de Trigo 000 Chacabuco x 1 Kg.,estándar,Almacen,si
+harina_blancaflor_0000_1kg,https://supermercado.laanonimaonline.com/almacen/harina-y-pan-rallado/harina-de-trigo/harina-de-trigo-0000-blancaflor-x-1-kg/art_27492/,Harina de Trigo 0000 Blancaflor x 1 Kg.,estándar,Almacen,no
+harina_morixe_0000_1kg,https://supermercado.laanonimaonline.com/almacen/harinas/harinas-de-trigo/harina-de-trigo-0000-morixe-x-1-kg/art_2046/,Harina de Trigo 0000 Morixe x 1 Kg.,estándar,Almacen,no
+fideos_spaghetti_lucchetti_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-spaghetti-n7-lucchetti-x-500-g/art_25878/,Fideos Spaghetti N7 Lucchetti x 500 g.,estándar,Almacen,si
+fideos_spaghetti_la_anonima_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-spaghetti-lucchetti-x-500-g/art_7/,Fideos Spaghetti Lucchetti x 500 g.,estándar,Almacen,si
+fideos_tallarines_cica_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarines-cica-x-500-g/art_14009/,Fideos Tallarines Cica x 500 g.,estándar,Almacen,si
+fideos_tallarines_arcor_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-tallarin-arcor-x-500-g/art_13658/,Fideos Tallarín Arcor x 500 g.,estándar,Almacen,si
+fideos_tirabuzon_lucchetti_500g,https://supermercado.laanonimaonline.com/almacen/fideos-tirabuzon-lucchetti-x-500-g/art_25363/,Fideos Tirabuzón Lucchetti x 500 g.,estándar,Almacen,si
+fideos_huevo_la_anonima_500g,https://supermercado.laanonimaonline.com/almacen/fideos/tallarin-al-huevo-la-anonima-x-500-g/art_27297/,Tallarín al Huevo La Anónima x 500 g.,2da marca,Almacen,no
+fideos_nido2_la_anonima_500g,https://supermercado.laanonimaonline.com/almacen/arroz-pastas-y-legumbres/fideos-al-huevo-nido-2-la-anonima-x-500-g/art_21775/,Fideos al Huevo Nido 2 La Anónima x 500 g.,2da marca,Almacen,no
+yerba_amanda_1kg,https://supermercado.laanonimaonline.com/almacen/yerba-mate-tradicional-amanda-x-1-kg/art_3180/,Yerba Mate Tradicional Amanda x 1 kg.,estándar,Almacen,si
+yerba_playadito_1kg,https://supermercado.laanonimaonline.com/almacen/infusiones/yerbas/yerba-mate-c-palo-suave-playadito-x-1-kg/art_12710/,Yerba Mate c/Palo Suave Playadito x 1 Kg.,premium,Almacen,si
+yerba_playadito_500g,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/yerba-mate-c-palo-suave-playadito-x-500-g/art_12711/,Yerba Mate c/Palo Suave Playadito x 500 g.,premium,Almacen,no
+pure_tomate_arcor_520g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pure-de-tomate-brick-arcor-x-520-g/art_27641/,Pure de Tomate Brick Arcor x 520 g.,estándar,Almacen,si
+pulpa_tomate_arcor_520g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pulpa-de-tomate-arcor-suave-brick-x-520-g/art_3448/,Pulpa de Tomate Arcor Suave Brick x 520 g.,estándar,Almacen,si
+pulpa_tomate_salsati_520g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/pulpa-de-tomate-salsati-brick-x-520-g/art_3766/,Pulpa de Tomate Salsati Brick x 520 g.,2da marca,Almacen,si
+tomate_perita_entero_la_anonima_400g,https://supermercado.laanonimaonline.com/almacen/conservas-y-encurtidos/tomates-y-salsas/tomate-perita-entero-la-anonima-x-400-g/art_25228/,Tomate Perita Entero La Anónima x 400 g.,2da marca,Almacen,si
+sal_fina_paquete_dos_anclas_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-paquete-dos-anclas-x-500-g/art_27748/,Sal Fina Paquete Dos Anclas x 500 g.,estándar,Almacen,si
+sal_fina_salero_dos_anclas_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-salero-dos-anclas-x-500-g/art_6929/,Sal Fina Salero Dos Anclas x 500 g.,estándar,Almacen,no
+sal_fina_estuche_dos_anclas_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-dos-anclas-estuche-x-500-g/art_2121/,Sal Fina Dos Anclas Estuche x 500 g.,estándar,Almacen,no
+sal_fina_light_estuche_dos_anclas_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-fina-light-dos-anclas-estuche-x-500-g/art_2122/,Sal Fina Light Dos Anclas Estuche x 500 g.,premium,Almacen,no
+sal_entrefina_parrillera_dos_anclas_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-entrefina-parrillera-dos-anclas-estuche-x-500-g/art_2411/,Sal Entrefina Parrillera Dos Anclas Estuche x 500 g.,estándar,Almacen,no
+sal_gruesa_dos_anclas_estuche_500g,https://supermercado.laanonimaonline.com/almacen/aceite-aderezos-y-condimentos/sal-y-especias/sal-gruesa-dos-anclas-estuche-x-500-g/art_3639/,Sal Gruesa Dos Anclas Estuche x 500 g.,estándar,Almacen,no
+cafe_cabrales_molido_250g,https://supermercado.laanonimaonline.com/almacen/infusiones/cafe/cafe-molido-tostado-cabrales-x-250-g/art_19877/,Café Molido Tostado Cabrales x 250 g.,premium,Almacen,no
+cafe_bonafide_intenso_250g,https://supermercado.laanonimaonline.com/almacen/infusiones/cafe/cafe-molido-intenso-sensaciones-bonafide-x-250-g/art_6794/,Café Molido Intenso Sensaciones Bonafide x 250 g.,premium,Almacen,no
+cafe_la_planta_250g,https://supermercado.laanonimaonline.com/almacen/almacen/cafe-molido-la-planta-de-cafe-x-250-g/art_1986/,Café Molido La Planta de Café x 250 g.,estándar,Almacen,no
+cafe_cabrales_colombia_250g,https://supermercado.laanonimaonline.com/almacen/cafe-molido-tostado-colombia-cabrales-x-250-g/art_19882/,Café Molido Tostado Colombia Cabrales x 250 g.,premium,Almacen,no
+cafe_la_virginia_arabica_250g,https://supermercado.laanonimaonline.com/almacen/desayuno-y-merienda/cafe-espresso-molido-100-arabica-la-virginia-x-250-g/art_29021/,Café Espresso Molido 100% Arabica La Virginia x 250 g.,estándar,Almacen,no
+cafe_los_5_hispanos_250g,https://supermercado.laanonimaonline.com/almacen/cafe-molido-los-5-hispanos-x-250-g/art_3364/,Café Molido los 5 Hispanos x 250 g.,2da marca,Almacen,no
+cafe_la_virginia_equilibrado_250g,https://supermercado.laanonimaonline.com/almacen/infusiones/cafe/cafe-molido-torrado-equilibrado-la-virginia-x-250-g/art_14995/,Café Molido Torrado Equilibrado La Virginia x 250 g.,estándar,Almacen,no
+cafe_la_virginia_clasico_250g,https://supermercado.laanonimaonline.com/caf-1-molido-cl-1sico-la-virginia-x-250-g/art_716/,Café Molido Clásico La Virginia x 250 g.,estándar,Almacen,no
+coca_cola_light_1_5l,https://supermercado.laanonimaonline.com/bebidas/gaseosas/gaseosa-cola-coca-cola-light-pet-x-1-5-lt/art_2185/,"Gaseosa Cola Coca-Cola Light Pet x 1,5 lt.",premium,Bebidas,no
+coca_cola_zero_1_5l,https://supermercado.laanonimaonline.com/bebidas/gaseosa-cola-diet-coca-cola-zero-pet-x-1-5-lt/art_2608/,"Gaseosa Cola Diet Coca-Cola Zero Pet x 1,5 lt.",premium,Bebidas,no
+coca_cola_lata_354cc,https://supermercado.laanonimaonline.com/bebidas/gaseosas/gaseosa-cola-lata-coca-cola-x-354-cc/art_6976/,Gaseosa Cola Lata Coca Cola x 354 cc.,premium,Bebidas,no
+cepita_naranja_1l,https://supermercado.laanonimaonline.com/bebidas/jugos/jugos-listos/jugo-natural-cepita-naranja-tentacion-x-1-lt/art_1189/,Jugo Natural Cepita Naranja Tentación x 1 lt.,estándar,Bebidas,no
+cepita_durazno_1l,https://supermercado.laanonimaonline.com/bebidas/aguas-y-jugos/jugo-natural-cepita-durazno-x-1-lt/art_1190/,Jugo Natural Cepita Durazno x 1 lt.,estándar,Bebidas,no
+cepita_manzana_1l,https://supermercado.laanonimaonline.com/bebidas/aguas-y-jugos/jugo-natural-cepita-manzana-x-1-lt/art_5367/,Jugo Natural Cepita Manzana x 1 Lt.,estándar,Bebidas,no
+gatorade_maracuya_500cc,https://supermercado.laanonimaonline.com/bebidas/isotonicas-y-energizantes/bebida-maracuya-gatorade-x-500-cc/art_27561/,Bebida Maracuyá Gatorade x 500 cc.,estándar,Bebidas,no
+gatorade_green_mango_500cc,https://supermercado.laanonimaonline.com/bebidas/isotonicas-y-energizantes/bebida-green-mango-gatorade-x-500-cc/art_29089/,Bebida Green Mango Gatorade x 500 cc.,estándar,Bebidas,no
+carne_picada_estancias_500g,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/carne-picada-e-v-estancias-la-x-500-g/art_1382/,Carne Picada E/V Estancias LA x 500 g.,premium,Carnes,si
+nalga_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/nalga-s-tapa-feteada-e-v-estancias-la-kg/art_1396/,Nalga s/ Tapa Feteada E/V Estancias LA (Kg),premium,Carnes,si
+cuadrada_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/cuadrada-feteada-e-v-estancias-la-kg/art_1397/,Cuadrada Feteada E/V Estancias LA (Kg),premium,Carnes,si
+tapa_asado_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/tapa-de-asado-estancias-la-kg/art_2346/,Tapa de Asado Estancias LA (Kg),premium,Carnes,si
+bola_lomo_estancias_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/bola-de-lomo-feteada-e-v-estancias-la-kg/art_1398/,Bola de Lomo Feteada E/V Estancias LA (Kg),premium,Carnes,si
+vacio_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/vacio-envasado-al-vacio-fb-meats-kg/art_28177/,Vacío Envasado al Vacío FB MEATS (Kg),estándar,Carnes,no
+tapa_bife_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/tapa-de-bife-envasado-al-vacio-fb-meats-kg/art_28184/,Tapa de Bife Envasado al Vacío FB MEATS (Kg),estándar,Carnes,no
+matambre_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/matambre-envasado-al-vacio-fb-meats-kg/art_28176/,Matambre Envasado al Vacío FB MEATS (Kg),estándar,Carnes,no
+chingolo_fbmeats_kg,https://supermercado.laanonimaonline.com/carniceria/chingolo-envasado-al-vacio-fb-meats-kg/art_28180/,Chingolo Envasado al Vacío FB MEATS (Kg),estándar,Carnes,no
+carne_picada_best_500g,https://supermercado.laanonimaonline.com/carniceria/carne-picada-envasado-al-vacio-best-x-500-g/art_1380/,Carne Picada Envasado al Vacío Best x 500 g.,2da marca,Carnes,si
+tapa_asado_best_kg,https://supermercado.laanonimaonline.com/tapa-de-asado-best-kg/art_1296/,Tapa de Asado Best (Kg),2da marca,Carnes,si
+roast_beef_best_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/roast-beef-fraccionado-f-e-v-best-kg/art_1838/,Roast Beef Fraccionado/F E/V Best (Kg),2da marca,Carnes,si
+bola_lomo_best_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/bola-de-lomo-best-kg/art_3294/,Bola de Lomo Best (Kg),2da marca,Carnes,si
+falda_nt_kg,https://supermercado.laanonimaonline.com/carniceria/falda-nt-kg/art_6775/,Falda NT (Kg),estándar,Carnes,si
+milanesa_carne_la_kg,https://supermercado.laanonimaonline.com/carniceria/carne-vacuna/milanesa-de-carne-la-anonima-kg/art_741/,Milanesa de Carne La Anónima (Kg),estándar,Carnes,si
+pollo_fresco_la_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-fresco-la-anonima-kg/art_2330/,Pollo Fresco La Anónima (Kg),estándar,Carnes,si
+filet_pechuga_la_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/filet-de-pechuga-la-anonima-kg/art_1625/,Filet de Pechuga La Anónima (Kg),estándar,Carnes,si
+patamuslo_la_kg,https://supermercado.laanonimaonline.com/carniceria/patamuslo-de-pollo-la-anonima-kg/art_1627/,PataMuslo de Pollo La Anónima (Kg),estándar,Carnes,si
+cuarto_trasero_la_kg,https://supermercado.laanonimaonline.com/carniceria/cuarto-trasero-de-pollo-la-anonima-kg/art_1624/,Cuarto Trasero de Pollo La Anónima (Kg),estándar,Carnes,si
+filet_pechuga_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/filet-de-pechuga-bandeja-pollolin-kg/art_2327/,Filet de Pechuga  Bandeja Pollolin (Kg),estándar,Carnes,si
+pollo_parrillero_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pollo-parrillero-pollolin-kg/art_26804/,Pollo Parrillero Pollolin (Kg),estándar,Carnes,si
+pata_muslo_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/pollo/pata-muslo-bandeja-pollolin-kg/art_2333/,Pata Muslo Bandeja Pollolin (Kg),estándar,Carnes,si
+milanesa_pechuga_la_kg,https://supermercado.laanonimaonline.com/carniceria/milanesas-de-pechuga-de-pollo-la-anonima-kg/art_1389/,Milanesas de Pechuga de Pollo La Anónima (Kg),estándar,Carnes,no
+milanesa_pechuga_pollolin_kg,https://supermercado.laanonimaonline.com/carniceria/milanesas-de-pechuga-de-pollo-pollolin-kg/art_2326/,Milanesas de Pechuga de Pollo Pollolin (Kg),estándar,Carnes,no
+pechito_cerdo_la_kg,https://supermercado.laanonimaonline.com/carniceria/cerdo/pechito-de-cerdo-c-hueso-la-anonima-kg/art_776/,Pechito de Cerdo c/ Hueso La Anónima (Kg),estándar,Carnes,no
+carre_hueso_la_kg,https://supermercado.laanonimaonline.com/carniceria/cerdo/carre-c-hueso-de-cerdo-la-anonima-kg/art_14315/,Carre c/ Hueso de Cerdo La Anónima (Kg),estándar,Carnes,no
+carre_sin_hueso_tutto_kg,https://supermercado.laanonimaonline.com/carniceria/cerdo/carre-sin-hueso-congelado-tutto-porkys-kg/art_26964/,Carre sin Hueso Congelado Tutto Porkys (Kg),estándar,Carnes,no
+pecho_cerdo_delipork_kg,https://supermercado.laanonimaonline.com/carniceria/pecho-de-cerdo-c-manta-delipork-kg/art_1507/,Pecho de Cerdo c/ Manta Delipork (Kg),estándar,Carnes,no
+bondiola_la_kg,https://supermercado.laanonimaonline.com/carniceria/n1_8/,Carnicería,estándar,Carnes,no
+chorizo_vacuno_la_x4_kg,https://supermercado.laanonimaonline.com/carniceria/chorizo-fresco-vacuno-e-v-la-anonima-x-4-un-kg/art_3096/,Chorizo Fresco Vacuno E/V La Anónima x 4 un (Kg),estándar,Carnes,no
+chorizo_parrillero_la_x4_kg,https://supermercado.laanonimaonline.com/carniceria/chorizo-fresco-tipo-parrillero-e-v-la-anonima-x-4-un-kg/art_3093/,Chorizo Fresco Tipo Parrillero E/V La Anónima x 4 un (Kg),estándar,Carnes,no
+filet_merluza_la_500g,https://supermercado.laanonimaonline.com/congelados/filet-de-merluza-s-espinas-la-anonima-x-500-gr/art_3119/,Filet de Merluza s/ Espinas La Anónima x 500 gr.,estándar,Carnes,si
+filet_merluza_artesanos_1kg,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/filet-de-merluza-artesanos-del-mar-x-1-kg/art_26600/,Filet de Merluza Artesanos del Mar x 1 Kg.,estándar,Carnes,si
+bastones_merluza_la_300g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/bastones-de-merluza-rebozados-la-anonima-x-300-gr/art_3122/,Bastones de Merluza Rebozados La Anónima x 300 gr.,estándar,Carnes,no
+bastones_merluza_best_300g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/bastones-de-merluza-rebozados-best-x-300-g/art_28985/,Bastones de Merluza Rebozados Best x 300 g.,2da marca,Carnes,no
+medallones_merluza_la_300g,https://supermercado.laanonimaonline.com/congelados/medallones-de-merluza-rebozados-la-anonima-x-300-g/art_3121/,Medallones de Merluza Rebozados La Anónima x 300 g.,estándar,Carnes,no
+medallones_merluza_best_300g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/medallones-de-merluza-rebozados-best-x-300-g/art_28986/,Medallones de Merluza Rebozados Best x 300 g.,2da marca,Carnes,no
+bastoncitos_merluza_artico_300g,https://supermercado.laanonimaonline.com/congelados/bastoncitos-de-merluza-crocantes-artico-x-300-g/art_28971/,Bastoncitos de Merluza Crocantes Artico x 300 g.,estándar,Carnes,no
+langostinos_oceanblue_500g,https://supermercado.laanonimaonline.com/congelados/pescados-y-mariscos/langostinos-pelados-crudos-ocean-blue-x-500-gr/art_3234/,Langostinos Pelados Crudos Ocean Blue x 500 gr.,premium,Carnes,no
+papas_simplot_1_1kg,https://supermercado.laanonimaonline.com/congelados/papas-corte-tradicional-simplot-x-1-1-kg/art_10431/,"Papas Corte Tradicional Simplot x 1,1 Kg.",premium,Congelados,no
+arveja_la_300g,https://supermercado.laanonimaonline.com/congelados/papas-y-vegetales/arveja-supercongelada-la-anonima-x-300-gr/art_108/,Arveja Supercongelada La Anónima x 300 gr.,estándar,Congelados,no
+arvejas_greenlife_350g,https://supermercado.laanonimaonline.com/congelados/papas-y-vegetales/vegetales/arvejas-congeladas-green-life-x-350-g/art_26479/,Arvejas Congeladas Green Life x 350 g.,estándar,Congelados,no
+arvejas_granja_300g,https://supermercado.laanonimaonline.com/frutas-y-verduras/arvejas-congeladas-granja-del-sol-x-300-g/art_24485/,Arvejas Congeladas Granja Del Sol x 300 g.,estándar,Congelados,no
+mix_primavera_la_400g,https://supermercado.laanonimaonline.com/frutas-y-verduras/mix-primavera-super-la-anonima-x-400-gr/art_109/,Mix Primavera Súper La Anónima x 400 gr.,estándar,Congelados,no
+papas_smiles_mccain_700g,https://supermercado.laanonimaonline.com/congelados/papas-y-vegetales/papas-smiles-mc-cain-x-700-g/art_26741/,Papas Smiles Mc Cain x 700 g.,premium,Congelados,no
+nuggets_artico_300g,https://supermercado.laanonimaonline.com/congelados/nuggets-de-pollo-crocantes-artico-x-300-g/art_15089/,Nuggets de Pollo Crocantes Artico x 300 g.,estándar,Congelados,no
+nuggets_sadia_300g,https://supermercado.laanonimaonline.com/congelados/nuggets-de-pollo-crocantes-sadia-x-300-g/art_18497/,Nuggets de Pollo Crocantes Sadia x 300 g.,premium,Congelados,no
+bocaditos_sadia_300g,https://supermercado.laanonimaonline.com/congelados/milanesas-y-rebozados/pollo/bocaditos-crunchy-chicken-sadia-x-300-g/art_29092/,Bocaditos Crunchy Chicken Sadia x 300 g.,premium,Congelados,no
+hamb_paty_4u_288g,https://supermercado.laanonimaonline.com/congelados/hamburguesas/vacuna/hamburguesa-carne-vacuna-paty-x-4-un-288-g/art_13328/,Hamburguesa Carne Vacuna Paty x 4 un. 288 g.,premium,Congelados,no
+hamb_la_4u_320g,https://supermercado.laanonimaonline.com/congelados/hamburguesas/hamburguesa-de-carne-vacuna-x-4-un-la-anonima-x-320-gr/art_956/,Hamburguesa de Carne Vacuna x 4 un. La Anónima x 320 gr.,estándar,Congelados,no
+hamb_swift_4u_276g,https://supermercado.laanonimaonline.com/congelados/hamburguesas/medallones-de-carne-vacuna-swift-x-4-un-276-gr/art_2529/,Medallones de Carne Vacuna Swift x 4 un. 276 gr.,estándar,Congelados,no
+hamb_swift_12u_828g,https://supermercado.laanonimaonline.com/congelados/hamburguesas/vacuna/medallones-de-carne-vacuna-x-12-un-swift-x-828-gr/art_3271/,Medallones de Carne Vacuna x 12 un. Swift x 828 gr.,estándar,Congelados,no
+filet_merluza_romana_artico_500g,https://supermercado.laanonimaonline.com/congelados/n1_296/pma/pag/1/,Congelados,estándar,Congelados,no
+pizza_el_noble_515g,https://supermercado.laanonimaonline.com/congelados/pizza-de-muzzarella-el-noble-x-515-g/art_28608/,Pizza de Muzzarella El Noble x 515 g.,premium,Congelados,no
+pizza_pietro_470g,https://supermercado.laanonimaonline.com/congelados/empanadas-pizzas-y-tartas/pizza-con-mozzarella-pietro-x-470-g/art_26103/,Pizza con Mozzarella Pietro x 470 g.,estándar,Congelados,no
+pizza_sibarita_2un_940g,https://supermercado.laanonimaonline.com/congelados/empanadas-pizzas-y-tartas/pizza-a-la-piedra-con-mozzarella-congela-x-2-un-sibarita-x-940-g/art_28930/,Pizza a la Piedra con Mozzarella Congela x 2 Un. Sibarita x 940 g.,premium,Congelados,no
+papa_bolsita_elegida_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/papa-bolsita-elegida-kg/art_3306/,Papa Bolsita Elegida (Kg),estándar,Frutas y Verduras,si
+cebolla_blanca_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/cebolla-blanca-kg/art_3312/,Cebolla Blanca (Kg),estándar,Frutas y Verduras,si
+cebolla_roja_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/cebolla-roja-kg/art_3302/,Cebolla Roja (Kg),estándar,Frutas y Verduras,si
+cebolla_verdeo_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/cebolla-verdeo-kg/art_2379/,Cebolla Verdeo (Kg),estándar,Frutas y Verduras,no
+tomate_perita_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-y-verduras/tomate-redondo-kg/art_2390/,Tomate Redondo (Kg),estándar,Frutas y Verduras,no
+lechuga_unidad,https://supermercado.laanonimaonline.com/frutas-y-verduras/lechuga-x-unidad/art_1433/,Lechuga x unidad,estándar,Frutas y Verduras,si
+lechuga_hidroponica_unidad,https://supermercado.laanonimaonline.com/frutas-y-verduras/lechuga-hidroponica-x-unidad/art_536/,Lechuga Hidropónica x unidad,estándar,Frutas y Verduras,no
+lechuga_mantecosa_envasada_200g,https://supermercado.laanonimaonline.com/frutas-y-verduras/lechuga-mantecosa-envasada-x-200-gr/art_3332/,Lechuga Mantecosa Envasada x 200 gr,estándar,Frutas y Verduras,no
+lechuga_capuchina_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/lechuga-capuchina-kg/art_2383/,Lechuga Capuchina (Kg),estándar,Frutas y Verduras,no
+pepino_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/pepino-kg/art_2397/,Mango (Kg),estándar,Frutas y Verduras,no
+manzana_grany_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/manzana-grany-elegida-kg/art_2398/,Manzana Grany Elegida (Kg),estándar,Frutas y Verduras,si
+limon_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/limon-kg/art_2395/,Limón (Kg),estándar,Frutas y Verduras,si
+pera_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/pera-kg/art_2400/,Melón (Kg),estándar,Frutas y Verduras,si
+pomelo_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/pomelo-kg/art_2405/,Pomelo (Kg),estándar,Frutas y Verduras,no
+uvas_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/frutas-frescas/uvas-kg/art_2406/,Uvas (Kg),estándar,Frutas y Verduras,no
+morrón_colorado_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/morron-colorado-kg/art_2372/,Morrón Colorado (Kg),estándar,Frutas y Verduras,no
+morrón_variedades_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/morron-variedades-kg/art_3299/,Morrón Variedades (Kg),estándar,Frutas y Verduras,no
+brocoli_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/brocoli-kg/art_2394/,Frutilla (Kg),estándar,Frutas y Verduras,no
+coliflor_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/coliflor-kg/art_2404/,Pera (Kg),estándar,Frutas y Verduras,no
+remolacha_sin_hoja_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/remolacha-s-hoja-kg/art_2403/,Palta (Kg),estándar,Frutas y Verduras,no
+zapallo_anco_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/zapallo-anco-kg/art_60/,Zapallo Anco (Kg),estándar,Frutas y Verduras,si
+zapallito_redondo_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/zapallito-redondo-kg/art_2392/,Zapallito Redondo (Kg),estándar,Frutas y Verduras,no
+zapallito_largo_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras-frescas/zapallito-largo-kg/art_2396/,Mandarina (Kg),estándar,Frutas y Verduras,no
+batata_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/verduras-frescas/batata-kg/art_2375/,Batata (Kg),estándar,Frutas y Verduras,no
+ajo_bolsita_kg,https://supermercado.laanonimaonline.com/frutas-y-verduras/verduras/ajo-en-bolsita-kg/art_55/,Ajo En Bolsita (Kg),estándar,Frutas y Verduras,no
+perejil_atado_un,https://supermercado.laanonimaonline.com/frutas-y-verduras/perejil-x-atado-x-1-un/art_26855/,Perejil X Atado x 1 Un.,estándar,Frutas y Verduras,no
+lechuga_francesa_envasada_250g,https://supermercado.laanonimaonline.com/frutas-y-verduras/lechuga-francesa-envasada-x-250-gr/art_3334/,Huevo Color Estuche Plástico x 6 un.,estándar,Frutas y Verduras,no
+shampoo_dove_hidratacion_400cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-cabello/shampoo/shampoo-hidratacion-intensa-dove-x-400-cc/art_5657/,Shampoo Hidratación Intensa Dove x 400 cc.,premium,Higiene y perfumería,no
+shampoo_pantene_hidratacion_400cc,https://supermercado.laanonimaonline.com/shampoo-hidrataci-1n-pantene-x-400-cc/art_17829/,Shampoo Hidratación Pantene x 400 cc.,premium,Higiene y perfumería,no
+shampoo_elvive_color_400cc,https://supermercado.laanonimaonline.com/shampoo-color-vive-elvive-x-400-cc/art_19330/,Shampoo Color Vive Elvive x 400 cc.,premium,Higiene y perfumería,no
+acond_dove_reconstruccion_400cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-cabello/acondicionador/acondicionador-reconstruccion-completa-dove-x-400-cc/art_2467/,Acondicionador Reconstrucción Completa Dove x 400 cc.,premium,Higiene y perfumería,no
+acond_pantene_max_restauracion_400cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-cabello/acondicionador-pantene-max-pro-v-restauracion-x-400-cc/art_974/,Acondicionador Pantene MAX PRO-V Restauración x 400 cc.,premium,Higiene y perfumería,no
+acond_pantene_miracles_volumen_400cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-cabello/acondicionador/acondicionador-prov-v-miracles-volumen-pantene-x-400-cc/art_26766/,Acondicionador Prov-V Miracles Volumen Pantene x 400 cc.,premium,Higiene y perfumería,no
+acond_dove_hidratacion_vit_400cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-cabello/acondicionador/acondicionador-hidratacion-con-vitamina-a-y-e-dove-x-400-cc/art_25760/,Acondicionador Hidratación con Vitamina A y E Dove x 400 cc.,premium,Higiene y perfumería,no
+desodorante_rexona_aerosol_nutritive_150cc,https://supermercado.laanonimaonline.com/desodorantes/antitranspirante-aerosol-nutritive-rexona-x-150-cc/art_14504/,Antitranspirante Aerosol Nutritive Rexona x 150 cc.,premium,Higiene y perfumería,no
+desodorante_rexona_clinical_150cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/antitranspirante-aerosol-clinical-clasica-rexona-x-150-cc/art_24687/,Antitranspirante Aerosol Clinical Clásica Rexona x 150 cc.,premium,Higiene y perfumería,no
+desodorante_dove_original_150cc,https://supermercado.laanonimaonline.com/perfumeria/antitranspirante-aerosol-original-vegano-dove-x-150-cc/art_19658/,Antitranspirante Aerosol Original Vegano Dove x 150 cc.,premium,Higiene y perfumería,no
+desodorante_dove_invisible_150cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/desodorante/antitranspirante-aerosol-dove-invisible-dry-x-150-cc/art_1151/,Antitranspirante Aerosol Dove Invisible Dry x 150 cc.,premium,Higiene y perfumería,no
+desodorante_axe_musk_150cc,https://supermercado.laanonimaonline.com/perfumeria/desodorantes/desodorante-aerosol-musk-axe-x-150-cc/art_18980/,Desodorante Aerosol Musk Axe x 150 cc.,premium,Higiene y perfumería,no
+desodorante_axe_dark_150cc,https://supermercado.laanonimaonline.com/perfumeria/desodorantes/desodorante-aerosol-dark-temptation-axe-x-150-cc/art_18976/,Desodorante Aerosol Dark Temptation Axe x 150 cc.,premium,Higiene y perfumería,no
+crema_dental_colgate_total12_90g,https://supermercado.laanonimaonline.com/perfumeria/cuidado-oral/cremas-dentales/crema-dental-total-12-encias-reforzadas-colgate-x-90-g/art_19155/,Crema Dental Total 12 Encias Reforzadas Colgate x 90 g.,estándar,Higiene y perfumería,no
+crema_dental_colgate_triple_accion_102g,https://supermercado.laanonimaonline.com/perfumeria/cuidado-oral/cremas-dentales/crema-dental-colgate-triple-accion-xtra-blancura-x-102-g/art_4430/,Crema Dental Colgate Triple Acción Xtra Blancura x 102 g.,estándar,Higiene y perfumería,no
+enjuague_listerine_coolmint_500cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-oral/enjuagues/enjuague-bucal-cool-mint-intenso-listerine-x-500-cc/art_17706/,Enjuague Bucal Cool Mint Intenso Listerine x 500 cc.,premium,Higiene y perfumería,no
+enjuague_listerine_zero_500cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-oral/enjuagues/enjuague-bucal-zero-alcohol-listerine-x-500-cc/art_18105/,Enjuague Bucal Zero Alcohol Listerine x 500 cc.,premium,Higiene y perfumería,no
+cepillo_oralb_triple_pack,https://supermercado.laanonimaonline.com/perfumeria/cuidado-oral/cepillos-y-accesorios/cepillo-dental-indicador-antibacterial-oral-b-x-3-un/art_18379/,Cepillo Dental Indicador Antibacterial Oral B x 3 Un.,premium,Higiene y perfumería,no
+cepillo_oralb_clean_classic,https://supermercado.laanonimaonline.com/perfumeria/cuidado-oral/cepillos-y-accesorios/cepillo-dental-clean-classic-oral-b-x-1-un/art_14820/,Cepillo Dental Clean Classic Oral B x 1 un.,premium,Higiene y perfumería,no
+jabon_tocador_dove_90g,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/jabon-tocador-original-dove-x-90-g/art_28350/,Jabón Tocador Original Dove x 90 g.,premium,Higiene y perfumería,no
+jabon_liquido_manos_dove_250cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/jabon/jabon-liquido-manos-karite-vainilla-dove-x-250-cc/art_9806/,Jabón Líquido Manos Karite & Vainilla Dove x 250 cc.,premium,Higiene y perfumería,no
+prestobarba3_gillette_4un,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/afeitado-y-depilacion/maquina-afeitar-prestobarba-3-gillette-x-4-un/art_18357/,Maquina Afeitar Prestobarba 3 Gillette x 4 Un.,premium,Higiene y perfumería,no
+espuma_afeitar_gillette_312g,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/espuma-de-afeitar-regular-gillette-x-312-g/art_21782/,Espuma de Afeitar Regular Gillette x 312 g.,premium,Higiene y perfumería,no
+toallas_always_noche_8un,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/toalla-higienica-ultra-plus-noche-suave-always-x-8-un/art_19781/,Toalla Higiénica Ultra Plus Noche Suave Always x 8 Un.,premium,Higiene y perfumería,no
+toallas_always_nocturna_16un,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/toalla-higienica-nocturna-con-alas-suave-xtra-always-x-16-un/art_25446/,Toalla Higiénica Nocturna con Alas Suave Xtra Always x 16 Un.,premium,Higiene y perfumería,no
+panales_pampers_xg_30un,https://supermercado.laanonimaonline.com/mundo-bebe/panales/panal-xg-pants-pampers-x-30-un/art_16306/,Pañal XG Pants Pampers x 30 un.,premium,Higiene y perfumería,no
+panales_huggies_g_40un,https://supermercado.laanonimaonline.com/mundo-bebe/panal-g-supreme-care-hiper-huggies-x-40-un/art_24716/,Pañal G Supreme Care Hiper Huggies x 40 Un.,premium,Higiene y perfumería,no
+toallitas_huggies_48un,https://supermercado.laanonimaonline.com/perfumeria/bebes/toallitas-humedas-protect-plus-huggies-x-48-un/art_24757/,Toallitas Húmedas Protect Plus Huggies x 48 Un.,premium,Higiene y perfumería,no
+desodorante_axe_blue_lavanda_150cc,https://supermercado.laanonimaonline.com/perfumeria/desodorantes/desodorante-aerosol-blue-lavanda-axe-x-150-cc/art_27750/,Desodorante Aerosol Blue Lavanda Axe x 150 cc.,premium,Higiene y perfumería,no
+desodorante_dove_pepino_150cc,https://supermercado.laanonimaonline.com/perfumeria/cuidado-personal/desodorante/antitranspirante-aerosol-dove-go-fresh-pepino-y-te-verde-x-150-cc/art_1152/,Antitranspirante Aerosol Dove Go Fresh Pepino y Té Verde x 150 cc.,premium,Higiene y perfumería,no
+toallitas_huggies_limpieza_total_48un,https://supermercado.laanonimaonline.com/mundo-bebe/toallitas-humedas-limpieza-total-huggies-x-48-un/art_14924/,Toallitas Húmedas Limpieza Total Huggies x 48 un.,premium,Higiene y perfumería,no
+jabon_liquido_manos_dove_repuesto_220cc,https://supermercado.laanonimaonline.com/perfumeria/jabones-de-tocador/jabon-liquido-para-manos-dove-cremoso-repuesto-x-220-cc/art_184/,Jabón Líquido para Manos Dove Cremoso Repuesto x 220 cc.,premium,Higiene y perfumería,no
+leche_lv_entera_la_anonima_1l,https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-la-anonima-x-1-lt/art_1824/,Leche L.V. Entera La Anónima x 1 lt.,2da marca,Lacteos,si
+leche_lv_entera_manfrey_1l,https://supermercado.laanonimaonline.com/frescos/leche-l-v-entera-manfrey-x-1-lt/art_11147/,Leche L.V. Entera Manfrey x 1 Lt.,estándar,Lacteos,si
+leche_entera_laserenisima_1l,https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-entera-clasica-3-la-serenisima-x-1-lt/art_27579/,Leche Entera Clásica 3 % La Serenísima x 1 Lt.,premium,Lacteos,si
+leche_entera_botella_laserenisima_1l,https://supermercado.laanonimaonline.com/frescos/lacteos/leches/leche-l-v-entera-clasica-3-la-serenisima-botella-x-1-lt/art_1732/,Leche L.V. Entera Clásica 3% La Serenísima Botella x 1 Lt.,premium,Lacteos,si
+leche_entera_lechelita_1l,https://supermercado.laanonimaonline.com/frescos/lacteos/leche-entera-uat-lechelita-x-1-lt/art_17233/,Leche entera Uat Lechelita x 1 Lt.,estándar,Lacteos,si
+yogur_bebible_yogurisimo_sachet_1kg,https://supermercado.laanonimaonline.com/frescos/yogur-bebible-yogurisimo-sachet-x-1-kg/art_383/,Yogur Bebible Yogurísimo Sachet x 1 Kg.,premium,Lacteos,no
+yogur_bebible_yogurisimo_tetrabrik_1kg,https://supermercado.laanonimaonline.com/frescos/lacteos/yogur-bebible-vainilla-tetrabrik-yogurisimo-x-1-kg/art_21724/,Yogur Bebible Vainilla Tetrabrik Yogurisimo x 1 Kg.,premium,Lacteos,no
+yogur_bebible_sancor_yogs_vainilla_1kg,https://supermercado.laanonimaonline.com/frescos/lacteos/yogur-bebible-sancor-yogs-vainilla-sachet-x-1-kg/art_4356/,Yogur Bebible Sancor Yogs Vainilla Sachet x 1 Kg.,estándar,Lacteos,no
+yogur_bebible_ser_probioticos_1kg,https://supermercado.laanonimaonline.com/frescos/lacteos/yogures/yogur-bebible-frutilla-con-probioticos-b6-sachet-ser-x-1-kg/art_17526/,Yogur Bebible Frutilla Con Probioticos B6 Sachet Ser x 1 Kg.,premium,Lacteos,no
+yogur_bebible_cremigal_frutilla_1kg,https://supermercado.laanonimaonline.com/frescos/lacteos/yogures/yogur-bebible-frutilla-cremigal-x-1-kg/art_28092/,Yogur Bebible Frutilla Cremigal x 1 Kg.,estándar,Lacteos,no
+yogur_firme_dahi_natural_190g,https://supermercado.laanonimaonline.com/frescos/lacteos/yogures/yogur-firme-descremado-natural-dahi-x-190-g/art_25948/,Yogur Firme Descremado Natural Dahi x 190 g.,estándar,Lacteos,no
+queso_cremoso_cremon_laserenisima_1kg,https://supermercado.laanonimaonline.com/frescos/queso-cremoso-cremon-la-serenisima-x-1-kg/art_1619/,Queso Cremoso Cremón La Serenísima x 1 kg.,premium,Lacteos,si
+queso_cremoso_la_anonima_trozado_1kg,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-trozado-la-anonima-x-1-kg/art_2273/,Queso Cremoso Trozado La Anónima x 1 kg.,2da marca,Lacteos,si
+queso_cremoso_noalsa_1kg,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-cremoso-horma-fraccionada-noalsa-x-1-kg/art_23082/,Queso Cremoso Horma Fraccionada Noalsa x 1 Kg.,estándar,Lacteos,si
+queso_rallado_laserenisima_40g,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/quesos/queso-rallado-la-serenisima-x-40-g/art_2278/,Queso Rallado La Serenísima x 40 g.,premium,Lacteos,no
+queso_rallado_tregar_40g,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-rallado-tregar-x-40-g/art_1318/,Queso Rallado Tregar x 40 g.,estándar,Lacteos,no
+queso_rallado_manfrey_40g,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/queso-rallado-manfrey-x-40-g/art_7247/,Queso Rallado Manfrey x 40 g.,estándar,Lacteos,no
+aderezo_rallado_best_40g,https://supermercado.laanonimaonline.com/frescos/quesos-y-fiambres/aderezo-rallado-sabor-queso-best-x-40-g/art_29196/,Aderezo Rallado Sabor Queso Best x 40 g.,2da marca,Lacteos,no
+manteca_la_anonima_200g,https://supermercado.laanonimaonline.com/frescos/manteca-la-anonima-x-200-g/art_2272/,Manteca La Anónima x 200 g.,2da marca,Lacteos,no
+manteca_la_serenisima_200g,https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-la-serenisima-x-200-g/art_2284/,Manteca La Serenísima x 200 g.,premium,Lacteos,no
+manteca_ilolay_200g,https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-extra-fortificada-con-vitamina-d-ilolay-x-200-g/art_27725/,Manteca Extra Fortificada con Vitamina D Ilolay x 200 g.,estándar,Lacteos,no
+manteca_primer_premio_200g,https://supermercado.laanonimaonline.com/frescos/lacteos/manteca-y-margarina/manteca-primer-premio-x-200-g/art_1473/,Manteca Primer Premio x 200 g.,2da marca,Lacteos,no
+huevos_blancos_la_anonima_docena,https://supermercado.laanonimaonline.com/frescos/huevos/huevo-blanco-extra-grande-la-anonima-x-12-un/art_8089/,Huevo Blanco Extra Grande La Anónima x 12 un.,2da marca,Lacteos,si
+huevos_color_dt_docena,https://supermercado.laanonimaonline.com/frescos/huevos/huevo-color-d-t-x-12-un/art_7088/,Huevo Color D.T. x 12 un.,estándar,Lacteos,si
+papel_higienico_la_anonima_4x80m,https://supermercado.laanonimaonline.com/limpieza/papeles-y-bolsas/papel-higienico/papel-higi-1nico-hoja-simple-la-an-1nima-4-x-80-metros/art_2957/,Papel Higiénico Hoja Simple La Anónima 4 x 80 metros,2da marca,Limpieza y hogar,no
+papel_higienico_best_4x30m,https://supermercado.laanonimaonline.com/limpieza/papeles-y-bolsas/papel-higienico/papel-higienico-hoja-simple-best-4-x-30-metros/art_2955/,Papel Higiénico Hoja Simple Best 4 x 30 metros,2da marca,Limpieza y hogar,no
+papel_higienico_higienol_plus_4un,https://supermercado.laanonimaonline.com/limpieza/papeles-y-bolsas/papel-higienico/papel-higienico-higienol-premium-doble-hoja-30-m-4-un/art_27318/,Papel higiénico Higienol Premium doble hoja 30 m 4 un,estándar,Limpieza y hogar,no
+papel_higienico_premium_la_anonima_4x30m,https://supermercado.laanonimaonline.com/limpieza/papeles/papel-higienico/papel-higienico-doble-hoja-premium-la-anonima-4-x-30-metros/art_1409/,Papel Higiénico Doble Hoja Premium La Anónima 4 x 30 metros,2da marca,Limpieza y hogar,no
+papel_higienico_felpita_12un,https://supermercado.laanonimaonline.com/limpieza/papeles-y-bolsas/papel-higienico/papel-higienico-hoja-simple-30-m-x-12-un-felpita-x-36-m2/art_26303/,Papel Higiénico Hoja Simple 30 m x 12 Un. Felpita x 36 m2,estándar,Limpieza y hogar,no
+lavandina_ayudin_1l,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/lavandina/lavandina-original-ayudin-x-1lt/art_2498/,Lavandina Original Ayudin x 1Lt.,estándar,Limpieza y hogar,no
+lavandina_ayudin_2l,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/lavandina/lavandina-original-ayud-1n-x-2-lt/art_28387/,Lavandina Original Ayudín x 2 Lt.,estándar,Limpieza y hogar,no
+lavandina_gel_vim_700cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/lavandina/lavandina-gel-original-poder-desinfectante-vim-x-700-cc/art_28306/,Lavandina Gel Original Poder Desinfectante Vim x 700 cc.,premium,Limpieza y hogar,no
+lavandina_gel_odex_700cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/lavandina/lavandina-gel-original-odex-x-700-cc/art_17714/,Lavandina Gel Original Odex x 700 cc.,estándar,Limpieza y hogar,no
+detergente_magistral_500cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/detergentes-y-antigrasas/detergente-liquido-ultra-limon-magistral-x-500-cc/art_28086/,Detergente Líquido Ultra Limón Magistral x 500 cc.,premium,Limpieza y hogar,no
+detergente_magistral_750cc,https://supermercado.laanonimaonline.com/detergente-l-1quido-multiuso-lim-1n-magistral-x-750-cc/art_11841/,Detergente Líquido Multiuso Limón Magistral x 750 cc.,premium,Limpieza y hogar,no
+detergente_best_limon_300cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/detergentes-y-antigrasas/detergente-liquido-concentrado-best-limon-x-300-cc/art_6469/,Detergente Líquido Concentrado Best Limón x 300 cc.,2da marca,Limpieza y hogar,no
+detergente_best_manzana_300cc,https://supermercado.laanonimaonline.com/limpieza/detergente-liquido-concentrado-best-manzana-x-300-cc/art_6470/,Detergente Liquido Concentrado Best Manzana x 300 cc.,2da marca,Limpieza y hogar,no
+detergente_ecovita_doypack_450cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/detergente-liquido-ultra-limon-doy-pack-ecovita-x-450-cc/art_23067/,Detergente Líquido Ultra Limón Doy Pack Ecovita x 450 cc.,2da marca,Limpieza y hogar,no
+detergente_cif_bioactive_1_25l,https://supermercado.laanonimaonline.com/limpieza/lavavajillas/detergente-liquido-bioactive-lima-cif-x-1-25-lt/art_29206/,"Detergente Líquido Bioactive Lima Cif x 1,25 Lt.",premium,Limpieza y hogar,no
+limpiador_poett_1_8l_flores,https://supermercado.laanonimaonline.com/limpiador-desinfectante-de-pisos-poett-flores-de-primavera-x-1-8-l/art_12408/,Limpiador Líquido Aromatizante Poett Flores de Primavera x 1.8 lts,estándar,Limpieza y hogar,no
+limpiador_poett_900ml_algodon,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/pisos-y-superficies/limpiador-liquido-aromatizante-poett-suavidad-de-algodon-x-900-ml/art_12426/,Limpiador Líquido Aromatizante Poett Suavidad de Algodón x 900 ml,estándar,Limpieza y hogar,no
+limpiador_cremoso_mr_musculo_450cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/vidrios-y-multiusos/limpiador-cremoso-mr-musculo-lavanda-x-450-cc/art_504/,Limpiador Cremoso Mr. Musculo Lavanda x 450 cc.,premium,Limpieza y hogar,no
+limpiador_bano_mr_musculo_500cc,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/limpiadores-bano/limpiador-liquido-bano-mr-musculo-gatillo-x-500-cc/art_689/,Limpiador Líquido Baño Mr. Musculo Gatillo x 500 cc.,premium,Limpieza y hogar,no
+jabon_polvo_skip_800g,https://supermercado.laanonimaonline.com/limpieza/ropa/detergente-en-polvo-skip-x-800-g/art_16000/,Detergente en Polvo Skip x 800 g.,premium,Limpieza y hogar,no
+jabon_polvo_ariel_800g,https://supermercado.laanonimaonline.com/limpieza/ropa/jabon-polvo-baja-espuma-limpeza-profunda-ariel-x-800-g/art_29739/,Jabón Polvo Baja Espuma Limpeza Profunda Ariel x 800 g.,premium,Limpieza y hogar,no
+jabon_polvo_ala_800g,https://supermercado.laanonimaonline.com/limpieza/ropa/jabon-polvo-ecolavado-ae-ala-x-800-g/art_18309/,Jabon Polvo Ecolavado Ae Ala x 800 g.,estándar,Limpieza y hogar,no
+suavizante_vivere_900cc,https://supermercado.laanonimaonline.com/limpieza/ropa/suavizantes/suavizante-clasico-doy-pack-vivere-x-900-cc/art_21680/,Suavizante Clásico Doy Pack Vivere x 900 cc.,estándar,Limpieza y hogar,no
+suavizante_downy_500cc,https://supermercado.laanonimaonline.com/limpieza/ropa/suavizantes/suavizante-concentrado-brisa-fresca-botella-downy-x-500-cc/art_17861/,Suavizante Concentrado Brisa Fresca Botella Downy x 500 cc.,premium,Limpieza y hogar,no
+poett_alegra_tu_dia_1_8l,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/limpiador-liquido-aromatizante-poett-alegra-tu-dia-x-1-8-lts/art_12436/,Limpiador Líquido Aromatizante Poett Alegra tu Día x 1.8 lts,estándar,Limpieza y hogar,no
+lavandina_ayudin_lavanda_1l,https://supermercado.laanonimaonline.com/limpieza/cocina-y-bano/lavandina/lavandina-lavanda-triple-poder-ayudin-x-1-lt/art_12438/,Lavandina Lavanda Triple Poder Ayudín x 1 lt.,estándar,Limpieza y hogar,no

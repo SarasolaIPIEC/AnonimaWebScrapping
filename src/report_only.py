@@ -1,5 +1,6 @@
 import sys
 from src.reporting.render import render_report
+from src.infra.logging import get_logger
 
 if __name__ == "__main__":
     import argparse
@@ -10,10 +11,16 @@ if __name__ == "__main__":
     parser.add_argument('--output', type=str, help='Ruta de salida del HTML')
     args = parser.parse_args()
 
+    logger = get_logger("report_only")
+
     period = args.period
     series_path = args.series
     breakdown_path = args.breakdown or f'exports/breakdown_{period}.csv'
     out_path = args.output or f'reports/{period}.html'
 
-    render_report(out_path, period, series_path, breakdown_path)
-    print(f"Reporte generado: {out_path}")
+    try:
+        render_report(out_path, period, series_path, breakdown_path)
+        logger.info(f"Reporte generado: {out_path}")
+    except Exception as e:
+        logger.error(f"Error al generar el reporte: {e}")
+        sys.exit(1)

@@ -27,13 +27,13 @@
         </ul>
       </div>
     </details>
-    <table style="margin-bottom:16px;">
+  <table style="margin-bottom:16px;" role="table" aria-label="Canasta Básica Alimentaria por AE">
       <thead>
         <tr style="background:#e3eaf2;">
-          <th>Categoría</th><th>Ítem</th><th>Marca</th><th>Cantidad mensual</th><th>Unidad</th>
+          <th scope="col">Categoría</th><th scope="col">Ítem</th><th scope="col">Marca</th><th scope="col">Cantidad mensual</th><th scope="col">Unidad</th>
         </tr>
       </thead>
-      <tbody>
+  <tbody role="rowgroup">
         {% for item in canasta_base if item.marca == 'estandar' %}
         <tr>
           <td>{{ item.categoria }}</td>
@@ -61,7 +61,7 @@
     <div class="section-title">Listado de productos relevados</div>
     <div class="muted" style="margin-bottom:8px">Filtra, busca y ordena por nombre. Máx. 50 ítems por página.</div>
     <div style="margin-bottom:8px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
-      <input type="search" id="table-search" placeholder="Buscar producto..." style="padding:8px; width:220px; border-radius:8px; border:1px solid #e5e7eb;">
+  <input type="search" id="table-search" placeholder="Buscar producto..." aria-label="Buscar producto" style="padding:8px; width:220px; border-radius:8px; border:1px solid #e5e7eb;">
       <div style="display:flex; gap:16px;">
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
           <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">CBA</div>
@@ -76,7 +76,7 @@
         </div>
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
           <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Categoría</div>
-          <select id="table-category" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;">
+      <select id="table-category" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;" aria-label="Filtrar por categoría">
             <option value="">Todas</option>
             <option value="almacen">Almacén</option>
             <option value="bebidas">Bebidas</option>
@@ -88,7 +88,7 @@
         </div>
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
           <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Ordenar por</div>
-          <select id="table-sort" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;">
+      <select id="table-sort" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;" aria-label="Ordenar listado">
             <option value="alpha">Alfabético</option>
             <option value="contrib_pct_desc">AE % (desc)</option>
             <option value="price_final_asc">Precio ↑</option>
@@ -96,20 +96,20 @@
           </select>
         </div>
       </div>
-      <button id="table-reset" style="padding:8px 16px; border-radius:8px; border:1px solid #1976d2; background:#e3eaf2; color:#1976d2; font-weight:600;">Reset</button>
+  <button id="table-reset" style="padding:8px 16px; border-radius:8px; border:1px solid #1976d2; background:#e3eaf2; color:#1976d2; font-weight:600;" aria-label="Restablecer filtros" tabindex="0">Reset</button>
       <span id="table-count" style="margin-left:auto; color:#1976d2; font-weight:600;"></span>
     </div>
-    <table id="table-A" style="box-shadow:0 2px 8px rgba(16,24,40,.08);">
+  <table id="table-A" style="box-shadow:0 2px 8px rgba(16,24,40,.08);" role="table" aria-label="Listado de productos relevados">
       <thead style="position:sticky; top:0; background:#e3eaf2; z-index:2;">
         <tr style="background:#e3eaf2;">
-          <th style="width:32%;">Producto</th>
-          <th style="width:14%; text-align:center;">Presentación</th>
-          <th class="price" style="width:14%;">Precio</th>
-           <th style="width:14%; text-align:center;">Aporte AE</th>
-           <th style="width:14%; text-align:center;">m/m</th>
+          <th scope="col" style="width:32%">Producto</th>
+          <th scope="col" style="width:14%; text-align:center;">Presentación</th>
+          <th scope="col" class="price" style="width:14%">Precio</th>
+           <th scope="col" style="width:14%; text-align:center;">Aporte AE</th>
+           <th scope="col" style="width:14%; text-align:center;">m/m</th>
         </tr>
       </thead>
-      <tbody id="table-body">
+  <tbody id="table-body" role="rowgroup">
       {% for r in viewA %}
   <tr style="border-bottom:1px solid #e5e7eb;" data-cba="{{ r.cba_flag }}" data-brand="{{ r.brand_tier }}" data-title="{{ r.title|e }}" data-price="{{ r.price_final }}" data-category="{{ r.category }}">
           <td><a href="{{ r.url }}" target="_blank" rel="noopener" style="font-weight:600; color:#1e40af;">{{ r.title }}</a><div class="item-meta">{{ chips(r.cba_flag, r.brand_tier) }}</div></td>
@@ -128,7 +128,7 @@
       {% endfor %}
       </tbody>
     </table>
-    <div id="table-pagination" style="margin-top:16px; text-align:center;"></div>
+  <div id="table-pagination" style="margin-top:16px; text-align:center;" role="navigation" aria-label="Paginación de productos"></div>
     <div class="muted" style="margin:18px 0 0; text-align:right; font-size:13px; border-top:1px solid #e5e7eb; padding-top:8px;">
       <span style="font-weight:600; color:#1976d2;">Aporte AE</span>: porcentaje del costo mensual de la canasta básica por adulto equivalente.<br>
       Si el aporte es 0%, se muestra el valor en pesos.<br>
@@ -140,100 +140,200 @@
 {% block scripts %}
 <script>
 (function(){
-  const rows = Array.from(document.querySelectorAll('#table-body tr'));
-  let currentPage = 1;
+  const tbody = document.getElementById('table-body');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
   const pageSize = 50;
-  // Eliminar resaltado azul, solo mantener estilo limpio
+  let currentPage = 1;
+
+  const collator = typeof Intl !== 'undefined' && Intl.Collator
+    ? new Intl.Collator('es', { sensitivity: 'base', ignorePunctuation: true })
+    : null;
+  const accentStripper = /\p{M}+/gu;
+
+  const foldText = (value) => {
+    if (!value) return '';
+    if (value.normalize) {
+      return value.normalize('NFD').replace(accentStripper, '').toLowerCase();
+    }
+    return value.toLowerCase();
+  };
+
+  rows.forEach((row) => {
+    const titleAttr = row.getAttribute('data-title') || '';
+    const firstCell = row.querySelector('td');
+    const visibleTitle = titleAttr || (firstCell ? firstCell.textContent : '');
+    const combined = `${visibleTitle} ${row.textContent || ''}`;
+    row.dataset.sortTitle = visibleTitle.trim();
+    row.dataset.sortTitleFolded = foldText(visibleTitle);
+    row.dataset.searchIndex = foldText(combined);
+  });
+
   function highlightFilters() {}
-  function renderTable(page=1) {
-    const search = document.getElementById('table-search').value.toLowerCase();
-  const sort = document.getElementById('table-sort').value;
-  const cbaChecked = Array.from(document.querySelectorAll('input[name="table-cba"]:checked')).map(el=>el.value);
-  const brandChecked = Array.from(document.querySelectorAll('input[name="table-brand"]:checked')).map(el=>el.value);
-  const category = document.getElementById('table-category').value;
+
+  function getAE(row) {
+    const aeSpan = row.querySelector('span._A_pct');
+    if (aeSpan) {
+      const value = parseFloat(aeSpan.textContent.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+      if (!Number.isNaN(value)) {
+        return value;
+      }
+    }
+    const aeCell = row.children[3];
+    if (aeCell) {
+      const value = parseFloat(aeCell.textContent.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+      if (!Number.isNaN(value)) {
+        return value;
+      }
+    }
+    return 0;
+  }
+
+  function getPrice(row) {
+    const cached = row._priceCache;
+    if (typeof cached === 'number') {
+      return cached;
+    }
+    const attr = row.getAttribute('data-price');
+    if (attr !== null && attr !== undefined && attr !== '') {
+      const value = parseFloat(String(attr).replace(/[^0-9.,-]/g, '').replace(',', '.'));
+      if (!Number.isNaN(value)) {
+        row._priceCache = value;
+        return value;
+      }
+    }
+    const priceCell = row.querySelector('.price');
+    if (priceCell) {
+      const value = parseFloat(priceCell.textContent.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+      if (!Number.isNaN(value)) {
+        row._priceCache = value;
+        return value;
+      }
+    }
+    row._priceCache = 0;
+    return 0;
+  }
+
+  function compareAlpha(a, b) {
+    const titleA = a.dataset.sortTitle || '';
+    const titleB = b.dataset.sortTitle || '';
+    if (collator) {
+      return collator.compare(titleA, titleB);
+    }
+    const foldA = a.dataset.sortTitleFolded || foldText(titleA);
+    const foldB = b.dataset.sortTitleFolded || foldText(titleB);
+    if (foldA === foldB) {
+      return titleA.localeCompare(titleB);
+    }
+    return foldA > foldB ? 1 : -1;
+  }
+
+  function matchesSearch(row, term) {
+    if (!term) {
+      return true;
+    }
+    return (row.dataset.searchIndex || '').includes(term);
+  }
+
+  function renderTable(page = 1) {
+    const searchTerm = foldText(document.getElementById('table-search').value);
+    const sort = document.getElementById('table-sort').value;
+    const cbaChecked = Array.from(document.querySelectorAll('input[name="table-cba"]:checked')).map((el) => el.value);
+    const brandChecked = Array.from(document.querySelectorAll('input[name="table-brand"]:checked')).map((el) => el.value);
+    const category = document.getElementById('table-category').value;
+
     highlightFilters();
-    let filtered = rows.filter(row => {
-      let ok = row.textContent.toLowerCase().includes(search);
-      if (cbaChecked.length && !cbaChecked.includes(row.getAttribute('data-cba'))) ok = false;
-      if (brandChecked.length && !brandChecked.includes(row.getAttribute('data-brand'))) ok = false;
-      if (category && row.getAttribute('data-category') !== category) ok = false;
+
+    const filtered = rows.filter((row) => {
+      let ok = matchesSearch(row, searchTerm);
+      if (ok && cbaChecked.length && !cbaChecked.includes(row.getAttribute('data-cba'))) {
+        ok = false;
+      }
+      if (ok && brandChecked.length && !brandChecked.includes(row.getAttribute('data-brand'))) {
+        ok = false;
+      }
+      if (ok && category && row.getAttribute('data-category') !== category) {
+        ok = false;
+      }
       return ok;
     });
+
     document.getElementById('table-count').textContent = filtered.length + ' resultados';
-    // Ordenar SIEMPRE después de filtrar
-    function getAE(row) {
-      const aeSpan = row.querySelector('span._A_pct');
-      if (aeSpan) {
-        return parseFloat(aeSpan.textContent.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
-      }
-      const aeCell = row.children[3];
-      if (aeCell) {
-        return parseFloat(aeCell.textContent.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
-      }
-      return 0;
-    }
-    function getPrice(row) {
-      let price = row.getAttribute('data-price');
-      if (price !== null && price !== undefined && price !== '') {
-        return parseFloat(price.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
-      }
-      const priceCell = row.querySelector('.price');
-      if (priceCell) {
-        return parseFloat(priceCell.textContent.replace(/[^\d.,]/g, '').replace(',','.')) || 0;
-      }
-      return 0;
-    }
-    function getTitle(row) {
-      return row.getAttribute('data-title') || row.querySelector('td').textContent;
-    }
+
+    const sorted = filtered.slice();
     if (sort === 'alpha') {
-      filtered.sort((a,b) => getTitle(a).localeCompare(getTitle(b)));
+      sorted.sort(compareAlpha);
     } else if (sort === 'contrib_pct_desc') {
-      filtered.sort((a,b) => getAE(b) - getAE(a));
+      sorted.sort((a, b) => getAE(b) - getAE(a));
     } else if (sort === 'price_final_asc') {
-      filtered.sort((a,b) => getPrice(a) - getPrice(b));
+      sorted.sort((a, b) => getPrice(a) - getPrice(b));
     } else if (sort === 'price_final_desc') {
-      filtered.sort((a,b) => getPrice(b) - getPrice(a));
+      sorted.sort((a, b) => getPrice(b) - getPrice(a));
     }
-    const start = (page-1)*pageSize;
-    const end = start+pageSize;
-    rows.forEach(r => r.style.display='none');
-    filtered.slice(start,end).forEach(r => {
-      r.style.display='';
-      r.style.transition = 'opacity 0.3s';
-      r.style.opacity = 0.7;
-      setTimeout(()=>{r.style.opacity=1;},100);
+
+    const fragment = document.createDocumentFragment();
+    sorted.forEach((row) => fragment.appendChild(row));
+    tbody.appendChild(fragment);
+
+    rows.forEach((row) => {
+      row.style.display = 'none';
     });
-    // paginación
-    const totalPages = Math.ceil(filtered.length/pageSize);
+
+    const totalPages = Math.ceil(sorted.length / pageSize);
+    const safePage = Math.min(Math.max(page, 1), totalPages || 1);
+    currentPage = safePage;
+
+    const start = (safePage - 1) * pageSize;
+    const end = start + pageSize;
+
+    sorted.forEach((row, index) => {
+      if (index >= start && index < end) {
+        row.style.display = '';
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = 0.7;
+        setTimeout(() => {
+          row.style.opacity = 1;
+        }, 100);
+      }
+    });
+
     const pagDiv = document.getElementById('table-pagination');
     pagDiv.innerHTML = '';
-    for(let i=1;i<=totalPages;i++){
+    for (let i = 1; i <= totalPages; i += 1) {
       const btn = document.createElement('button');
       btn.textContent = i;
-      btn.style.margin='0 4px';
-      btn.style.padding='6px 12px';
-      btn.style.borderRadius='6px';
-      btn.style.border='1px solid #1976d2';
-      btn.style.background=(i===page?'#1976d2':'#e3eaf2');
-      btn.style.color=(i===page?'#fff':'#1976d2');
-      btn.style.fontWeight='bold';
-      btn.onclick=()=>{currentPage=i;renderTable(i);};
+      btn.style.margin = '0 4px';
+      btn.style.padding = '6px 12px';
+      btn.style.borderRadius = '6px';
+      btn.style.border = '1px solid #1976d2';
+      btn.style.background = i === currentPage ? '#1976d2' : '#e3eaf2';
+      btn.style.color = i === currentPage ? '#fff' : '#1976d2';
+      btn.style.fontWeight = 'bold';
+      btn.onclick = () => {
+        renderTable(i);
+      };
       pagDiv.appendChild(btn);
     }
+
+    if (totalPages === 0) {
+      currentPage = 1;
+    }
   }
-  document.getElementById('table-search').oninput=()=>renderTable(1);
-  document.getElementById('table-sort').onchange=()=>renderTable(1);
-  document.querySelectorAll('input[name="table-cba"]').forEach(el=>el.onchange=()=>renderTable(1));
-  document.querySelectorAll('input[name="table-brand"]').forEach(el=>el.onchange=()=>renderTable(1));
-  document.getElementById('table-category').onchange=()=>renderTable(1);
-  document.getElementById('table-reset').onclick=function(){
+
+  document.getElementById('table-search').addEventListener('input', () => renderTable(1));
+  document.getElementById('table-sort').addEventListener('change', () => renderTable(1));
+  document.querySelectorAll('input[name="table-cba"]').forEach((el) => el.addEventListener('change', () => renderTable(1)));
+  document.querySelectorAll('input[name="table-brand"]').forEach((el) => el.addEventListener('change', () => renderTable(1)));
+  document.getElementById('table-category').addEventListener('change', () => renderTable(1));
+  document.getElementById('table-reset').onclick = function () {
     document.getElementById('table-search').value = '';
     document.getElementById('table-sort').value = 'alpha';
-    document.querySelectorAll('input[name="table-cba"], input[name="table-brand"]').forEach(el=>el.checked=false);
+    document.querySelectorAll('input[name="table-cba"], input[name="table-brand"]').forEach((el) => {
+      el.checked = false;
+    });
     document.getElementById('table-category').value = '';
     renderTable(1);
   };
+
   renderTable(1);
 })();
 </script>

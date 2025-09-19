@@ -188,17 +188,23 @@ def _cmd_export_series(args: argparse.Namespace) -> None:
 
 def _cmd_pins_run(args: argparse.Namespace) -> None:
     root = Path(__file__).resolve().parents[2]
+    # Sanitizar argumentos: solo valores esperados y sin shell=True
+    period = str(args.period or datetime.now(timezone.utc).strftime("%Y-%m"))
+    if not re.match(r"^\d{4}-\d{2}$", period):
+        print(f"[ERROR] Periodo inválido: {period}")
+        sys.exit(2)
     cmd = [
         sys.executable,
         "-m",
         "src.cli",
         "pins-run",
         "--period",
-        (args.period or datetime.now(timezone.utc).strftime("%Y-%m")),
+        period,
     ]
     if args.debug:
         cmd.append("--debug")
     print(f"Delegando a CLI real: {' '.join(cmd)}\n(cwd={root})")
+    # subprocess.run sin shell=True, argumentos validados
     proc = subprocess.run(cmd, cwd=root)
     if proc.returncode != 0:
         print(f"[WARN] pins-run terminó con código {proc.returncode}")

@@ -75,12 +75,29 @@ def match_sku_to_cba(
         if (
             pack_base is not None
             and min_base is not None
-            and pack_unit_conv == base_unit
+            and pack_unit_conv is not None
+            and base_unit is not None
         ):
-            if pack_base < min_base * (1 - tolerance):
-                return None
-            if pack_base < min_base:
-                reason = "pack_size_diff"
+            # Permitir equivalencia ml/l y g/kg
+            units_equiv = (
+                pack_unit_conv.lower() == base_unit.lower()
+                or (pack_unit_conv.lower() == "ml" and base_unit.lower() == "l")
+                or (pack_unit_conv.lower() == "g" and base_unit.lower() == "kg")
+            )
+            # Si pack_base está en ml y base en l, convertir pack_base a l
+            if pack_unit_conv.lower() == "ml" and base_unit.lower() == "l":
+                pack_base = pack_base / 1000.0
+            if pack_unit_conv.lower() == "g" and base_unit.lower() == "kg":
+                pack_base = pack_base / 1000.0
+            if units_equiv:
+                if pack_base < min_base * (1 - tolerance):
+                    # Si hay keyword preferido en el nombre, aceptar pack_size_diff
+                    for kw in preferred:
+                        if kw and kw.lower() in name:
+                            return "preferred", "pack_size_diff"
+                    return None
+                if pack_base < min_base:
+                    reason = "pack_size_diff"
 
     for kw in preferred:
         if kw and kw.lower() in name:

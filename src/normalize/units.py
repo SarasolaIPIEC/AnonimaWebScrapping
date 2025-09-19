@@ -1,5 +1,22 @@
-import re
+
 from typing import Tuple
+import re
+
+
+def parse_size(text: str) -> Tuple[float, str]:
+    """Alias para parse_title_size, para compatibilidad retro."""
+    qty, unit = parse_title_size(text)
+    return qty, unit.lower()
+
+
+def to_base_units(qty: float, unit: str) -> Tuple[float, str]:
+    """Convierte cantidad y unidad a base (kg/l/unit)."""
+    qty_out, unit_out = _normalize_unit(qty, unit)
+    return qty_out, unit_out.lower()
+
+__all__ = [
+    "parse_title_size", "parse_size", "to_base_units"
+]
 
 
 _NUM = r"(?:\d+(?:[\.,]\d+)?)"
@@ -81,4 +98,6 @@ def _normalize_unit(num: float, unit: str) -> Tuple[float, str]:
         return float(num), 'l'
     if u in ('ml', 'cc'):
         return float(num) / 1000.0, 'l'
+    if u in ('docena', 'doz', 'dozen'):
+        return 12 * float(num), 'unit'
     return float(num), 'unit'

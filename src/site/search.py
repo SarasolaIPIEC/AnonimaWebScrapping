@@ -30,6 +30,29 @@ def _try_loc(page, specs):
     return None
 
 
+def _dismiss_overlays(page):
+    try:
+        page.evaluate("document.querySelectorAll('[data-modal], .modal-overlay').forEach(el => el.style.display='none')")
+    except Exception:
+        pass
+    try:
+        page.evaluate("document.querySelectorAll('#onesignal-slidedown-container, .onesignal-slidedown-container').forEach(el => el.remove())")
+    except Exception:
+        pass
+    close_specs = [
+        {"css": "[data-modal-close], .modal-close, .onesignal-slidedown-close-button"},
+        {"role": "button", "name": "(?i)(no gracias|no, gracias|cerrar|rechazar|cerrar mensaje|ahora no)"},
+    ]
+    for spec in close_specs:
+        try:
+            loc = _try_loc(page, [spec])
+            if loc and loc.is_visible():
+                loc.click()
+                page.wait_for_timeout(200)
+        except Exception:
+            continue
+
+
 def _build_query(row: Dict[str, Any]) -> str:
     # Objetivo: "arroz 1 kg", "aceite girasol 1.5 l", "leche 1 l", "huevos docena"
     exp_unit = row.get('expected_unit', '').lower()
@@ -105,7 +128,10 @@ def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Di
 
     results: List[Dict[str, Any]] = []
 
+    _dismiss_overlays(page)
+
     for row in catalog:
+        _dismiss_overlays(page)
         query = _build_query(row)
         sinput = _try_loc(page, search_input_specs)
         if not sinput:
@@ -118,6 +144,7 @@ def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Di
         # wait basic grid content
         page.wait_for_load_state('domcontentloaded')
         page.wait_for_timeout(1000)
+        _dismiss_overlays(page)
 
         # evidence
         safe_q = re.sub(r'[^a-z0-9]+', '_', query.lower())

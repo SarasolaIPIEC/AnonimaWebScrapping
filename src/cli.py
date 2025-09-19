@@ -20,6 +20,7 @@ from .metrics.index import update_series
 from .reporting.render import render_report
 from .site.utils import json_log
 from .ingest.csv_input import read_sku_pins, read_by_category
+from .site.branch import ensure_branch
 
 
 def load_selectors(config_path: str) -> Dict[str, Any]:
@@ -41,7 +42,7 @@ def ensure_catalog(path: str) -> None:
         ["harina000_1kg","Harina 000 1 kg","harina 000","harina","kg",1.0,2.0],
         ["fideos_1kg","Fideos 1 kg","fideos, tallarin, spaghetti","fideos","kg",1.0,1.5],
         ["aceite_girasol_1_5l","Aceite girasol 1.5 l","aceite, girasol","aceite girasol","l",1.5,1.0],
-        ["azucar_1kg","AzÃºcar 1 kg","azucar","azucar","kg",1.0,1.5],
+        ["azucar_1kg","AzÃƒÂºcar 1 kg","azucar","azucar","kg",1.0,1.5],
         ["yerba_1kg","Yerba mate 1 kg","yerba","yerba","kg",1.0,0.75],
         ["leche_1l","Leche 1 l","leche, entera","leche","l",1.0,10.0],
         ["huevos_docena","Huevos docena","huevos, docena","huevos","unit",12.0,2.0],
@@ -73,7 +74,8 @@ def load_config_toml(path: str) -> Dict[str, Any]:
             'postal_code': '9410',
             'min_valid_price_ratio': 0.8,
             'family_ae': 3.09,
-            'exclude_keywords': 'sabor,premium,light,oliva extra,integral,sin azÃºcar',
+            'exclude_keywords': 'sabor,premium,light,oliva extra,integral,sin azúcar',
+            'browser_channel': '',
         }
     cfg: Dict[str, Any] = {}
     section = None
@@ -98,6 +100,12 @@ def load_config_toml(path: str) -> Dict[str, Any]:
     flat = {}
     for d in [cfg, cfg.get('paths', {}), cfg.get('scraping', {}), cfg.get('business', {})]:
         flat.update(d)
+    browser_cfg = cfg.get('browser', {})
+    for key, value in browser_cfg.items():
+        flat[f'browser_{key}'] = value
+        if key == 'channel' and 'browser_channel' not in flat:
+            flat['browser_channel'] = value
+    flat.setdefault('browser_channel', cfg.get('browser_channel', ''))
     # types
     if 'min_valid_price_ratio' in flat:
         try:
@@ -182,7 +190,7 @@ def read_pins(path: str) -> Dict[str, Dict[str, Any]]:
 
 
 def write_pins(path: str, results: List[Dict[str, Any]]) -> None:
-    # Preservar columnas existentes y actualizar url/title y metadatos si están
+    # Preservar columnas existentes y actualizar url/title y metadatos si estÃ¡n
     existing_rows: Dict[str, Dict[str, Any]] = {}
     existing_fields: List[str] = []
     if os.path.exists(path):
@@ -274,18 +282,21 @@ def cmd_run(args: argparse.Namespace) -> int:
             html_dump_dir=html_dump_dir,
             log_path=log_path,
             headless=(not args.debug),
-            strict_verify=(not getattr(args, 'skip_branch_verify', False))
+            strict_verify=(not getattr(args, 'skip_branch_verify', False)),
+            force_refresh=getattr(args, 'force_branch_refresh', False),
+            browser_channel=(getattr(args, 'browser_channel', None) or cfg.get('browser_channel', '') or None)
         )
     except Exception as e:
         json_log(log_path, 'error', {'stage': 'branch', 'error': str(e)})
-        print(f"[FATAL] SelecciÃ³n de sucursal fallÃ³: {e}")
+        err_msg = str(e).replace('\ufffd', '?')
+        print(f"[FATAL] Seleccion de sucursal fallo: {err_msg}")
         return 1
 
     # 2) Read catalog and build queries
     catalog = read_catalog('data/cba_catalog.csv')
     exclude_keywords = [s.strip() for s in cfg.get('exclude_keywords', '').split(',') if s.strip()]
 
-    # 3) Pinned SKUs first, luego búsquedas
+    # 3) Pinned SKUs first, luego bÃºsquedas
     try:
         results: List[Dict[str, Any]] = []
         # Pinned map
@@ -294,9 +305,9 @@ def cmd_run(args: argparse.Namespace) -> int:
             for prow in read_sku_pins('data/sku_pins.csv'):
                 if prow.get('item_id'):
                     pins_map[prow['item_id']] = prow
-        # Incorporar entradas desde by_category/<cat>.csv del período actual
+        # Incorporar entradas desde by_category/<cat>.csv del perÃ­odo actual
         try:
-            bycat_rows = read_by_category('by_category/*.csv')
+            bycat_rows = read_by_category(['by_category/*.csv', 'data/*.csv'], expected_period=period)
         except Exception:
             bycat_rows = []
         bycat_rows = [r for r in bycat_rows if (r.get('period') == period)]
@@ -349,7 +360,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             except Exception as e:
                 json_log(log_path, 'pinned_error', {'item_id': row['item_id'], 'error': str(e)})
 
-        # Ítems extras presentes en sku_pins pero no en el catálogo
+        # Ãtems extras presentes en sku_pins pero no en el catÃ¡logo
         extra_ids = [pid for pid in pins_map.keys() if pid not in {r['item_id'] for r in catalog}]
         for pid in extra_ids:
             pin = pins_map.get(pid) or {}
@@ -423,7 +434,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         r['period'] = period
     write_breakdown(breakdown_path, period, priced_rows)
 
-    # 7b) Daily prices CSV (fecha del dÃ­a)
+    # 7b) Daily prices CSV (fecha del dÃƒÂ­a)
     run_date = (datetime.now(ZoneInfo("America/Argentina/Ushuaia")) if ZoneInfo else datetime.utcnow()).date().isoformat()
     daily_path = os.path.join(exports_dir, f'daily_prices_{run_date}.csv')
     write_daily_prices(daily_path, run_date, period, priced_rows)
@@ -453,7 +464,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Precios diarios: {daily_path}")
     print(f"Reporte: {report_path}")
     print(f"Evidencia: {evidence_dir}")
-    print(f"% Ã­tems con precio vÃ¡lido: {ratio*100:.1f}%")
+    print(f"% ÃƒÂ­tems con precio vÃƒÂ¡lido: {ratio*100:.1f}%")
 
     if (not header_ok) or (ratio < min_ratio):
         print(f"[ERROR] Validaciones fallidas (header_ok={header_ok}, ratio={ratio:.2f} < {min_ratio:.2f})")
@@ -523,24 +534,24 @@ def cmd_verify(args: argparse.Namespace) -> int:
                 break
 
     # 5) Print summary
-    print('=== Verificación IPC Ushuaia ===')
+    print('=== VerificaciÃ³n IPC Ushuaia ===')
     print(f"Periodo: {period}")
     print(f"Evidencia carpeta: {latest_evd or 'N/A'}")
     if missing:
         print(f"[FAIL] Faltan salidas: {', '.join(missing)}")
     else:
         print("[OK] Salidas principales presentes (breakdown/series/reporte)")
-    print(f"Catálogo: {expected} ítems, Encontrados: {got}, Precios válidos: {len(valid_prices)} ({ratio*100:.1f}%)")
-    print(f"Header Ushuaia verificado: {'Sí' if branch_ok else 'No'}")
+    print(f"CatÃ¡logo: {expected} Ã­tems, Encontrados: {got}, Precios vÃ¡lidos: {len(valid_prices)} ({ratio*100:.1f}%)")
+    print(f"Header Ushuaia verificado: {'SÃ­' if branch_ok else 'No'}")
     if header_png:
         print(f"Screenshot header: {header_png}")
 
     allow_missing = getattr(args, 'allow_missing_branch', False)
     ok = (not missing) and (branch_ok or allow_missing) and got >= max(1, int(expected * 0.6)) and ratio >= min_ratio
     if not ok:
-        print(f"[ERROR] Verificación fallida (missing={bool(missing)}, branch_ok={branch_ok}, cobertura={got}/{expected}, ratio={ratio:.2f} < {min_ratio:.2f})")
+        print(f"[ERROR] VerificaciÃ³n fallida (missing={bool(missing)}, branch_ok={branch_ok}, cobertura={got}/{expected}, ratio={ratio:.2f} < {min_ratio:.2f})")
         return 1
-    print('[OK] Verificación exitosa')
+    print('[OK] VerificaciÃ³n exitosa')
     return 0
 
 
@@ -559,36 +570,11 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
     pins_map = read_pins('data/sku_pins.csv')
     # Override: usar CSVs por categoria como fuente principal
     pins_map = {}
-    # Merge per-category CSVs (período actual) para completar u ofrecer nuevos ítems
     try:
-        bycat_rows = read_by_category('by_category/*.csv')
+        bycat_rows = read_by_category(['by_category/*.csv', 'data/*.csv'], expected_period=period)
     except Exception:
         bycat_rows = []
-    # Fallback: si no hay archivos en by_category, intentar con CSVs en data/* (formato simple)
-    if not bycat_rows:
-        import glob as _glob, csv as _csv
-        for fp in _glob.glob(os.path.join('data', '*.csv')):
-            base = os.path.basename(fp).lower()
-            if base in ('cba_catalog.csv', 'sku_pins.csv'):
-                continue
-            try:
-                with open(fp, 'r', encoding='utf-8-sig', newline='') as f:
-                    reader = _csv.DictReader(f)
-                    for row in reader:
-                        cat_name = os.path.splitext(os.path.basename(fp))[0]
-                        bycat_rows.append({
-                            'period': '',
-                            'item_id': row.get('item_id',''),
-                            'url': row.get('url',''),
-                            'title': row.get('title',''),
-                            'brand_tier': row.get('brand_tier',''),
-                            'cba_flag': row.get('cba_flag',''),
-                            'category': cat_name,
-                        })
-            except Exception:
-                pass
-    # Aceptar filas sin 'period' (compatibilidad con CSVs sin columna)
-    bycat_rows = [r for r in bycat_rows if (not r.get('period')) or (r.get('period') == period)]
+    bycat_rows = [r for r in bycat_rows if (r.get('period') == period)]
 
     def _normalize_brand_tier(title: str, tier: str) -> str:
         t = (title or '').lower()
@@ -596,13 +582,13 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
         # premium cues
         if any(k in t for k in ['seren', 'casancrem', 'matarazzo', 'lucchetti', 'hellmann', 'imperial', 'coca cola', 'eco de los andes', 'quesabores', 'lactal ']):
             return 'premium'
-        # segunda cues (marca económica)
+        # segunda cues (marca econÃ³mica)
         if any(k in t for k in [' best ' , ' best x', 'best x', 'marca best']):
             return 'segunda'
-        # marca propia LA: tomar como estándar (no segunda)
-        if any(k in t for k in [' la anon', ' la anón']):
+        # marca propia LA: tomar como estÃ¡ndar (no segunda)
+        if any(k in t for k in [' la anon', ' la anÃ³n']):
             return 'estandar'
-        # por defecto, mantener si es válido
+        # por defecto, mantener si es vÃ¡lido
         return tier if tier in ('premium','estandar','segunda') else 'estandar'
     for r in bycat_rows:
         iid = r.get('item_id') or ''
@@ -731,7 +717,7 @@ def cmd_pins_run(args: argparse.Namespace) -> int:
     print(f"Desglose: {breakdown_path}")
     print(f"Precios diarios: {daily_path}")
     print(f"Reporte: {report_path}")
-    print(f"% ítems con precio válido: {ratio*100:.1f}%")
+    print(f"% Ã­tems con precio vÃ¡lido: {ratio*100:.1f}%")
     return 0 if len(valid_prices) > 0 else 1
 def cmd_dry_run(args: argparse.Namespace) -> int:
     period = parse_period(args.period)
@@ -844,11 +830,12 @@ def main():
     parser = argparse.ArgumentParser(description='IPC Ushuaia CLI')
     sub = parser.add_subparsers(dest='cmd')
 
-    p_run = sub.add_parser('run', help='Ejecución E2E con Playwright')
+    p_run = sub.add_parser('run', help='EjecuciÃ³n E2E con Playwright')
     p_run.add_argument('--period', type=str, required=False, help='YYYY-MM')
     p_run.add_argument('--branch', type=str, required=False, help='Nombre de sucursal (ej. USHUAIA 5)')
-    p_run.add_argument('--debug', action='store_true', help='No headless, no cierre automÃ¡tico')
+    p_run.add_argument('--debug', action='store_true', help='No headless, no cierre automÃƒÂ¡tico')
     p_run.add_argument('--skip-branch-verify', action='store_true', help='No abortar si no se verifica Ushuaia en header')
+    p_run.add_argument('--force-branch-refresh', action='store_true', help='Forzar nuevo proceso de selecciÃ³n de sucursal, ignorando cache')
     p_run.set_defaults(func=cmd_run)
 
     p_dr = sub.add_parser('dry-run', help='Prueba de parsing con HTML guardado')
@@ -856,13 +843,13 @@ def main():
     p_dr.add_argument('--html', type=str, required=True, help='Ruta a HTML de resultados')
     p_dr.set_defaults(func=cmd_dry_run)
 
-    p_v = sub.add_parser('verify', help='Verifica salidas y evidencias del período')
+    p_v = sub.add_parser('verify', help='Verifica salidas y evidencias del perÃ­odo')
     p_v.add_argument('--period', type=str, required=False, help='YYYY-MM')
-    p_v.add_argument('--min-ratio', type=float, required=False, help='Mínimo % de precios válidos (0-1)')
-    p_v.add_argument('--allow-missing-branch', action='store_true', help='No falla si no se verificó sucursal en header')
+    p_v.add_argument('--min-ratio', type=float, required=False, help='MÃ­nimo % de precios vÃ¡lidos (0-1)')
+    p_v.add_argument('--allow-missing-branch', action='store_true', help='No falla si no se verificÃ³ sucursal en header')
     p_v.set_defaults(func=cmd_verify)
 
-    p_pins = sub.add_parser('pins-run', help='Ejecuta extracción usando data/sku_pins.csv (sin sucursal)')
+    p_pins = sub.add_parser('pins-run', help='Ejecuta extracciÃ³n usando data/sku_pins.csv (sin sucursal)')
     p_pins.add_argument('--period', type=str, required=False, help='YYYY-MM')
     p_pins.add_argument('--debug', action='store_true', help='No headless, deja navegador abierto')
     p_pins.set_defaults(func=cmd_pins_run)
@@ -877,6 +864,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
 
 
 

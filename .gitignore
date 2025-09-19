@@ -1,5 +1,41 @@
-evidence/html/*.html
+
+# VSCode config
+.vscode/
+
+# Jupyter notebooks
+*.ipynb
+
+# OS/Editor files
+.DS_Store
+Thumbs.db
+
+# Logs y temporales
+*.log
+*.tmp
+tmp*/
+*.bak
+*.swp
+
+# CSV y Excel temporales y outputs
+*.csv
+*.xlsx
+exports/
+reports/
+
+# Carpeta de pruebas y cachés
+tests/__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Carpeta de datos crudos y evidencia
+data/evidence/
+evidence/
+evidence/html/
 evidence/*.png
+evidence/*.jpg
+evidence/*.jpeg
+evidence/*.html
+
 # Ignore generated images
 ipc-ushuaia/reports/img/*.png
 
@@ -9,9 +45,12 @@ ipc-ushuaia/exports/*.csv
 # Ignore rendered HTML reports
 ipc-ushuaia/reports/*.html
 
-# Python caches
-**/__pycache__/
-*.py[cod]
-
 # Local environment files
 .env
+
+# Otros temporales y outputs
+patch_preview.txt
+tmp_render.txt
+tmp_render2.py
+tmp_render.py
+tmp_cli_match.txt
