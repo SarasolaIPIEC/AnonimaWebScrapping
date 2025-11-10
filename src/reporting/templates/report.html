@@ -3,44 +3,61 @@
 
 {% block body %}
   <section class="card" style="margin-top:24px;">
-    <div class="section-title">Canasta Básica Alimentaria (por AE)</div>
+    {% set cba_items = canasta_view or canasta_base %}
+    <div class="section-title">Canasta Basica Alimentaria (por AE)</div>
     <details style="margin-bottom:12px;">
-      <summary style="font-weight:600; color:#1976d2;">¿Qué contiene la CBA?</summary>
+      <summary style="font-weight:600; color:#1976d2;">Que contiene la CBA?</summary>
       <div class="muted" style="margin-top:8px;">
         <ul style="margin-left:16px;">
-        {% for item in canasta_base if item.marca == 'estandar' %}
-          <li><b>{{ item.categoria }}</b>: {{ item.nombre }} ({{ item.cantidad_ae }} {{ item.unidad }})</li>
+        {% for item in cba_items if item.marca == 'estandar' %}
+          <li>
+            <b>{{ item.categoria }}</b>:
+            {% set label = item.title or item.nombre %}
+            {% if item.url %}
+              <a href="{{ item.url }}" target="_blank" rel="noopener">{{ label }}</a>
+            {% else %}
+              {{ label }}
+            {% endif %}
+            ({{ item.cantidad_ae }} {{ item.unidad }})
+          </li>
         {% endfor %}
         </ul>
       </div>
     </details>
     <details style="margin-bottom:12px;">
-      <summary style="font-weight:600; color:#1976d2;">Metodología oficial INDEC</summary>
+      <summary style="font-weight:600; color:#1976d2;">Metodologia oficial INDEC</summary>
       <div class="muted" style="margin-top:8px;">
         <ul style="margin-left:16px;">
-          <li>La CBA se compone de una canasta fija de alimentos representativa de los requerimientos normativos de un adulto equivalente (AE), según la estructura oficial del INDEC.</li>
-          <li>Las cantidades mensuales por AE se determinan según la composición y necesidades nutricionales promedio.</li>
+          <li>La CBA se compone de una canasta fija de alimentos representativa de los requerimientos normativos de un adulto equivalente (AE), segun la estructura oficial del INDEC.</li>
+          <li>Las cantidades mensuales por AE se determinan segun la composicion y necesidades nutricionales promedio.</li>
           <li>Los precios relevados corresponden al valor final al consumidor, incluyendo promociones vigentes.</li>
           <li>Las unidades se normalizan a kg, litro o unidad para asegurar comparabilidad y reproducibilidad.</li>
-          <li>Cuando un producto está fuera de stock o cambia de presentación, se documenta la sustitución siguiendo criterios de equivalencia y trazabilidad.</li>
-          <li>La variación mensual y anual del índice se calcula sobre la serie de costos de la CBA, con base 100 en el primer período.</li>
+          <li>Cuando un producto est fuera de stock o cambia de presentacion, se documenta la sustitucion siguiendo criterios de equivalencia y trazabilidad.</li>
+          <li>La variacion mensual y anual del indice se calcula sobre la serie de costos de la CBA, con base 100 en el primer periodo.</li>
         </ul>
       </div>
     </details>
-  <table style="margin-bottom:16px;" role="table" aria-label="Canasta Básica Alimentaria por AE">
+  <table style="margin-bottom:16px;" role="table" aria-label="Canasta Basica Alimentaria por AE">
       <thead>
         <tr style="background:#e3eaf2;">
-          <th scope="col">Categoría</th><th scope="col">Ítem</th><th scope="col">Marca</th><th scope="col">Cantidad mensual</th><th scope="col">Unidad</th>
+          <th scope="col">Categoria</th>
+          <th scope="col">Item</th>
+          <th scope="col">Cantidad mensual</th>
         </tr>
       </thead>
   <tbody role="rowgroup">
-        {% for item in canasta_base if item.marca == 'estandar' %}
+        {% for item in cba_items if item.marca == 'estandar' %}
         <tr>
           <td>{{ item.categoria }}</td>
-          <td>{{ item.nombre }}</td>
-          <td>{{ item.marca }}</td>
-          <td>{{ item.cantidad_ae }}</td>
-          <td>{{ item.unidad }}</td>
+          <td>
+            {% set label = item.title or item.nombre %}
+            {% if item.url %}
+              <a href="{{ item.url }}" target="_blank" rel="noopener">{{ label }}</a>
+            {% else %}
+              {{ label }}
+            {% endif %}
+          </td>
+          <td>{{ item.cantidad_ae }} {{ item.unidad }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -52,36 +69,36 @@
   <section class="kpis">
     <div class="card kpi"><div class="label">CBA AE</div><div class="value">{{ kpis.cba_ae|currency }}</div></div>
     <div class="card kpi"><div class="label">CBA Familia (x{{ meta.family_ae|number }})</div><div class="value">{{ kpis.cba_family|currency }}</div></div>
-    <div class="card kpi"><div class="label">Índice (base=100)</div><div class="value">{{ kpis.idx|number }}</div></div>
+    <div class="card kpi"><div class="label">Indice (base=100)</div><div class="value">{{ kpis.idx|number }}</div></div>
     <div class="card kpi"><div class="label">m/m</div><div class="value">{{ kpis.mom if kpis.mom is not none else 'N/D' | pct }}</div></div>
     <div class="card kpi"><div class="label">i.a.</div><div class="value">{{ kpis.yoy if kpis.yoy is not none else 'N/D' | pct }}</div></div>
   </section>
 
   <section class="card" style="margin-top:24px;">
     <div class="section-title">Listado de productos relevados</div>
-    <div class="muted" style="margin-bottom:8px">Filtra, busca y ordena por nombre. Máx. 50 ítems por página.</div>
+    <div class="muted" style="margin-bottom:8px">Filtra, busca y ordena por nombre. Max. 50 items por pagina.</div>
     <div style="margin-bottom:8px; display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
   <input type="search" id="table-search" placeholder="Buscar producto..." aria-label="Buscar producto" style="padding:8px; width:220px; border-radius:8px; border:1px solid #e5e7eb;">
       <div style="display:flex; gap:16px;">
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
           <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">CBA</div>
-          <label style="margin-bottom:4px;"><input type="checkbox" name="table-cba" value="si"> Sí</label>
+          <label style="margin-bottom:4px;"><input type="checkbox" name="table-cba" value="si"> Si</label>
           <label><input type="checkbox" name="table-cba" value="no"> No</label>
         </div>
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
           <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Marca</div>
           <label style="margin-bottom:4px;"><input type="checkbox" name="table-brand" value="premium"> Premium</label>
           <label style="margin-bottom:4px;"><input type="checkbox" name="table-brand" value="estandar"> Estandar</label>
-          <label><input type="checkbox" name="table-brand" value="segunda"> Segunda</label>
+          <label><input type="checkbox" name="table-brand" value="segunda"> Siegunda</label>
         </div>
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
-          <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Categoría</div>
-      <select id="table-category" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;" aria-label="Filtrar por categoría">
+          <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Categoria</div>
+      <select id="table-category" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;" aria-label="Filtrar por categora">
             <option value="">Todas</option>
-            <option value="almacen">Almacén</option>
+            <option value="almacen">Almacen</option>
             <option value="bebidas">Bebidas</option>
             <option value="frutas_verduras">Frutas y verduras</option>
-            <option value="lacteos_huevos">Lácteos y huevos</option>
+            <option value="lacteos_huevos">Lacteos y huevos</option>
             <option value="limpieza_higiene">Limpieza e higiene</option>
             <option value="panificados">Panificados</option>
           </select>
@@ -89,10 +106,10 @@
         <div style="background:#f6f8fa; border-radius:10px; padding:10px 16px; box-shadow:0 1px 4px rgba(16,24,40,.06); display:flex; flex-direction:column; align-items:flex-start;">
           <div style="font-weight:600; color:#1976d2; margin-bottom:4px;">Ordenar por</div>
       <select id="table-sort" style="padding:8px; border-radius:8px; border:1px solid #e5e7eb; width:140px;" aria-label="Ordenar listado">
-            <option value="alpha">Alfabético</option>
+            <option value="alpha">Alfabtico</option>
             <option value="contrib_pct_desc">AE % (desc)</option>
-            <option value="price_final_asc">Precio ↑</option>
-            <option value="price_final_desc">Precio ↓</option>
+            <option value="price_final_asc">Precio asc</option>
+            <option value="price_final_desc">Precio desc</option>
           </select>
         </div>
       </div>
@@ -103,7 +120,7 @@
       <thead style="position:sticky; top:0; background:#e3eaf2; z-index:2;">
         <tr style="background:#e3eaf2;">
           <th scope="col" style="width:32%">Producto</th>
-          <th scope="col" style="width:14%; text-align:center;">Presentación</th>
+          <th scope="col" style="width:14%; text-align:center;">Presentacion</th>
           <th scope="col" class="price" style="width:14%">Precio</th>
            <th scope="col" style="width:14%; text-align:center;">Aporte AE</th>
            <th scope="col" style="width:14%; text-align:center;">m/m</th>
@@ -128,11 +145,11 @@
       {% endfor %}
       </tbody>
     </table>
-  <div id="table-pagination" style="margin-top:16px; text-align:center;" role="navigation" aria-label="Paginación de productos"></div>
+  <div id="table-pagination" style="margin-top:16px; text-align:center;" role="navigation" aria-label="Paginacion de productos"></div>
     <div class="muted" style="margin:18px 0 0; text-align:right; font-size:13px; border-top:1px solid #e5e7eb; padding-top:8px;">
-      <span style="font-weight:600; color:#1976d2;">Aporte AE</span>: porcentaje del costo mensual de la canasta básica por adulto equivalente.<br>
+      <span style="font-weight:600; color:#1976d2;">Aporte AE</span>: porcentaje del costo mensual de la canasta basica por adulto equivalente.<br>
       Si el aporte es 0%, se muestra el valor en pesos.<br>
-      <span style="color:#667085;">Fuente: La Anónima Online Ushuaia. Precios finales, promociones incluidas.</span>
+      <span style="color:#667085;">Fuente: La Anonima Online Ushuaia. Precios finales, promociones incluidas.</span>
     </div>
   </section>
 {% endblock %}

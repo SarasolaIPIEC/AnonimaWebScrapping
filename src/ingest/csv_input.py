@@ -76,9 +76,10 @@ def read_by_category(patterns: Optional[Iterable[str]] = None, expected_period: 
                     period = expected_period
                     row['period'] = period
                 item_id = (row.get('item_id') or '').strip()
-                url = (row.get('url') or '').strip()
-                if not item_id or not url:
+                if not item_id:
                     continue
+                url = (row.get('url') or '').strip()
+                row['url'] = url
                 category = (row.get('category') or '').strip()
                 if not category:
                     raw_label = Path(fp).stem.replace('_', ' ').replace('-', ' ').strip()

@@ -5,13 +5,25 @@
       "name": "(?i)(retirar|disponibilidad|sucursal|ubicaci(o|\u00f3)n)"
     },
     {
+      "text": "(?i)est(\u00e1|a)s en sucursal"
+    },
+    {
       "css": "header button, header [role=button]"
     },
     {
       "text": "(?i)Ushuaia"
+    },
+    {
+      "css": "a.seleccionar-sucursal"
+    },
+    {
+      "css": "[data-toggle='codigo-postal']"
     }
   ],
   "postal_input": [
+    {
+      "css": "#idCodigoPostalUnificado"
+    },
     {
       "placeholder": "(?i)(c(o|\u00f3)digo postal|cp)"
     },
@@ -20,6 +32,9 @@
     }
   ],
   "branch_option": [
+    {
+      "text": "(?i)ushuaia\\s*\\(?9410\\)?"
+    },
     {
       "text": "(?i)ushuaia\\s*5"
     },
@@ -37,6 +52,15 @@
     {
       "role": "button",
       "name": "(?i)(mi tienda|cambiar sucursal|disponibilidad)"
+    },
+    {
+      "css": "a.seleccionar-sucursal"
+    },
+    {
+      "css": "[data-toggle='codigo-postal']"
+    },
+    {
+      "text": "(?i)est(\u00e1|a)s en sucursal"
     }
   ],
   "branch_entry_menu": [
@@ -65,9 +89,18 @@
   "branch_header_label": [
     {
       "css": "header [data-testid*=store], header [class*=store]"
+    },
+    {
+      "css": "a.seleccionar-sucursal .sucursal"
+    },
+    {
+      "css": ".cabezal2 .sucursal.cortar-texto-1"
     }
   ],
   "confirm_button": [
+    {
+      "css": "#btn_setSucursalSuper, #btn_setSucursalInformativa, #btn_setSoloElectro"
+    },
     {
       "css": "#btn_Confirmar"
     },
@@ -77,6 +110,9 @@
     }
   ],
   "search_input": [
+    {
+      "css": "#inpBuscador"
+    },
     {
       "css": "input#buscar, form#form_buscar input[name=clave]"
     },
@@ -93,6 +129,9 @@
   ],
   "product_card_root": [
     {
+      "css": "#productos-container .producto-item"
+    },
+    {
       "css": "[data-product-card]"
     },
     {
@@ -103,9 +142,15 @@
     },
     {
       "css": "div:has(.price)"
+    },
+    {
+      "css": ".producto-item"
     }
   ],
   "price_now": [
+    {
+      "css": ".card .precio span:first-child"
+    },
     {
       "css": "[data-price-final]"
     },
@@ -117,9 +162,15 @@
     },
     {
       "text": "\\$\\s*[\\d\\.,]+"
+    },
+    {
+      "css": ".producto-item .precio span"
     }
   ],
   "price_original": [
+    {
+      "css": ".precio-anterior .tachado"
+    },
     {
       "css": ".precio.anterior, .precio-original, .price__before"
     }
@@ -130,6 +181,9 @@
     },
     {
       "css": "h3, .card-title, a[title]"
+    },
+    {
+      "css": ".card .titulo, h2.titulo"
     }
   ],
   "oos_flag": [
@@ -138,6 +192,9 @@
     },
     {
       "css": ".oos, .sold-out"
+    },
+    {
+      "css": ".producto-item .agotado, .producto-item .sin-stock"
     }
   ],
   "add_to_cart_button": [
@@ -147,6 +204,9 @@
     },
     {
       "css": "button.add, button.add-to-cart, button[aria-label*=Agregar i]"
+    },
+    {
+      "css": ".btnAgregarCarritoVarios button"
     }
   ],
   "pagination_next": [
@@ -169,6 +229,9 @@
   ],
   "branch_results_container": [
     {
+      "css": "#opcionesSucursal, #divBtnSeleccionarSucursal"
+    },
+    {
       "css": "#sel_sucursal"
     },
     {
@@ -176,6 +239,14 @@
     },
     {
       "text": "(?i)sucursal"
+    }
+  ],
+  "branch_modal_root": [
+    {
+      "css": "#codigo-postal"
+    },
+    {
+      "css": ".reveal-overlay #codigo-postal"
     }
   ]
 }

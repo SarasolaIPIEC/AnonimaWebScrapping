@@ -116,9 +116,30 @@ def extract_card_fields(page, card, selectors: Dict[str, Any]) -> Dict[str, Any]
         url = href or ''
     except Exception:
         url = ''
+    if not url:
+        try:
+            data_url = card.get_attribute('data-url') or card.get_attribute('data-href')
+            if data_url:
+                url = data_url
+        except Exception:
+            pass
 
     price = parse_price_ar(price_text) if price_text else None
     price_original = parse_price_ar(price_original_text) if price_original_text else None
+    if not price:
+        try:
+            data_price = card.get_attribute('data-precio') or card.get_attribute('data-precio-oferta')
+            if data_price:
+                price = parse_price_ar(f"$ {data_price}")
+        except Exception:
+            pass
+    if not price_original:
+        try:
+            data_prev = card.get_attribute('data-precio-anterior')
+            if data_prev:
+                price_original = parse_price_ar(f"$ {data_prev}")
+        except Exception:
+            pass
     if price and not price_original:
         price_original = price
 

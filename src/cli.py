@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import re
 import csv
 import os
@@ -65,7 +65,7 @@ def load_config_toml(path: str) -> Dict[str, Any]:
     # simple TOML reader for basic key=val pairs and [section] nesting
     if not os.path.exists(path):
         return {
-            'base_url': 'https://supermercado.laanonimaonline.com/',
+            'base_url': 'https://www.laanonima.com.ar/',
             'evidence_dir': 'evidence',
             'exports_dir': 'exports',
             'reports_dir': 'reports',
@@ -271,17 +271,28 @@ def cmd_run(args: argparse.Namespace) -> int:
         'config_md5': _md5('config.toml')
     })
 
+    headless_cfg = cfg.get('headless', '')
+    run_headless = False
+    if isinstance(headless_cfg, bool):
+        run_headless = headless_cfg
+    elif isinstance(headless_cfg, str):
+        run_headless = headless_cfg.strip().lower() in ('1', 'true', 'yes', 'y')
+    if getattr(args, 'headless', False):
+        run_headless = True
+    if args.debug:
+        run_headless = False
+
     # 1) Select branch via Playwright
     try:
         page = ensure_branch(
-            base_url=cfg.get('base_url', 'https://supermercado.laanonimaonline.com/'),
+            base_url=cfg.get('base_url', 'https://www.laanonima.com.ar/'),
             postal_code=cfg.get('postal_code', '9410'),
             branch_name=args.branch or cfg.get('branch_name', 'USHUAIA 5'),
             selectors=selectors,
             evidence_dir=evidence_dir,
             html_dump_dir=html_dump_dir,
             log_path=log_path,
-            headless=(not args.debug),
+            headless=run_headless,
             strict_verify=(not getattr(args, 'skip_branch_verify', False)),
             force_refresh=getattr(args, 'force_branch_refresh', False),
             browser_channel=(getattr(args, 'browser_channel', None) or cfg.get('browser_channel', '') or None)
@@ -405,7 +416,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             html_dump_dir=html_dump_dir,
             exclude_keywords=exclude_keywords,
             log_path=log_path,
-            base_url=cfg.get('base_url', 'https://supermercado.laanonimaonline.com/')
+        base_url=cfg.get('base_url', 'https://www.laanonima.com.ar/')
         )
         results.extend(search_results)
     finally:
@@ -834,6 +845,7 @@ def main():
     p_run.add_argument('--period', type=str, required=False, help='YYYY-MM')
     p_run.add_argument('--branch', type=str, required=False, help='Nombre de sucursal (ej. USHUAIA 5)')
     p_run.add_argument('--debug', action='store_true', help='No headless, no cierre automÃƒÂ¡tico')
+    p_run.add_argument('--headless', action='store_true', help='Forzar modo headless (por defecto headed)')
     p_run.add_argument('--skip-branch-verify', action='store_true', help='No abortar si no se verifica Ushuaia en header')
     p_run.add_argument('--force-branch-refresh', action='store_true', help='Forzar nuevo proceso de selecciÃ³n de sucursal, ignorando cache')
     p_run.set_defaults(func=cmd_run)

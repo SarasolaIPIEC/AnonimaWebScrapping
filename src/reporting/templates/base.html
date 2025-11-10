@@ -53,13 +53,13 @@
 <body>
   <div class="container">
     <header>
-      <h1>{{ header or 'IPC Ushuaia — Canasta Básica Alimentaria' }}</h1>
-      <div class="period">Reporte del período {{ period }}</div>
+      <h1>{{ header or 'IPC Ushuaia &mdash; Canasta B&aacute;sica Alimentaria' }}</h1>
+      <div class="period">Reporte del per&iacute;odo {{ period }}</div>
     </header>
     {% block body %}{% endblock %}
     <footer>
-      <div>Índice base=100 en el primer período. Canasta fija; sustituciones documentadas ante faltantes. Unidades normalizadas a kg/L/unidad.</div>
-      <div>Fuente: {{ meta.source }} — {{ meta.branch }}. Zona: {{ meta.tz }}</div>
+      <div>&Iacute;ndice base=100 en el primer per&iacute;odo. Canasta fija; sustituciones documentadas ante faltantes. Unidades normalizadas a kg/L/unidad.</div>
+      <div>Fuente: {{ meta.source }}  {{ meta.branch }}. Zona: {{ meta.tz }}</div>
     </footer>
   </div>
   {% block scripts %}{% endblock %}

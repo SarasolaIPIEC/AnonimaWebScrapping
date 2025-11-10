@@ -1,6 +1,6 @@
 {% macro chips(cba_flag, brand_tier) -%}
   {%- set chips = [] -%}
-  {%- if cba_flag in ['si','sí','s','1',true] -%}
+  {%- if cba_flag in ['si','s','1',true] -%}
     {%- set _ = chips.append('<span class="chip chip-cba">CBA</span>') -%}
   {%- endif -%}
   {%- if brand_tier in ['premium','estandar','segunda'] -%}

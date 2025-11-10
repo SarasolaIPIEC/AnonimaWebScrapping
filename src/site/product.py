@@ -2,7 +2,7 @@ import os
 import re
 from typing import Dict, Any, Optional
 
-from urllib.parse import urljoin
+from .utils import build_product_url
 
 
 def _page_first(page, specs):
@@ -35,7 +35,8 @@ def _parse_price(text: str) -> Optional[float]:
 
 
 def extract_product_page(page, url: str, selectors: Dict[str, Any], evidence_dir: str = '', html_dump_dir: str = '', save_basename: str = '') -> Dict[str, Any]:
-    page.goto(url, wait_until='domcontentloaded')
+    target_url = build_product_url(url)
+    page.goto(target_url, wait_until='domcontentloaded')
     page.wait_for_timeout(1000)
 
     # Title (prefer og:title, then h1, then configured selectors)
@@ -132,5 +133,5 @@ def extract_product_page(page, url: str, selectors: Dict[str, Any], evidence_dir
         'price_promo': price_final if promo_flag else None,
         'promo_flag': promo_flag,
         'in_stock': in_stock,
-        'url': url,
+        'url': target_url,
     }

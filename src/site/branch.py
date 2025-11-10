@@ -199,6 +199,8 @@ class BranchEnsurer:
                     candidate.wait_for(state="attached", timeout=2000)
                 except Exception:
                     continue
+                if not self._is_clickable(candidate):
+                    continue
                 try:
                     text = (candidate.inner_text() or '').strip().lower()
                 except Exception:
@@ -207,6 +209,67 @@ class BranchEnsurer:
                     continue
                 return candidate
         return None
+
+    def _wait_visible(self, locator: Locator, timeout: float = 2000) -> bool:
+        assert self.page is not None
+        try:
+            locator.wait_for(state="visible", timeout=timeout)
+            return True
+        except Exception:
+            try:
+                locator.scroll_into_view_if_needed()
+                self.page.wait_for_timeout(120)
+                locator.wait_for(state="visible", timeout=max(500, timeout / 2))
+                return True
+            except Exception:
+                try:
+                    return locator.is_visible()
+                except Exception:
+                    return False
+
+    def _is_clickable(self, locator: Locator) -> bool:
+        if not self._wait_visible(locator, timeout=1800):
+            return False
+        try:
+            return locator.is_enabled()
+        except Exception:
+            return True
+
+    def _ensure_modal_open(self) -> None:
+        assert self.page is not None
+        modal_specs = self.cfg.selectors.get("branch_modal_root") or []
+        if not modal_specs:
+            modal_specs = [{"css": "#codigo-postal"}]
+        for spec in modal_specs:
+            loc = _locator_from_spec(self.page, spec)
+            if not loc:
+                continue
+            modal = loc.first
+            try:
+                modal.wait_for(state="attached", timeout=2000)
+            except Exception:
+                continue
+            if self._wait_visible(modal, timeout=2000):
+                return
+        self.page.wait_for_timeout(150)
+    def _branch_option_tokens(self) -> List[str]:
+        branch = self.cfg.branch_name or ''
+        tokens = _normalize_tokens(branch)
+        simplified = branch.replace('-', ' ').replace('  ', ' ')
+        if simplified != branch:
+            tokens.extend(_normalize_tokens(simplified))
+        compact = ''.join(ch for ch in branch if ch.isalnum())
+        if compact:
+            tokens.append(compact)
+        uniq: List[str] = []
+        for token in tokens:
+            cleaned = token.strip()
+            if not cleaned:
+                continue
+            upper = cleaned.upper().replace('  ', ' ')
+            if upper not in uniq:
+                uniq.append(upper)
+        return uniq
 
     # ------------------------------------------------------------------
     # Public API
@@ -335,9 +398,11 @@ class BranchEnsurer:
         if specs:
             btn = _locate_first(self.page, specs)
             if btn:
-                btn.click()
-                self.page.wait_for_timeout(500)
-        # Generic dialog fallback
+                try:
+                    btn.click()
+                except PWTimeoutError:
+                    btn.click(force=True)
+                self._ensure_modal_open()
         dialogs = self.page.locator("role=dialog")
         for idx in range(min(dialogs.count(), 3)):
             dialog = dialogs.nth(idx)
@@ -351,12 +416,13 @@ class BranchEnsurer:
                 if target.count():
                     try:
                         target.first.click()
-                        self.page.wait_for_timeout(500)
+                        self.page.wait_for_timeout(300)
+                        self._ensure_modal_open()
                         return self._await_postal_input()
                     except Exception:
                         continue
+        self._ensure_modal_open()
         return self._await_postal_input()
-
     def _route_header(self) -> Optional[Locator]:
         assert self.page is not None
         specs = _merge_specs(
@@ -372,9 +438,8 @@ class BranchEnsurer:
             btn.click()
         except PWTimeoutError:
             btn.click(force=True)
-        self.page.wait_for_timeout(300)
+        self._ensure_modal_open()
         return self._await_postal_input()
-
     def _route_menu(self) -> Optional[Locator]:
         assert self.page is not None
         trigger_specs = self.cfg.selectors.get("branch_menu_trigger") or []
@@ -397,32 +462,71 @@ class BranchEnsurer:
         if entry:
             entry.click()
             self.page.wait_for_timeout(300)
+        self._ensure_modal_open()
         return self._await_postal_input()
-
     def _await_postal_input(self) -> Optional[Locator]:
         assert self.page is not None
         specs = self.cfg.selectors.get("postal_input") or []
         if not specs:
             return None
-        return _locate_first(self.page, specs, timeout=6000)
-
+        for spec in specs:
+            loc = _locator_from_spec(self.page, spec)
+            if not loc:
+                continue
+            candidate = loc.first
+            try:
+                candidate.wait_for(state="attached", timeout=6000)
+            except Exception:
+                continue
+            self._ensure_modal_open()
+            if not self._wait_visible(candidate, timeout=3000):
+                continue
+            return candidate
+        return None
     def _choose_store(self, postal_input: Locator, route_name: str) -> bool:
         assert self.page is not None
         t0 = time.perf_counter()
         target = self.cfg.postal_code
+
+        self._ensure_modal_open()
+        if not self._wait_visible(postal_input, timeout=4000):
+            self._log("postal_input_error", {"route": route_name, "error": 'input not visible'})
+            return False
+        try:
+            postal_input.scroll_into_view_if_needed()
+        except Exception:
+            pass
         try:
             postal_input.click()
+        except Exception:
+            try:
+                postal_input.click(force=True)
+            except Exception as exc:
+                self._log("postal_input_error", {"route": route_name, "error": str(exc)})
+                return False
+        try:
             postal_input.fill(target)
-            self.page.wait_for_timeout(50)
+        except Exception:
+            try:
+                postal_input.clear()
+            except Exception:
+                pass
+            try:
+                postal_input.type(target, delay=40)
+            except Exception as exc:
+                self._log("postal_input_error", {"route": route_name, "error": str(exc)})
+                return False
+        self.page.wait_for_timeout(120)
+        try:
             postal_input.press("Enter")
         except Exception as exc:
             self._log("postal_input_error", {"route": route_name, "error": str(exc)})
             return False
 
         self._wait_results()
+        self._ensure_modal_open()
         self._capture_step(f"modal_after_cp_{route_name}")
 
-        # Optional fulfillment selection
         fulfillment_specs = self.cfg.selectors.get("branch_fulfillment_option") or []
         for spec in fulfillment_specs:
             choice = _locate_first(self.page, [spec], timeout=2000)
@@ -431,47 +535,302 @@ class BranchEnsurer:
                     choice.click()
                     self.page.wait_for_timeout(250)
                     self._wait_results()
+                    self._ensure_modal_open()
                 except Exception:
                     continue
 
-        option_specs = self.cfg.selectors.get("branch_option") or []
-        option_locator = _locate_first(self.page, option_specs, timeout=8000)
-        if not option_locator:
-            # fallback to textual search inside modal
-            try:
-                option_locator = self.page.get_by_text(_compile(self.cfg.branch_name))
-                option_locator.first.wait_for(state="visible", timeout=8000)
-            except Exception:
-                option_locator = None
-        if not option_locator:
-            self._log(
-                "branch_option_missing",
-                {"route": route_name, "pattern": self.cfg.branch_name},
-            )
+        container_specs = self.cfg.selectors.get("branch_results_container") or []
+        candidate_root = _locate_first(self.page, container_specs, timeout=5000) if container_specs else None
+        options_root = candidate_root if candidate_root else self.page.locator("#opcionesSucursal")
+        if not self._wait_visible(options_root, timeout=5000):
+            self._log("branch_option_missing", {"route": route_name, "pattern": self.cfg.branch_name, "reason": 'container not visible'})
             return False
-        try:
-            option_locator.click()
-        except PWTimeoutError:
-            option_locator.click(force=True)
-        self.page.wait_for_timeout(400)
 
-        confirm_specs = self.cfg.selectors.get("confirm_button") or []
-        confirm = _locate_first(self.page, confirm_specs, timeout=2500)
-        if confirm and confirm.is_enabled():
+        def _current_selection() -> Optional[Dict[str, str]]:
             try:
-                confirm.click()
-            except PWTimeoutError:
-                confirm.click(force=True)
-        self.page.wait_for_load_state("networkidle")
+                result = self.page.evaluate(
+                    """
+                    () => {
+                        const checked = document.querySelector("#opcionesSucursal input[name='sucursalSuper']:checked");
+                        if (!checked) return null;
+                        return {
+                            value: checked.value || '',
+                            id: checked.id || '',
+                            dataset: (checked.dataset && checked.dataset.sucursal) || ''
+                        };
+                    }
+                    """
+                )
+            except Exception:
+                return None
+            return result if isinstance(result, dict) else None
+
+        def _select_radio(radio_locator: Locator) -> Optional[str]:
+            radio = radio_locator
+            try:
+                radio.wait_for(state="attached", timeout=1000)
+            except Exception:
+                pass
+            try:
+                radio_id = radio.get_attribute('id')
+            except Exception:
+                radio_id = None
+
+            def _radio_value() -> Optional[str]:
+                try:
+                    return radio.get_attribute('value') or radio_id
+                except Exception:
+                    return radio_id
+
+            if radio_id:
+                label = options_root.locator(f"label[for='{radio_id}']")
+                if not label.count():
+                    label = self.page.locator(f"label[for='{radio_id}']")
+                if label.count() and self._is_clickable(label.first):
+                    try:
+                        label.first.click()
+                        self._ensure_modal_open()
+                        return _radio_value()
+                    except PWTimeoutError:
+                        label.first.click(force=True)
+                        self._ensure_modal_open()
+                        return _radio_value()
+            if self._is_clickable(radio):
+                try:
+                    radio.check(force=True)
+                    self._ensure_modal_open()
+                    return _radio_value()
+                except Exception:
+                    try:
+                        radio.click(force=True)
+                        self._ensure_modal_open()
+                        return _radio_value()
+                    except Exception:
+                        return None
+            return None
+
+        tokens = self._branch_option_tokens()
+        option_selected = False
+        selected_value: Optional[str] = None
+        selection_info: Optional[Dict[str, str]] = None
+        js_result: Optional[Dict[str, Any]] = None
+
+        for token in tokens:
+            radio = options_root.locator(f"input[type=radio][name='sucursalSuper'][data-sucursal*='{token}']")
+            if radio.count():
+                chosen_value = _select_radio(radio.first)
+                if chosen_value is not None:
+                    option_selected = True
+                    selected_value = chosen_value
+                    break
+        if not option_selected:
+            for token in tokens:
+                radio = options_root.locator(f"input[type=radio][data-sucursal*='{token}']")
+                if radio.count():
+                    chosen_value = _select_radio(radio.first)
+                    if chosen_value is not None:
+                        option_selected = True
+                        selected_value = chosen_value
+                        break
+        if not option_selected:
+            for token in tokens:
+                label = options_root.locator("label").filter(has_text=_compile(token))
+                if not label.count():
+                    continue
+                candidate = label.first
+                if not self._is_clickable(candidate):
+                    continue
+                try:
+                    candidate.click()
+                    self._ensure_modal_open()
+                    option_selected = True
+                    break
+                except PWTimeoutError:
+                    candidate.click(force=True)
+                    self._ensure_modal_open()
+                    option_selected = True
+                    break
+                except Exception:
+                    continue
+        if not option_selected:
+            option_locator = _locate_first(self.page, self.cfg.selectors.get("branch_option") or [], timeout=8000)
+            if option_locator and self._is_clickable(option_locator):
+                try:
+                    option_locator.click()
+                    self._ensure_modal_open()
+                    option_selected = True
+                except PWTimeoutError:
+                    try:
+                        option_locator.click(force=True)
+                        self._ensure_modal_open()
+                        option_selected = True
+                    except Exception:
+                        option_selected = False
+        if not option_selected:
+            try:
+                js_result = self.page.evaluate(
+                    """
+                    (branchName, postalCode) => {
+                        const toUpper = (txt) => (txt || '').toUpperCase();
+                        const branchUpper = toUpper(branchName);
+                        const tokens = [branchUpper];
+                        const simplified = branchUpper.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+                        if (simplified && !tokens.includes(simplified)) tokens.push(simplified);
+                        const compact = branchUpper.replace(/[^A-Z0-9]/g, '');
+                        if (compact && !tokens.includes(compact)) tokens.push(compact);
+                        const result = { selected: false, confirmClicked: false, value: '', id: '', dataset: '' };
+                        const modal = document.getElementById('codigo-postal');
+                        if (!modal) return result;
+                        const input = document.getElementById('idCodigoPostalUnificado');
+                        if (input) {
+                            input.value = postalCode || '';
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                        const root = document.getElementById('opcionesSucursal');
+                        if (!root) return result;
+                        const radios = Array.from(root.querySelectorAll("input[type='radio']"));
+                        const matchRadio = (radio) => {
+                            const dataset = toUpper((radio.dataset && radio.dataset.sucursal) || '');
+                            return tokens.some((token) => token && dataset.includes(token));
+                        };
+                        let chosen = radios.find((radio) => radio.name === 'sucursalSuper' && matchRadio(radio));
+                        if (!chosen) {
+                            chosen = radios.find((radio) => matchRadio(radio));
+                        }
+                        if (!chosen && radios.length) {
+                            chosen = root.querySelector("input[name='sucursalSuper']") || radios[0];
+                        }
+                        if (!chosen) return result;
+                        chosen.checked = true;
+                        chosen.dispatchEvent(new Event('change', { bubbles: true }));
+                        const dataset = toUpper((chosen.dataset && chosen.dataset.sucursal) || '');
+                        result.dataset = dataset;
+                        result.value = chosen.value || '';
+                        result.id = chosen.id || '';
+                        result.selected = true;
+                        const confirm = document.getElementById('btn_setSucursalSuper');
+                        if (result.value && typeof window.seleccionarSucursalSuper === 'function') {
+                            window.seleccionarSucursalSuper(result.value);
+                            result.confirmClicked = true;
+                        } else if (typeof window.setSucursalSuper === 'function') {
+                            if (result.value) {
+                                window.setSucursalSuper(result.value);
+                            } else {
+                                window.setSucursalSuper();
+                            }
+                            result.confirmClicked = true;
+                        } else if (confirm) {
+                            confirm.removeAttribute('disabled');
+                            confirm.click();
+                            result.confirmClicked = true;
+                        } else {
+                            chosen.dispatchEvent(new Event('change', { bubbles: true }));
+                            result.confirmClicked = true;
+                        }
+                        return result;
+                    }
+                    """,
+                    self.cfg.branch_name,
+                    target,
+                )
+            except Exception as exc:
+                self._log("branch_option_js_error", {"route": route_name, "error": str(exc)})
+            else:
+                if isinstance(js_result, dict) and js_result.get('selected'):
+                    option_selected = True
+                    self._wait_results()
+                    self._ensure_modal_open()
+                    selection_info = {
+                        'value': js_result.get('value') or '',
+                        'id': js_result.get('id') or '',
+                        'dataset': js_result.get('dataset') or ''
+                    }
+                    selected_value = selected_value or selection_info.get('value') or selection_info.get('id')
+        if not option_selected:
+            self._log("branch_option_missing", {"route": route_name, "pattern": self.cfg.branch_name})
+            return False
+
+        if selection_info is None:
+            selection_info = _current_selection()
+        if selection_info and not selected_value:
+            selected_value = selection_info.get('value') or selection_info.get('id') or selected_value
+
+        confirm_clicked = bool(isinstance(js_result, dict) and js_result.get('confirmClicked'))
+        if not confirm_clicked and selection_info:
+            try:
+                confirm_clicked = bool(
+                    self.page.evaluate(
+                        """
+                        (sel) => {
+                            const value = sel.value || sel.id || '';
+                            if (value && typeof window.seleccionarSucursalSuper === 'function') {
+                                window.seleccionarSucursalSuper(value);
+                                return true;
+                            }
+                            if (value && typeof window.setSucursalSuper === 'function') {
+                                const res = window.setSucursalSuper(value);
+                                return res !== false;
+                            }
+                            if (typeof window.setSucursalSuper === 'function') {
+                                const res = window.setSucursalSuper();
+                                return res !== false;
+                            }
+                            return false;
+                        }
+                        """,
+                        selection_info,
+                    )
+                )
+            except Exception:
+                confirm_clicked = False
+        if not confirm_clicked and selection_info:
+            try:
+                confirm_clicked = bool(
+                    self.page.evaluate(
+                        """
+                        (sel) => {
+                            const inputs = Array.from(document.querySelectorAll("#opcionesSucursal input[name='sucursalSuper']"));
+                            const target = inputs.find((input) => (sel.value && input.value === sel.value) || (sel.id && input.id === sel.id)) || inputs.find((input) => input.checked);
+                            if (target) {
+                                target.dispatchEvent(new Event('change', { bubbles: true }));
+                                return true;
+                            }
+                            return false;
+                        }
+                        """,
+                        selection_info,
+                    )
+                )
+            except Exception:
+                confirm_clicked = False
+
+        if not confirm_clicked:
+            confirm_specs = self.cfg.selectors.get("confirm_button") or []
+            confirm = _locate_first(self.page, confirm_specs, timeout=3000)
+            if confirm and self._wait_visible(confirm, timeout=3000):
+                try:
+                    confirm.click()
+                    confirm_clicked = True
+                except PWTimeoutError:
+                    confirm.click(force=True)
+                    confirm_clicked = True
+                except Exception as exc:
+                    self._log("confirm_button_click_error", {"route": route_name, "error": str(exc)})
+            else:
+                self._log("confirm_button_missing", {"route": route_name, "soft": True})
+
+        try:
+            self.page.wait_for_load_state("networkidle")
+        except Exception:
+            pass
         self.page.wait_for_timeout(1000)
 
         elapsed = time.perf_counter() - t0
-        self._log("branch_option_selected", {"route": route_name, "seconds": round(elapsed, 3)})
+        payload: Dict[str, Any] = {"route": route_name, "seconds": round(elapsed, 3), "confirm_autorun": confirm_clicked}
+        if selected_value:
+            payload["selection_value"] = selected_value
+        self._log("branch_option_selected", payload)
         return True
-
-    # ------------------------------------------------------------------
-    # Validation & persistence
-    # ------------------------------------------------------------------
 
     def _already_targeted(self, stage: str) -> bool:
         assert self.page is not None
@@ -698,5 +1057,7 @@ def ensure_branch(
     setattr(page, "_branch_context", ensurer.context)
     setattr(page, "_branch_browser", ensurer.browser)
     return page
+
+
 
 

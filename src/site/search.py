@@ -1,10 +1,11 @@
-import os
+﻿import os
 import re
-from typing import Dict, Any, List
-from urllib.parse import urljoin
+import unicodedata
+from difflib import SequenceMatcher
+from typing import Dict, Any, List, Optional, Set
 
 from .extract import parse_price_ar, extract_card_fields
-from .utils import json_log
+from .utils import json_log, build_product_url, DEFAULT_SITE_BASE
 from ..normalize.units import parse_title_size
 
 
@@ -32,7 +33,7 @@ def _try_loc(page, specs):
 
 def _dismiss_overlays(page):
     try:
-        page.evaluate("document.querySelectorAll('[data-modal], .modal-overlay').forEach(el => el.style.display='none')")
+        page.evaluate("document.querySelectorAll('[data-modal], .modal-overlay, .reveal-overlay').forEach(el => el.style.display='none')")
     except Exception:
         pass
     try:
@@ -66,7 +67,7 @@ def _build_query(row: Dict[str, Any]) -> str:
     if kws:
         base = ' '.join(kws[:2])
     else:
-        # fallback: nombre sin tamaños
+        # fallback: nombre sin tamaÃ±os
         base = re.sub(r"\b\d+[\.,]?\d*\s*(kg|kilo|g|gr|l|lt|ml|cc|unidad|docena)\b", "", row['name'], flags=re.I).strip()
     unit_str = ''
     if exp_unit in ('kg', 'l') and exp_qty:
@@ -81,14 +82,167 @@ def _build_query(row: Dict[str, Any]) -> str:
     return f"{base}{unit_str}".strip()
 
 
-def _score_card(row: Dict[str, Any], title: str, in_stock: bool, unit_price: float, qty_base: float, exclude_keywords: List[str]) -> float:
+STOPWORDS = {
+    "kg",
+    "g",
+    "gr",
+    "gramos",
+    "l",
+    "lt",
+    "litro",
+    "ml",
+    "cc",
+    "x",
+    "con",
+    "de",
+    "del",
+    "la",
+    "el",
+    "los",
+    "las",
+    "para",
+    "por",
+    "sin",
+    "en",
+    "y",
+    "al",
+    "docena",
+    "pack",
+    "bolsa",
+    "bolsita",
+    "unidad",
+    "un",
+    "una",
+    "granel",
+}
+
+CATEGORY_HINTS = {
+    "carnes": {"carne", "pollo", "vacuna", "cerdo", "picada"},
+    "panaderia": {"pan", "fresco"},
+    "lÃ¡cteos": {"leche", "queso", "cremoso"},
+    "lacteos": {"leche", "queso", "cremoso"},
+    "huevos": {"huevo"},
+    "verduras": {"papa", "verdura"},
+    "frutas": {"manzana", "fruta"},
+    "fideos": {"fideo", "pasta"},
+    "arroz": {"arroz"},
+    "legumbres": {"lenteja", "legumbre"},
+    "azÃºcar": {"azucar"},
+    "azucar": {"azucar"},
+    "aceite": {"aceite"},
+    "bebidas": {"gaseosa", "bebida"},
+}
+
+MIN_ACCEPT_SCORE = 0.25
+
+
+def _normalize_text(value: str) -> str:
+    if not value:
+        return ""
+    nfkd = unicodedata.normalize("NFKD", value)
+    ascii_text = "".join(ch for ch in nfkd if not unicodedata.combining(ch))
+    return ascii_text.lower().strip()
+
+
+def _tokenize(value: str) -> List[str]:
+    norm = _normalize_text(value)
+    return [tok for tok in re.split(r"[^a-z0-9]+", norm) if tok]
+
+
+def _similarity(a: str, b: str) -> float:
+    if not a or not b:
+        return 0.0
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def _essential_tokens(row: Dict[str, Any]) -> Set[str]:
+    essentials: Set[str] = set()
+    for kw in row.get('preferred_keywords', []):
+        norm = _normalize_text(kw)
+        if norm:
+            essentials.add(norm)
+    for token in _tokenize(row.get('name', '')):
+        if token and token not in STOPWORDS and not token.isdigit():
+            essentials.add(token)
+    category = (row.get('category') or '').lower()
+    if category:
+        essentials.update(CATEGORY_HINTS.get(category, set()))
+    return essentials
+
+
+def _prepare_search_input(page, specs):
+    sinput = _try_loc(page, specs)
+    if not sinput:
+        raise RuntimeError('No se encontrÃ³ input de bÃºsqueda (search_input)')
+    for _ in range(3):
+        try:
+            sinput.click()
+            return sinput
+        except Exception:
+            _dismiss_overlays(page)
+            page.wait_for_timeout(100)
+    try:
+        sinput.click(force=True)
+    except Exception:
+        _dismiss_overlays(page)
+    return sinput
+
+
+def _locate_cards(page, card_specs):
+    cards_loc = None
+    for spec in card_specs:
+        try:
+            cand = page.locator(spec.get('css') or '[data-product-card]') if 'css' in spec else None
+            if cand and cand.count() > 0:
+                cand.first.wait_for(state='attached', timeout=5000)
+                cards_loc = cand
+                break
+        except Exception:
+            continue
+    if not cards_loc:
+        cards_loc = page.locator('article')
+    return cards_loc
+
+
+def _score_card(row: Dict[str, Any], title: str, in_stock: bool, unit_price: float, qty_base: float, exclude_keywords: List[str]) -> Optional[float]:
     score = 0.0
+    title_norm = _normalize_text(title)
+    name_tokens = _tokenize(row.get('name', ''))
+    title_tokens = _tokenize(title)
+    essentials = _essential_tokens(row)
+    essential_hits = len(essentials & set(title_tokens))
+    if essentials and essential_hits == 0:
+        return None
+
     for kw in row['preferred_keywords']:
-        if kw and re.search(re.escape(kw), title, re.I):
+        kw_norm = _normalize_text(kw)
+        if not kw_norm:
+            continue
+        if kw_norm in title_norm:
             score += 2.0
+            continue
+        if _similarity(kw_norm, title_norm) >= 0.65:
+            score += 1.0
+    if row.get('fallback_keywords'):
+        for kw in row['fallback_keywords']:
+            kw_norm = _normalize_text(kw)
+            if not kw_norm:
+                continue
+            if kw_norm in title_norm:
+                score += 0.5
+            elif _similarity(kw_norm, title_norm) >= 0.7:
+                score += 0.25
+
+    shared = len(set(name_tokens) & set(title_tokens))
+    if shared:
+        score += 1.5 * (shared / max(1, len(name_tokens)))
+
     for ex in exclude_keywords:
-        if ex and re.search(re.escape(ex), title, re.I):
+        ex_norm = _normalize_text(ex)
+        if ex_norm and ex_norm in title_norm:
             score -= 2.0
+    if essentials and essential_hits:
+        score += 1.5 * essential_hits
     # size proximity
     exp_qty = float(row.get('expected_qty') or 0)
     tol = float(row.get('size_tolerance') or 0.85)
@@ -105,8 +259,8 @@ def _score_card(row: Dict[str, Any], title: str, in_stock: bool, unit_price: flo
     return score
 
 
-def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Dict[str, Any], evidence_dir: str, html_dump_dir: str, exclude_keywords: List[str], log_path: str, base_url: str = "") -> List[Dict[str, Any]]:
-    # Selección de sucursal Ushuaia (9410)
+def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Dict[str, Any], evidence_dir: str, html_dump_dir: str, exclude_keywords: List[str], log_path: str, base_url: str = DEFAULT_SITE_BASE) -> List[Dict[str, Any]]:
+    # SelecciÃ³n de sucursal Ushuaia (9410)
     location_btn = _try_loc(page, selectors.get('location_button', []))
     if location_btn:
         location_btn.click()
@@ -135,14 +289,38 @@ def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Di
         query = _build_query(row)
         sinput = _try_loc(page, search_input_specs)
         if not sinput:
-            raise RuntimeError('No se encontró input de búsqueda (search_input).')
-        sinput.click()
+            raise RuntimeError('No se encontrÃ³ input de bÃºsqueda (search_input).')
+        clicked = False
+        try:
+            sinput.click()
+            clicked = True
+        except Exception:
+            _dismiss_overlays(page)
+        if not clicked:
+            try:
+                sinput.click(force=True)
+                clicked = True
+            except Exception:
+                _dismiss_overlays(page)
+        if not clicked:
+            try:
+                page.evaluate("document.querySelectorAll('.reveal-overlay').forEach(el => el.remove())")
+            except Exception:
+                pass
+            try:
+                sinput.click(force=True)
+            except Exception:
+                pass
         sinput.fill('')
         sinput.type(query)
         sinput.press('Enter')
 
         # wait basic grid content
         page.wait_for_load_state('domcontentloaded')
+        try:
+            page.wait_for_selector("#productos-container .producto-item", timeout=6000)
+        except Exception:
+            pass
         page.wait_for_timeout(1000)
         _dismiss_overlays(page)
 
@@ -187,16 +365,24 @@ def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Di
             for i in range(total):
                 card = cards_loc.nth(i)
                 fields = extract_card_fields(page, card, selectors)
-                # Build absolute URL if relative
-                if fields.get('url') and base_url and fields['url'].startswith('/'):
-                    fields['url'] = urljoin(base_url, fields['url'])
+                if fields.get('url'):
+                    try:
+                        normalized_url = build_product_url(fields['url'], base_url=base_url or None)
+                        if normalized_url in seen_urls:
+                            continue
+                        fields['url'] = normalized_url
+                        seen_urls.add(normalized_url)
+                    except Exception:
+                        pass
                 title = fields.get('title', '')
                 price = fields.get('price_final')
                 in_stock = fields.get('in_stock', True)
                 qty_base, unit = parse_title_size(title)
                 unit_price = (price / qty_base) if price and qty_base else None
                 score = _score_card(row, title, in_stock, unit_price if unit_price else 0, qty_base or 0, exclude_keywords)
-                candidates.append((score, unit_price if unit_price else 1e12, fields, qty_base or 0.0, unit or ''))
+                if score is None or score < MIN_ACCEPT_SCORE:
+                    continue
+                candidates.append((score if score is not None else 0.0, unit_price if unit_price else 1e12, fields, qty_base or 0.0, unit or ''))
             # try go next page
             pagination_next_specs = selectors.get('pagination_next', [])
             next_btn = _try_loc(page, pagination_next_specs)
@@ -263,3 +449,4 @@ def run_searches(page, period: str, catalog: List[Dict[str, Any]], selectors: Di
             })
             results.append(chosen)
     return results
+

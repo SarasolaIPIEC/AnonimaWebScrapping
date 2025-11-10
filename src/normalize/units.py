@@ -39,6 +39,11 @@ def parse_title_size(title: str) -> Tuple[float, str]:
     if re.search(r"docena", t):
         return 12.0, 'unit'
 
+    bracket = re.search(r"\((kg|kilo|kilogramo|l|lt|litro)\)", t)
+    if bracket:
+        qty, base = _normalize_unit(1.0, bracket.group(1))
+        return qty, base
+
     # units count like 6 u / 6 unidades / x6 u
     m = re.search(r"(?:x\s*)?(\d+)\s*(?:u\b|unid(?:ades)?\b)", t)
     if m:

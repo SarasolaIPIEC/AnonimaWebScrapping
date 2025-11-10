@@ -1,4 +1,4 @@
-"""Búsqueda y navegación con soporte de paginado y scroll."""
+"""BÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºsqueda y navegaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n con soporte de paginado y scroll."""
 
 from __future__ import annotations
 
@@ -14,30 +14,30 @@ __all__ = ["search", "list_category", "paginate"]
 
 
 @exponential_backoff(max_attempts=3)
-def search(page: Page, query: str, home_url: str = "https://supermercado.laanonimaonline.com/") -> str:
-    """Realiza una búsqueda y retorna el HTML resultante.
+def search(page: Page, query: str, home_url: str = "https://www.laanonima.com.ar/") -> str:
+    """Realiza una bÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºsqueda y retorna el HTML resultante.
 
     TODO: registrar cambios de DOM al expedir ``docs/evidence/search.md``.
     Evidencia: ``docs/evidence/search_{query}.html``
     Export: ``exports/search_{query}.html``
 
-    El flujo navega a la *home* del sitio, completa el formulario
-    ``#form_buscar`` y espera a que aparezcan elementos
-    ``[data-testid='product-card']`` en la respuesta. Si los productos no se
-    cargan, se captura el HTML igualmente para facilitar la depuración.
+    El flujo navega a la *home* del sitio, completa el input ``#inpBuscador`` y
+    espera a que aparezcan elementos ``#productos-container .producto-item`` en
+    la respuesta. Si los productos no se cargan, se captura el HTML igualmente
+    para facilitar la depuraciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n.
     """
 
     try:
         random_delay()
         page.goto(home_url)
-        page.wait_for_selector("form#form_buscar")
-        page.fill("#buscar", query)
+        page.wait_for_selector("#inpBuscador")
+        page.fill("#inpBuscador", query)
         try:
-            page.click("#btn_buscar_imetrics")
+            page.click(".cont-buscar .button.buscar")
         except Exception:
-            page.press("#buscar", "Enter")
+            page.press("#inpBuscador", "Enter")
         try:
-            page.wait_for_selector("[data-testid='product-card']")
+            page.wait_for_selector("#productos-container .producto-item")
         except TimeoutError:
             save_html(page.content(), f"search_{query}")
             raise
@@ -49,7 +49,7 @@ def search(page: Page, query: str, home_url: str = "https://supermercado.laanoni
 
 @exponential_backoff(max_attempts=3)
 def list_category(page: Page, category_path: str) -> str:
-    """Navega a una categoría y devuelve el HTML de la página."""
+    """Navega a una categorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a y devuelve el HTML de la pÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡gina."""
 
     try:
         user_agent = page.context.user_agent
@@ -57,7 +57,7 @@ def list_category(page: Page, category_path: str) -> str:
             raise RuntimeError("URL blocked by robots.txt")
         random_delay()
         page.goto(category_path)
-        page.wait_for_selector("[data-testid='product-card']")
+        page.wait_for_selector("#productos-container .producto-item")
         return page.content()
     except Exception:
         save_html(page.content(), "category_error")
@@ -65,16 +65,16 @@ def list_category(page: Page, category_path: str) -> str:
 
 
 def paginate(page: Page) -> List[str]:
-    """Itera sobre páginas de resultados acumulando el HTML.
+    """Itera sobre pÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ginas de resultados acumulando el HTML.
 
-    Implementa *scroll* y paginado a través de un botón "siguiente" con
-    reintentos y backoff exponencial en cada iteración.
+    Implementa *scroll* y paginado a travÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©s de un botÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n "siguiente" con
+    reintentos y backoff exponencial en cada iteraciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n.
     """
 
     html_pages: List[str] = []
     while True:
         random_delay()
-        page.wait_for_selector("[data-testid='product-card']")
+        page.wait_for_selector("#productos-container .producto-item")
         html_pages.append(page.content())
 
         next_btn = page.get_by_role("button", name="Siguiente")
